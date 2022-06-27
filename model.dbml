@@ -1,0 +1,5 @@
+Table User {
+    id int [pk, increment]
+    name varchar
+    phone varchar
+}
