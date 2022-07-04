@@ -37,6 +37,9 @@ public class Member {
 
     private LocalDateTime joinDate;
 
+    @Enumerated(EnumType.STRING)
+    private Authority authority;
+
     private boolean optional;
 
     public Member(String email,
@@ -53,6 +56,7 @@ public class Member {
         this.gender = gender;
         this.optional = optional;
 
+        this.authority = Authority.ROLE_USER;
         this.joinDate = LocalDateTime.now();
         this.introduction = "소개를 입력해주세요.";
         this.profileImage = "defaultImage";
@@ -60,6 +64,10 @@ public class Member {
 
     public void updatePassword(String password) {
         this.password = password;
+    }
+
+    public void updateAuthority(Authority authority) {
+        this.authority = authority;
     }
 
 }

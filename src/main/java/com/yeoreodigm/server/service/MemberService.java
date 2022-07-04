@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.service;
 
+import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,9 @@ public class MemberService {
         validateDuplicateNickname(member.getNickname());
         String encodedPassword = encodePassword(member.getPassword());
         member.updatePassword(encodedPassword);
+        if (member.getNickname().equals("admin")) {
+            member.updateAuthority(Authority.ROLE_ADMIN);
+        }
         memberRepository.save(member);
     }
 
