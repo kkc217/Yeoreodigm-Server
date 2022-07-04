@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -43,7 +44,6 @@ public class Member {
                   String nickname,
                   LocalDate birth,
                   Gender gender,
-                  LocalDateTime joinDate,
                   boolean optional
     ) {
         this.email = email;
@@ -51,11 +51,15 @@ public class Member {
         this.nickname = nickname;
         this.birth = birth;
         this.gender = gender;
-        this.joinDate = joinDate;
         this.optional = optional;
 
+        this.joinDate = LocalDateTime.now();
         this.introduction = "소개를 입력해주세요.";
         this.profileImage = "defaultImage";
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 
 }
