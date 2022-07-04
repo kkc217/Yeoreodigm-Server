@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.api.CheckEmailRequestDto;
+import com.yeoreodigm.server.api.CheckNicknameRequestDto;
 import com.yeoreodigm.server.api.SaveMemberRequestDto;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.service.MemberService;
@@ -37,6 +38,11 @@ public class MemberApiController {
     @PostMapping("/api/auth/check/email")
     public void checkEmail(@RequestBody @Valid CheckEmailRequestDto request) {
         memberService.validateDuplicateEmail(request.getEmail());
+    }
+
+    @PostMapping("/api/auth/check/nickname")
+    public void checkNickname(@RequestBody @Valid CheckNicknameRequestDto request) {
+        memberService.validateDuplicateNickname(request.getNickname());
     }
 
 }
