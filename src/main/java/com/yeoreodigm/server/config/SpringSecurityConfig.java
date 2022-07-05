@@ -1,4 +1,4 @@
-package com.yeoreodigm.server;
+package com.yeoreodigm.server.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

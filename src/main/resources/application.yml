@@ -1,5 +1,8 @@
 server:
-  port:
+  port: 8080
+  servlet:
+    session:
+      timeout: 30
 
 spring:
   datasource:
@@ -13,6 +16,17 @@ spring:
       ddl-auto: none
     show-sql: true
     database: postgresql
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: always
+      table-name: SPRING_SESSION
+
 
 logging:
   level:
