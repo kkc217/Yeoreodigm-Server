@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -68,6 +67,10 @@ public class Member {
 
     public void updateAuthority(Authority authority) {
         this.authority = authority;
+    }
+
+    public boolean matchPassword(String password) {
+        return this.password.equals(password);
     }
 
 }

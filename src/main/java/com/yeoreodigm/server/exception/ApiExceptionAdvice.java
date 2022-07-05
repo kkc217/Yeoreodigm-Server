@@ -5,7 +5,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.attribute.UserPrincipalNotFoundException;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class ApiExceptionAdvice {
@@ -38,6 +41,17 @@ public class ApiExceptionAdvice {
                 .status(ExceptionEnum.ACCESS_DENIED_EXCEPTION.getStatus())
                 .body(ApiExceptionEntity.builder()
                         .errorCode(ExceptionEnum.ACCESS_DENIED_EXCEPTION.getCode())
+                        .errorMessage(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler({NoSuchElementException.class})
+    public ResponseEntity<ApiExceptionEntity> exceptionHandler(HttpServletRequest request, final NoSuchElementException e) {
+//        e.printStackTrace();
+        return ResponseEntity
+                .status(ExceptionEnum.IO_EXCEPTION.getStatus())
+                .body(ApiExceptionEntity.builder()
+                        .errorCode(ExceptionEnum.IO_EXCEPTION.getCode())
                         .errorMessage(e.getMessage())
                         .build());
     }

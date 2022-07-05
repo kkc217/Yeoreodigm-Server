@@ -1,14 +1,19 @@
 package com.yeoreodigm.server.service;
 
+import com.yeoreodigm.server.api.LoginResponseDto;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.exception.ApiException;
 import com.yeoreodigm.server.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional(readOnly = true)
@@ -38,15 +43,27 @@ public class MemberService {
     public void validateDuplicateEmail(String email) {
         List<Member> findMembers = memberRepository.findByEmail(email);
         if (!findMembers.isEmpty()) {
-            throw new IllegalStateException("이미 존재하는 이메일입니다.");
+            throw new IllegalStateException("이미 등록된 이메일입니다.");
         }
     }
 
     public void validateDuplicateNickname(String nickname) {
         List<Member> findMembers = memberRepository.findByNickname(nickname);
         if (!findMembers.isEmpty()) {
-            throw new IllegalStateException("이미 존재하는 닉네임입니다.");
+            throw new IllegalStateException("이미 등록된 닉네임입니다.");
         }
     }
 
+    public Member login(String email, String password) {
+        Member member = memberRepository.findOneByEmail(email);
+        if (member  == null) {
+            throw new NoSuchElementException("등록된 이메일 정보가 없습니다.");
+        }
+
+        if (!passwordEncoder.matches(password, member.getPassword())) {
+            throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+        }
+
+        return member;
+    }
 }
