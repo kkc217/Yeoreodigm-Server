@@ -7,14 +7,14 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
   jpa:
     hibernate:
-      ddl-auto: none
-    show-sql: true
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
+    show-sql: ${SPRING_JPA_HIBERNATE_SHOW_SQL}
     database: postgresql
 
   mvc:
@@ -24,9 +24,8 @@ spring:
   session:
     store-type: jdbc
     jdbc:
-      initialize-schema: always
+      initialize-schema: ${SPRING_SESSION_JDBC_INITIALIZE_SCHEMA}
       table-name: SPRING_SESSION
-
 
 logging:
   level:
