@@ -1,4 +1,4 @@
-package com.yeoreodigm.server.domain;
+package com.yeoreodigm.server.api.session;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,12 +10,11 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LoginMember implements Serializable {
+public class ConfirmMember implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -6348456621487522974L;
 
     private String email;
-    private String nickname;
-    private Authority authority;
+    private String confirmCode;
 
 }

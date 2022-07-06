@@ -55,7 +55,7 @@ public class Member {
         this.gender = gender;
         this.optional = optional;
 
-        this.authority = Authority.ROLE_USER;
+        this.authority = Authority.ROLE_NOT_PERMITTED;
         this.joinDate = LocalDateTime.now();
         this.introduction = "소개를 입력해주세요.";
         this.profileImage = "defaultImage";

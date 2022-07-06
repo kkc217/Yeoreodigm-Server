@@ -1,17 +1,13 @@
 package com.yeoreodigm.server.service;
 
-import com.yeoreodigm.server.api.LoginResponseDto;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.exception.ApiException;
 import com.yeoreodigm.server.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -66,4 +62,5 @@ public class MemberService {
 
         return member;
     }
+
 }
