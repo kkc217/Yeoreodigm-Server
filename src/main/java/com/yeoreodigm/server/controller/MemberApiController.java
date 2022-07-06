@@ -77,7 +77,6 @@ public class MemberApiController {
         Member member = memberService.login(requestDto.getEmail(), requestDto.getPassword());
 
         HttpSession session = httpServletRequest.getSession(true);
-        session.setMaxInactiveInterval(30 * 60);
 
         LoginResponseDto loginResponseDto = new LoginResponseDto(member.getEmail(), member.getNickname(), member.getAuthority(), session.getId());
         session.setAttribute(SessionConst.LOGIN_MEMBER, new LoginMember(member.getEmail(), member.getNickname(), member.getAuthority()));
