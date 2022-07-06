@@ -97,6 +97,20 @@ public class MemberApiController {
         }
     }
 
+    @ApiOperation(value = "로그아웃", notes = "세션 정보로 로그아웃한다.")
+    @Tag(name = "auth")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "(성공)")
+    })
+    @PostMapping("/api/auth/logout")
+    public void logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        if (session != null) {
+            session.invalidate();
+        }
+    }
+
     @ApiOperation(value = "이메일 중복 확인", notes = "이미 등록되어 있는 이메일인지 확인한다.")
     @Tag(name = "auth")
     @ApiImplicitParam(name = "email", value = "이메일", paramType = "query", required = true)
