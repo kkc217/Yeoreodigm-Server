@@ -8,4 +8,7 @@ public class EmailConst {
 
     public static final String CONFIRM_SUBJECT = "[여러다임] 이메일 인증 번호";
 
+    public static final boolean HTML = true;
+    public static final boolean TEXT = false;
+
 }

@@ -8,9 +8,13 @@ import com.yeoreodigm.server.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
+import javax.mail.internet.MimeMessage;
 import java.util.NoSuchElementException;
 
 @Service
@@ -22,11 +26,18 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
 
+    private final TemplateEngine templateEngine;
+
     public void sendConfirmMail(String email, String confirmCode) {
         Member member = memberRepository.findOneByEmail(email);
 
         if (member != null) {
-            sendMail(email, EmailConst.CONFIRM_SUBJECT, confirmCode);
+            Context context = new Context();
+            context.setVariable("confirmCode", confirmCode);
+
+            String text = templateEngine.process("confirmCodeMail", context);
+
+            sendMail(email, EmailConst.CONFIRM_SUBJECT, text, EmailConst.HTML);
         } else {
             throw new NoSuchElementException("등록된 회원 정보가 없습니다.");
         }
@@ -44,14 +55,17 @@ public class EmailService {
 
     }
 
-    public void sendMail(String toAddress, String subject, String text) {
+    public void sendMail(String toAddress, String subject, String text, boolean isHtml) {
         try {
-            SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-            simpleMailMessage.setFrom(EmailConst.FROM_ADDRESS);
-            simpleMailMessage.setTo(toAddress);
-            simpleMailMessage.setSubject(subject);
-            simpleMailMessage.setText(text);
-            javaMailSender.send(simpleMailMessage);
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setFrom(EmailConst.FROM_ADDRESS);
+            helper.setTo(toAddress);
+            helper.setSubject(subject);
+            helper.setText(text, isHtml);
+
+            javaMailSender.send(message);
         } catch (Exception e) {
             throw new IllegalStateException("인증 메일 전송을 실패하였습니다.");
         }
