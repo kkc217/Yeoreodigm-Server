@@ -41,13 +41,8 @@ public class Member {
 
     private boolean optional;
 
-    public Member(String email,
-                  String password,
-                  String nickname,
-                  LocalDate birth,
-                  Gender gender,
-                  boolean optional
-    ) {
+    public Member(String email, String password, String nickname,
+                  LocalDate birth, Gender gender, boolean optional) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
@@ -67,10 +62,6 @@ public class Member {
 
     public void changeAuthority(Authority authority) {
         this.authority = authority;
-    }
-
-    public boolean matchPassword(String password) {
-        return this.password.equals(password);
     }
 
 }

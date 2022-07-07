@@ -1,11 +1,13 @@
-package com.yeoreodigm.server.api;
+package com.yeoreodigm.server.dto;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 
 @Data
+@ApiModel(value = "이메일 요청")
 public class EmailRequestDto {
 
     @ApiModelProperty( example = "abc@google.com" )

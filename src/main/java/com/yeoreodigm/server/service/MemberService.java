@@ -23,18 +23,18 @@ public class MemberService {
 
     @Transactional
     public void join(Member member) {
+        //중복 검사
         validateDuplicateEmail(member.getEmail());
         validateDuplicateNickname(member.getNickname());
-        String encodedPassword = encodePassword(member.getPassword());
-        member.changePassword(encodedPassword);
+
+        //비밀번호 암호화
+        member.changePassword(encodePassword(member.getPassword()));
+
         if (member.getNickname().equals("admin")) {
+            //관리자 권한 부여
             member.changeAuthority(Authority.ROLE_ADMIN);
         }
         memberRepository.save(member);
-    }
-
-    private String encodePassword(String password) {
-        return passwordEncoder.encode(password);
     }
 
     public void validateDuplicateEmail(String email) {
@@ -51,7 +51,7 @@ public class MemberService {
         }
     }
 
-    public Member login(String email, String password) {
+    public Member checkLoginInfo(String email, String password) {
         Member member = memberRepository.findOneByEmail(email);
         if (member  == null) {
             throw new NoSuchElementException("등록된 이메일 정보가 없습니다.");
@@ -64,10 +64,11 @@ public class MemberService {
         return member;
     }
 
+    @Transactional
     public void updateMemberAuthority(String email, Authority authority) {
         Member member = memberRepository.findOneByEmail(email);
-
         member.changeAuthority(authority);
+        memberRepository.save(member);
     }
 
     @Transactional
@@ -75,16 +76,22 @@ public class MemberService {
         Member member = memberRepository.findOneByEmail(email);
 
         if (member != null) {
-            UUID uuid = UUID.randomUUID();
-            String newPassword = uuid.toString().split("-")[4];
+            String newPassword = genPassword();
             member.changePassword(encodePassword(newPassword));
             memberRepository.save(member);
-
             return newPassword;
         } else {
             throw new NoSuchElementException("등록된 회원 정보가 없습니다.");
         }
+    }
 
+    private String genPassword() {
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString().split("-")[4];
+    }
+
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
     }
 
 }

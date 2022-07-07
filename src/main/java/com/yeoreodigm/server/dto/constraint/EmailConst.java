@@ -1,4 +1,4 @@
-package com.yeoreodigm.server.api.constraint;
+package com.yeoreodigm.server.dto.constraint;
 
 public class EmailConst {
 

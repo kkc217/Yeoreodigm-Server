@@ -8,12 +8,7 @@ import org.springframework.http.HttpStatus;
 @ToString
 public enum ExceptionEnum {
     RUNTIME_EXCEPTION(HttpStatus.CONFLICT, "409"),
-    ACCESS_DENIED_EXCEPTION(HttpStatus.UNAUTHORIZED, "E0002"),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E0003"),
-
-    IO_EXCEPTION(HttpStatus.NOT_FOUND, "404"),
-
-    SECURITY_01(HttpStatus.UNAUTHORIZED, "S0001", "권한이 없습니다.");
+    IO_EXCEPTION(HttpStatus.NOT_FOUND, "404");
 
     private final HttpStatus status;
     private final String code;

@@ -1,7 +1,7 @@
 package com.yeoreodigm.server.service;
 
-import com.yeoreodigm.server.api.constraint.EmailConst;
-import com.yeoreodigm.server.api.session.ConfirmMember;
+import com.yeoreodigm.server.dto.constraint.EmailConst;
+import com.yeoreodigm.server.dto.ConfirmMemberDto;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.repository.MemberRepository;
@@ -44,13 +44,13 @@ public class EmailService {
         }
     }
 
-    public void checkConfirmMail(ConfirmMember confirmMember, String confirmCode) {
-        if (confirmCode.equals(confirmMember.getConfirmCode())) {
-            memberService.updateMemberAuthority(confirmMember.getEmail(), Authority.ROLE_USER);
+    @Transactional
+    public void checkConfirmMail(ConfirmMemberDto confirmMemberDto, String confirmCode) {
+        if (confirmCode.equals(confirmMemberDto.getConfirmCode())) {
+            memberService.updateMemberAuthority(confirmMemberDto.getEmail(), Authority.ROLE_USER);
         } else {
             throw new IllegalStateException("인증 코드가 일치하지 않습니다.");
         }
-
     }
 
     @Transactional
