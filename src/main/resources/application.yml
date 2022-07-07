@@ -3,6 +3,7 @@ server:
   servlet:
     session:
       timeout: 600000
+      tracking-modes: cookie
 
 spring:
   datasource:

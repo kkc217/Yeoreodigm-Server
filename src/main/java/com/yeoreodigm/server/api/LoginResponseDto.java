@@ -18,7 +18,4 @@ public class LoginResponseDto {
     @ApiModelProperty( example = "ROLE_USER" )
     private Authority authority;
 
-    @ApiModelProperty( example = "aa69f024-b90c-490d-b6ec-ba22f75026c1" )
-    private String sessionId;
-
 }

@@ -16,6 +16,7 @@ public class MemberRepository {
 
     public void save(Member member) {
         em.persist(member);
+        em.flush();
     }
 
     public List<Member> findByEmail(String email) {
