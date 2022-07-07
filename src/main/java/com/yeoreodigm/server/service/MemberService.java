@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,9 +26,9 @@ public class MemberService {
         validateDuplicateEmail(member.getEmail());
         validateDuplicateNickname(member.getNickname());
         String encodedPassword = encodePassword(member.getPassword());
-        member.updatePassword(encodedPassword);
+        member.changePassword(encodedPassword);
         if (member.getNickname().equals("admin")) {
-            member.updateAuthority(Authority.ROLE_ADMIN);
+            member.changeAuthority(Authority.ROLE_ADMIN);
         }
         memberRepository.save(member);
     }
@@ -61,6 +62,29 @@ public class MemberService {
         }
 
         return member;
+    }
+
+    public void updateMemberAuthority(String email, Authority authority) {
+        Member member = memberRepository.findOneByEmail(email);
+
+        member.changeAuthority(authority);
+    }
+
+    @Transactional
+    public String resetPassword(String email) {
+        Member member = memberRepository.findOneByEmail(email);
+
+        if (member != null) {
+            UUID uuid = UUID.randomUUID();
+            String newPassword = uuid.toString().split("-")[4];
+            member.changePassword(encodePassword(newPassword));
+            memberRepository.save(member);
+
+            return newPassword;
+        } else {
+            throw new NoSuchElementException("등록된 회원 정보가 없습니다.");
+        }
+
     }
 
 }

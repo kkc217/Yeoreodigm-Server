@@ -6,7 +6,6 @@ import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -28,6 +27,8 @@ public class EmailService {
 
     private final TemplateEngine templateEngine;
 
+    private final MemberService memberService;
+
     public void sendConfirmMail(String email, String confirmCode) {
         Member member = memberRepository.findOneByEmail(email);
 
@@ -43,15 +44,25 @@ public class EmailService {
         }
     }
 
-    @Transactional
     public void checkConfirmMail(ConfirmMember confirmMember, String confirmCode) {
-        Member member = memberRepository.findOneByEmail(confirmMember.getEmail());
-
         if (confirmCode.equals(confirmMember.getConfirmCode())) {
-            member.updateAuthority(Authority.ROLE_USER);
+            memberService.updateMemberAuthority(confirmMember.getEmail(), Authority.ROLE_USER);
         } else {
             throw new IllegalStateException("인증 코드가 일치하지 않습니다.");
         }
+
+    }
+
+    @Transactional
+    public void sendResetMail(String email) {
+        String newPassword = memberService.resetPassword(email);
+
+        Context context = new Context();
+        context.setVariable("newPassword", newPassword);
+
+        String text = templateEngine.process("resetPasswordMail", context);
+
+        sendMail(email, EmailConst.RESET_SUBJECT, text, EmailConst.HTML);
 
     }
 

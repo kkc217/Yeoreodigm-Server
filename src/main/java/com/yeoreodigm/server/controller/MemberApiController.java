@@ -10,19 +10,19 @@ import com.yeoreodigm.server.service.MemberService;
 import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Tag(name = "auth", description = "인증에 관한 API")
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/auth")
 public class MemberApiController {
 
     private final MemberService memberService;
@@ -45,7 +45,7 @@ public class MemberApiController {
             @ApiResponse(code = 200, message = "(성공)"),
             @ApiResponse(code = 409, message = "(중복시) 이미 등록된 이메일입니다. / 이미 등록된 닉네임입니다.")
     })
-    @PostMapping("/api/auth/join")
+    @PostMapping("/join")
     public void saveMember(@RequestBody @Valid SaveMemberRequestDto requestDto) {
         LocalDate birth = LocalDate.of(requestDto.getYear(), requestDto.getMonth(), requestDto.getDay());
 
@@ -72,13 +72,13 @@ public class MemberApiController {
             @ApiResponse(code = 404, message = "등록된 이메일 정보가 없습니다."),
             @ApiResponse(code = 409, message = "비밀번호가 일치하지 않습니다.")
     })
-    @PostMapping("/api/auth/login")
+    @PostMapping("/login")
     public LoginResponseDto login(@RequestBody @Valid LoginRequestDto requestDto, HttpServletRequest httpServletRequest) {
         Member member = memberService.login(requestDto.getEmail(), requestDto.getPassword());
 
         HttpSession session = httpServletRequest.getSession(true);
 
-        LoginResponseDto loginResponseDto = new LoginResponseDto(member.getEmail(), member.getNickname(), member.getAuthority(), session.getId());
+        LoginResponseDto loginResponseDto = new LoginResponseDto(member.getEmail(), member.getNickname(), member.getAuthority());
         session.setAttribute(SessionConst.LOGIN_MEMBER, new LoginMember(member.getEmail(), member.getNickname(), member.getAuthority()));
         return loginResponseDto;
     }
@@ -89,7 +89,7 @@ public class MemberApiController {
             @ApiResponse(code = 200, message = "(성공)"),
             @ApiResponse(code = 404, message = "세션이 만료되었습니다.")
     })
-    @PostMapping("/api/auth/autologin")
+    @PostMapping("/autologin")
     public AutoLoginResponseDto autoLogin(HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession(false);
 
@@ -106,7 +106,7 @@ public class MemberApiController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "(성공)")
     })
-    @PostMapping("/api/auth/logout")
+    @PostMapping("/logout")
     public void logout(HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession(false);
 
@@ -122,7 +122,7 @@ public class MemberApiController {
             @ApiResponse(code = 200, message = "(성공)"),
             @ApiResponse(code = 409, message = "(중복시) 이미 등록된 이메일입니다.")
     })
-    @PostMapping("/api/auth/check/email")
+    @PostMapping("/check/email")
     public void checkEmail(@RequestBody @Valid EmailRequestDto requestDto) {
         memberService.validateDuplicateEmail(requestDto.getEmail());
     }
@@ -134,7 +134,7 @@ public class MemberApiController {
             @ApiResponse(code = 200, message = "(성공)"),
             @ApiResponse(code = 409, message = "(중복시) 이미 등록된 닉네임입니다.")
     })
-    @PostMapping("/api/auth/check/nickname")
+    @PostMapping("/check/nickname")
     public void checkNickname(@RequestBody @Valid CheckNicknameRequestDto requestDto) {
         memberService.validateDuplicateNickname(requestDto.getNickname());
     }
@@ -147,7 +147,7 @@ public class MemberApiController {
             @ApiResponse(code = 404, message = "등록된 회원 정보가 없습니다."),
             @ApiResponse(code = 409, message = "이메일 전송에 실패하였습니다.")
     })
-    @PostMapping("/api/auth/email/confirm/submit")
+    @PostMapping("/email/confirm/submit")
     public void emailConfirmSubmit(@RequestBody @Valid EmailRequestDto requestDto, HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession(true);
         session.setMaxInactiveInterval(10 * 60);
@@ -167,7 +167,7 @@ public class MemberApiController {
             @ApiResponse(code = 404, message = "인증 코드의 유효 시간이 초과되었습니다."),
             @ApiResponse(code = 409, message = "인증 코드가 일치하지 않습니다.")
     })
-    @PostMapping("/api/auth/email/confirm")
+    @PostMapping("/email/confirm")
     public void emailConfirm(@RequestBody @Valid ConfirmCodeRequestDto requestDto, HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession(false);
 
@@ -179,4 +179,18 @@ public class MemberApiController {
             throw new NoSuchElementException("인증 코드의 유효 시간이 초과되었습니다.");
         }
     }
+
+    @ApiOperation(value = "임시 비밀번호 전송", notes = "임시 비밀번호를 이메일로 전송한다.")
+    @Tag(name = "auth")
+    @ApiImplicitParam(name = "email", value = "이메일", paramType = "query", required = true)
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "(성공)"),
+            @ApiResponse(code = 404, message = "등록된 회원 정보가 없습니다."),
+            @ApiResponse(code = 409, message = "인증 메일 전송을 실패하였습니다.")
+    })
+    @PostMapping("/password/reset")
+    public void passwordReset(@RequestBody @Valid EmailRequestDto requestDto) {
+        emailService.sendResetMail(requestDto.getEmail());
+    }
+
 }

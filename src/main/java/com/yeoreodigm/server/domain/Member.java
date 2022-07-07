@@ -61,11 +61,11 @@ public class Member {
         this.profileImage = "defaultImage";
     }
 
-    public void updatePassword(String password) {
+    public void changePassword(String password) {
         this.password = password;
     }
 
-    public void updateAuthority(Authority authority) {
+    public void changeAuthority(Authority authority) {
         this.authority = authority;
     }
 
