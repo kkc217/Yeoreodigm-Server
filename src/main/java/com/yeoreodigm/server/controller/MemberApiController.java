@@ -158,7 +158,7 @@ public class MemberApiController {
 
         if (session != null) {
             ConfirmMemberDto confirmMemberDto = (ConfirmMemberDto) session.getAttribute(SessionConst.CONFIRM_MEMBER);
-            emailService.checkConfir링mMail(confirmMemberDto, requestDto.getConfirmCode());
+            emailService.checkConfirmMail(confirmMemberDto, requestDto.getConfirmCode());
             session.invalidate();
         } else {
             throw new NoSuchElementException("인증 코드의 유효 시간이 초과되었습니다.");
