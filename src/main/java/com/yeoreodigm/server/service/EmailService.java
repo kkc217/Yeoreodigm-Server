@@ -47,7 +47,7 @@ public class EmailService {
     @Transactional
     public void checkConfirmMail(ConfirmMemberDto confirmMemberDto, String confirmCode) {
         if (confirmCode.equals(confirmMemberDto.getConfirmCode())) {
-            memberService.updateMemberAuthority(confirmMemberDto.getEmail(), Authority.ROLE_USER);
+            memberService.updateMemberAuthority(confirmMemberDto.getEmail(), Authority.ROLE_SURVEY);
         } else {
             throw new IllegalStateException("인증 코드가 일치하지 않습니다.");
         }
