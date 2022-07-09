@@ -7,8 +7,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 @ToString
 public enum ExceptionEnum {
-    RUNTIME_EXCEPTION(HttpStatus.CONFLICT, "409"),
-    IO_EXCEPTION(HttpStatus.NOT_FOUND, "404");
+    FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, "403"),
+    NO_SUCH_ELEMENT_EXCEPTION(HttpStatus.NOT_FOUND, "404"),
+    RUNTIME_EXCEPTION(HttpStatus.CONFLICT, "409");
 
     private final HttpStatus status;
     private final String code;

@@ -56,14 +56,14 @@ public class MemberApiController {
     @Tag(name = "auth")
     @ApiResponses({
             @ApiResponse(code = 200, message = "(성공) ROLE_USER|ROLE_ADMIN"),
-            @ApiResponse(code = 201, message = "(성공) ROLE_NOT_PERMITTED"),
             @ApiResponse(code = 202, message = "(성공) ROLE_SURVEY"),
+            @ApiResponse(code = 403, message = "ROLE_NOT_PERMITTED"),
             @ApiResponse(code = 404, message = "등록된 이메일 정보가 없습니다."),
             @ApiResponse(code = 409, message = "비밀번호가 일치하지 않습니다.")
     })
     @PostMapping("/login")
     public ResponseEntity<LoginMemberDto> login(@RequestBody @Valid LoginRequestDto requestDto,
-                                HttpServletRequest httpServletRequest) {
+                                HttpServletRequest httpServletRequest) throws IllegalAccessException {
         //회원 유무, 비밀번호 일치 확인
         Member member = memberService.checkLoginInfo(requestDto.getEmail(), requestDto.getPassword());
 
@@ -71,7 +71,7 @@ public class MemberApiController {
                 member.getEmail(), member.getNickname(), member.getAuthority());
 
         if (member.getAuthority() == Authority.ROLE_NOT_PERMITTED) {
-            return new ResponseEntity<>(loginMemberDto, HttpStatus.CREATED);
+            throw new IllegalAccessException("이메일 인증이 완료되지 않았습니다.");
         } else {
             //세션에 회원 정보 저장
             HttpSession session = httpServletRequest.getSession(true);
@@ -85,7 +85,9 @@ public class MemberApiController {
     @ApiOperation(value = "오토 로그인")
     @Tag(name = "auth")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "(성공)"),
+            @ApiResponse(code = 200, message = "(성공) ROLE_USER|ROLE_ADMIN"),
+            @ApiResponse(code = 202, message = "(성공) ROLE_SURVEY"),
+            @ApiResponse(code = 200, message = "ROLE_NOT_PERMITTED"),
             @ApiResponse(code = 404, message = "세션이 만료되었습니다.")
     })
     @PostMapping("/autologin")

@@ -9,13 +9,14 @@ import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class ApiExceptionAdvice {
-    @ExceptionHandler({ApiException.class})
-    public ResponseEntity<ApiExceptionEntity> exceptionHandler(HttpServletRequest request, final ApiException e) {
+
+    @ExceptionHandler({IllegalAccessException.class})
+    public ResponseEntity<ApiExceptionEntity> exceptionHandler(HttpServletRequest request, final IllegalAccessException e) {
         return ResponseEntity
-                .status(e.getError().getStatus())
+                .status(ExceptionEnum.FORBIDDEN_EXCEPTION.getStatus())
                 .body(ApiExceptionEntity.builder()
-                        .errorCode(e.getError().getCode())
-                        .errorMessage(e.getError().getMessage())
+                        .errorCode(ExceptionEnum.FORBIDDEN_EXCEPTION.getCode())
+                        .errorMessage(e.getMessage())
                         .build());
     }
 
@@ -32,10 +33,11 @@ public class ApiExceptionAdvice {
     @ExceptionHandler({NoSuchElementException.class})
     public ResponseEntity<ApiExceptionEntity> exceptionHandler(HttpServletRequest request, final NoSuchElementException e) {
         return ResponseEntity
-                .status(ExceptionEnum.IO_EXCEPTION.getStatus())
+                .status(ExceptionEnum.NO_SUCH_ELEMENT_EXCEPTION.getStatus())
                 .body(ApiExceptionEntity.builder()
-                        .errorCode(ExceptionEnum.IO_EXCEPTION.getCode())
+                        .errorCode(ExceptionEnum.NO_SUCH_ELEMENT_EXCEPTION.getCode())
                         .errorMessage(e.getMessage())
                         .build());
     }
+
 }
