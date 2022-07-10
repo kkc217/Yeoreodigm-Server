@@ -46,6 +46,7 @@ public class MemberApiController {
                 requestDto.getNickname(),
                 birth,
                 requestDto.getGender(),
+                requestDto.getRegion(),
                 requestDto.isOptional()
         );
 

@@ -33,6 +33,9 @@ public class JoinMemberRequestDto {
         @ApiModelProperty(example = "16")
         private int day;
 
+        @ApiModelProperty(example = "경기도")
+        private String region;
+
         @ApiModelProperty(example = "true")
         private boolean optional;
 

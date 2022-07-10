@@ -39,15 +39,18 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Authority authority;
 
+    private String region;
+
     private boolean optional;
 
     public Member(String email, String password, String nickname,
-                  LocalDate birth, Gender gender, boolean optional) {
+                  LocalDate birth, Gender gender, String region, boolean optional) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.birth = birth;
         this.gender = gender;
+        this.region = region;
         this.optional = optional;
 
         this.authority = Authority.ROLE_NOT_PERMITTED;
