@@ -24,4 +24,13 @@ public class LoginMemberDto implements Serializable {
     @ApiModelProperty(example = "ROLE_USER")
     private Authority authority;
 
+    private int surveyIndex;
+
+    public LoginMemberDto(String email, String nickname, Authority authority) {
+        this.email = email;
+        this.nickname = nickname;
+        this.authority = authority;
+        this.surveyIndex = 0;
+    }
+
 }
