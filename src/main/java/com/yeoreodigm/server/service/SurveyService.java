@@ -41,4 +41,9 @@ public class SurveyService {
         surveyResult.changeResult(surveyResult.getResult() + "/" + contentId);
         surveyRepository.saveResult(surveyResult);
     }
+
+    public int getProgress(Member member) {
+        return surveyRepository.findSurveyResultByEmail(member).getProgress();
+    }
+
 }

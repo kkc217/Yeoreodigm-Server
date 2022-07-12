@@ -7,6 +7,7 @@ import com.yeoreodigm.server.dto.ConfirmMemberDto;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.service.EmailService;
 import com.yeoreodigm.server.service.MemberService;
+import com.yeoreodigm.server.service.SurveyService;
 import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,8 @@ import java.util.NoSuchElementException;
 public class MemberApiController {
 
     private final MemberService memberService;
+
+    private final SurveyService surveyService;
 
     private final EmailService emailService;
 
@@ -73,14 +76,16 @@ public class MemberApiController {
 
         if (member.getAuthority() == Authority.ROLE_NOT_PERMITTED) {
             throw new IllegalAccessException("이메일 인증이 완료되지 않았습니다.");
-        } else {
-            //세션에 회원 정보 저장
-            HttpSession session = httpServletRequest.getSession(true);
-            session.setAttribute(SessionConst.LOGIN_MEMBER, loginMemberDto);
-
-            return new ResponseEntity<>(loginMemberDto,
-                    member.getAuthority() == Authority.ROLE_SURVEY ? HttpStatus.ACCEPTED : HttpStatus.OK);
+        } else if (member.getAuthority() == Authority.ROLE_SURVEY) {
+            loginMemberDto.setSurveyIndex(surveyService.getProgress(member));
         }
+
+        //세션에 회원 정보 저장
+        HttpSession session = httpServletRequest.getSession(true);
+        session.setAttribute(SessionConst.LOGIN_MEMBER, loginMemberDto);
+
+        return new ResponseEntity<>(loginMemberDto,
+                member.getAuthority() == Authority.ROLE_SURVEY ? HttpStatus.ACCEPTED : HttpStatus.OK);
     }
 
     @ApiOperation(value = "오토 로그인")
