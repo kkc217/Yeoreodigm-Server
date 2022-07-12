@@ -1,10 +1,13 @@
 package com.yeoreodigm.server.repository;
 
+import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyItem;
+import com.yeoreodigm.server.domain.SurveyResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import java.util.List;
 
 @Repository
@@ -13,10 +16,25 @@ public class SurveyRepository {
 
     private final EntityManager em;
 
-    public List<SurveyItem> findByGroup(int group) {
-        return em.createQuery("select s from SurveyItem s where s.group = :group", SurveyItem.class)
+    public void saveResult(SurveyResult surveyResult) {
+        em.persist(surveyResult);
+        em.flush();
+    }
+
+    public List<SurveyItem> findItemsByGroup(int group) {
+        return em.createQuery("select si from SurveyItem si where si.group = :group", SurveyItem.class)
                 .setParameter("group", group)
                 .getResultList();
+    }
+
+    public SurveyResult findSurveyResultByEmail(Member member) {
+        try {
+            return em.createQuery("select sr from SurveyResult sr where sr.member = :member", SurveyResult.class)
+                    .setParameter("member", member)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
 }

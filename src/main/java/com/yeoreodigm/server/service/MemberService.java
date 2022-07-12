@@ -2,7 +2,9 @@ package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.domain.SurveyResult;
 import com.yeoreodigm.server.repository.MemberRepository;
+import com.yeoreodigm.server.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,8 @@ import java.util.UUID;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+
+    private final SurveyRepository surveyRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -35,6 +39,8 @@ public class MemberService {
             member.changeAuthority(Authority.ROLE_ADMIN);
         }
         memberRepository.save(member);
+
+        surveyRepository.saveResult(new SurveyResult(member));
     }
 
     public void validateDuplicateEmail(String email) {

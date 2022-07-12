@@ -16,6 +16,7 @@ public class MemberRepository {
 
     public void save(Member member) {
         em.persist(member);
+
         em.flush();
     }
 
@@ -27,10 +28,9 @@ public class MemberRepository {
 
     public Member findOneByEmail(String email) {
         try {
-            Member result = em.createQuery("select m from Member m where m.email = :email", Member.class)
+            return em.createQuery("select m from Member m where m.email = :email", Member.class)
                     .setParameter("email", email)
                     .getSingleResult();
-            return result;
         } catch (NoResultException e) {
             return null;
         }
