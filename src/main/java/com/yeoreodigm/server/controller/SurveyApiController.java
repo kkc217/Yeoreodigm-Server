@@ -3,6 +3,7 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.dto.LoginMemberDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.surveypage.SurveySubmitRequestDto;
+import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.SurveyService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -36,7 +37,7 @@ public class SurveyApiController {
             LoginMemberDto loginMemberDto = (LoginMemberDto) session.getAttribute(SessionConst.LOGIN_MEMBER);
             surveyService.putSurveyResult(loginMemberDto.getEmail(), surveySubmitRequestDto.getContentId());
         } else {
-            throw new NoSuchElementException("세션이 만료되었습니다.");
+            throw new BadRequestException("세션이 만료되었습니다.");
         }
     }
 

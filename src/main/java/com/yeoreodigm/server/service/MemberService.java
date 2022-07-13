@@ -3,6 +3,7 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
+import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,25 +47,25 @@ public class MemberService {
     public void validateDuplicateEmail(String email) {
         List<Member> findMembers = memberRepository.findByEmail(email);
         if (!findMembers.isEmpty()) {
-            throw new IllegalStateException("이미 등록된 이메일입니다.");
+            throw new BadRequestException("이미 등록된 이메일입니다.");
         }
     }
 
     public void validateDuplicateNickname(String nickname) {
         List<Member> findMembers = memberRepository.findByNickname(nickname);
         if (!findMembers.isEmpty()) {
-            throw new IllegalStateException("이미 등록된 닉네임입니다.");
+            throw new BadRequestException("이미 등록된 닉네임입니다.");
         }
     }
 
     public Member checkLoginInfo(String email, String password) {
         Member member = memberRepository.findOneByEmail(email);
         if (member  == null) {
-            throw new NoSuchElementException("등록된 이메일 정보가 없습니다.");
+            throw new BadRequestException("등록된 이메일 정보가 없습니다.");
         }
 
         if (!passwordEncoder.matches(password, member.getPassword())) {
-            throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+            throw new BadRequestException("비밀번호가 일치하지 않습니다.");
         }
 
         return member;
@@ -87,7 +88,7 @@ public class MemberService {
             memberRepository.save(member);
             return newPassword;
         } else {
-            throw new NoSuchElementException("등록된 회원 정보가 없습니다.");
+            throw new BadRequestException("등록된 회원 정보가 없습니다.");
         }
     }
 
