@@ -24,12 +24,12 @@ public class SurveyApiController {
     private final SurveyService surveyService;
 
     @GetMapping("/{progress}")
-    public Result surveyInfo(@PathVariable("progress") int group) {
-        return new Result(surveyService.getSurveyInfo(group));
+    public Result surveyInfo(@PathVariable("progress") int progress) {
+        return new Result(surveyService.getSurveyInfo(progress));
     }
 
     @PostMapping("/submit/{progress}")
-    public void surveySubmit(@PathVariable("progress") int group, HttpServletRequest httpServletRequest,
+    public void surveySubmit(@PathVariable("progress") int progress, HttpServletRequest httpServletRequest,
                              @RequestBody @Valid SurveySubmitRequestDto surveySubmitRequestDto) {
         HttpSession session = httpServletRequest.getSession(false);
         if (session != null) {

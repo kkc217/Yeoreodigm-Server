@@ -21,9 +21,9 @@ public class SurveyRepository {
         em.flush();
     }
 
-    public List<SurveyItem> findItemsByGroup(int group) {
-        return em.createQuery("select si from SurveyItem si where si.group = :group", SurveyItem.class)
-                .setParameter("group", group)
+    public List<SurveyItem> findItemsByGroup(int progress) {
+        return em.createQuery("select si from SurveyItem si where si.progress = :progress", SurveyItem.class)
+                .setParameter("progress", progress)
                 .getResultList();
     }
 

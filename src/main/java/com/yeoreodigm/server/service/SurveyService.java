@@ -22,8 +22,8 @@ public class SurveyService {
     
     private final MemberRepository memberRepository;
 
-    public List<SurveyItemDto> getSurveyInfo(int group) {
-        List<SurveyItem> surveyItems = surveyRepository.findItemsByGroup(group);
+    public List<SurveyItemDto> getSurveyInfo(int progress) {
+        List<SurveyItem> surveyItems = surveyRepository.findItemsByGroup(progress);
 
         List<SurveyItemDto> result = new ArrayList<>();
         for (SurveyItem item : surveyItems) {

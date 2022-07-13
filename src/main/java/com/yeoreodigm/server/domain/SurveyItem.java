@@ -15,7 +15,7 @@ public class SurveyItem {
 
     private String contentId;
 
-    private int group;
+    private int progress;
 
     private String title;
 
