@@ -3,18 +3,17 @@ package com.yeoreodigm.server.exception;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @ToString
 public class ApiExceptionEntity {
 
-    private String errorCode;
-    private String errorMessage;
+    private final int status;
+    private final String errorMessage;
 
     @Builder
-    public ApiExceptionEntity(HttpStatus status, String errorCode, String errorMessage) {
-        this.errorCode = errorCode;
+    public ApiExceptionEntity(int status, String errorMessage) {
+        this.status = status;
         this.errorMessage = errorMessage;
     }
 }

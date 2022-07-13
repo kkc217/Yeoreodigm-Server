@@ -1,41 +1,21 @@
 package com.yeoreodigm.server.exception;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class ApiExceptionAdvice {
 
-    @ExceptionHandler({IllegalAccessException.class})
-    public ResponseEntity<ApiExceptionEntity> exceptionHandler(HttpServletRequest request, final IllegalAccessException e) {
+    @ExceptionHandler(value = BadRequestException.class)
+    public ResponseEntity<ApiExceptionEntity> exceptionHandler(HttpServletRequest request, final BadRequestException e) {
         return ResponseEntity
-                .status(ExceptionEnum.FORBIDDEN_EXCEPTION.getStatus())
+                .status(HttpStatus.BAD_REQUEST)
                 .body(ApiExceptionEntity.builder()
-                        .errorCode(ExceptionEnum.FORBIDDEN_EXCEPTION.getCode())
-                        .errorMessage(e.getMessage())
-                        .build());
-    }
-
-    @ExceptionHandler({RuntimeException.class})
-    public ResponseEntity<ApiExceptionEntity> exceptionHandler(HttpServletRequest request, final RuntimeException e) {
-        return ResponseEntity
-                .status(ExceptionEnum.RUNTIME_EXCEPTION.getStatus())
-                .body(ApiExceptionEntity.builder()
-                        .errorCode(ExceptionEnum.RUNTIME_EXCEPTION.getCode())
-                        .errorMessage(e.getMessage())
-                        .build());
-    }
-
-    @ExceptionHandler({NoSuchElementException.class})
-    public ResponseEntity<ApiExceptionEntity> exceptionHandler(HttpServletRequest request, final NoSuchElementException e) {
-        return ResponseEntity
-                .status(ExceptionEnum.NO_SUCH_ELEMENT_EXCEPTION.getStatus())
-                .body(ApiExceptionEntity.builder()
-                        .errorCode(ExceptionEnum.NO_SUCH_ELEMENT_EXCEPTION.getCode())
+                        .status(400)
                         .errorMessage(e.getMessage())
                         .build());
     }

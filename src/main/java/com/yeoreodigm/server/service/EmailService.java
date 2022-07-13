@@ -4,6 +4,7 @@ import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.dto.ConfirmMemberDto;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -40,7 +41,7 @@ public class EmailService {
 
             sendMail(email, EmailConst.CONFIRM_SUBJECT, text, EmailConst.HTML);
         } else {
-            throw new NoSuchElementException("등록된 회원 정보가 없습니다.");
+            throw new BadRequestException("등록된 회원 정보가 없습니다.");
         }
     }
 
@@ -49,7 +50,7 @@ public class EmailService {
         if (confirmCode.equals(confirmMemberDto.getConfirmCode())) {
             memberService.updateMemberAuthority(confirmMemberDto.getEmail(), Authority.ROLE_SURVEY);
         } else {
-            throw new IllegalStateException("인증 코드가 일치하지 않습니다.");
+            throw new BadRequestException("인증 코드가 일치하지 않습니다.");
         }
     }
 
@@ -78,7 +79,7 @@ public class EmailService {
 
             javaMailSender.send(message);
         } catch (Exception e) {
-            throw new IllegalStateException("인증 메일 전송을 실패하였습니다.");
+            throw new BadRequestException("인증 메일 전송을 실패하였습니다.");
         }
     }
 

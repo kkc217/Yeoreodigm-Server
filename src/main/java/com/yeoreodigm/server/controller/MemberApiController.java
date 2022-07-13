@@ -5,6 +5,7 @@ import com.yeoreodigm.server.dto.*;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.ConfirmMemberDto;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.EmailService;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.SurveyService;
@@ -67,7 +68,7 @@ public class MemberApiController {
     })
     @PostMapping("/login")
     public ResponseEntity<LoginMemberDto> login(@RequestBody @Valid LoginRequestDto requestDto,
-                                HttpServletRequest httpServletRequest) throws IllegalAccessException {
+                                HttpServletRequest httpServletRequest) {
         //회원 유무, 비밀번호 일치 확인
         Member member = memberService.checkLoginInfo(requestDto.getEmail(), requestDto.getPassword());
 
@@ -75,7 +76,7 @@ public class MemberApiController {
                 member.getEmail(), member.getNickname(), member.getAuthority());
 
         if (member.getAuthority() == Authority.ROLE_NOT_PERMITTED) {
-            throw new IllegalAccessException("이메일 인증이 완료되지 않았습니다.");
+            throw new BadRequestException("이메일 인증이 완료되지 않았습니다.");
         } else if (member.getAuthority() == Authority.ROLE_SURVEY) {
             loginMemberDto.setSurveyIndex(surveyService.getProgress(member));
         }
@@ -103,7 +104,7 @@ public class MemberApiController {
         if (session != null) {
             return (LoginMemberDto)session.getAttribute(SessionConst.LOGIN_MEMBER);
         } else {
-            throw new NoSuchElementException("세션이 만료되었습니다.");
+            throw new BadRequestException("세션이 만료되었습니다.");
         }
     }
 
@@ -179,7 +180,7 @@ public class MemberApiController {
             emailService.checkConfirmMail(confirmMemberDto, requestDto.getConfirmCode());
             session.invalidate();
         } else {
-            throw new NoSuchElementException("인증 코드의 유효 시간이 초과되었습니다.");
+            throw new BadRequestException("인증 코드의 유효 시간이 초과되었습니다.");
         }
     }
 
