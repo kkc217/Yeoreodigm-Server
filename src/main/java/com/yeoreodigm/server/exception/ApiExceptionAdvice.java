@@ -16,7 +16,7 @@ public class ApiExceptionAdvice {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiExceptionEntity.builder()
                         .status(400)
-                        .errorMessage(e.getMessage())
+                        .error(e.getMessage())
                         .build());
     }
 
