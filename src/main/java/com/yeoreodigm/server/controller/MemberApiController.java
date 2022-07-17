@@ -75,7 +75,7 @@ public class MemberApiController {
                 member.getEmail(), member.getNickname(), member.getAuthority());
 
         if (member.getAuthority() == Authority.ROLE_NOT_PERMITTED) {
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return new ResponseEntity<>(loginMemberDto, HttpStatus.CREATED);
         } else if (member.getAuthority() == Authority.ROLE_SURVEY) {
             loginMemberDto.setSurveyIndex(surveyService.getProgress(member));
         }
