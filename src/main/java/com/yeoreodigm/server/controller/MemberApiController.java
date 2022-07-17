@@ -38,7 +38,7 @@ public class MemberApiController {
     @Tag(name = "auth")
     @ApiResponses({
             @ApiResponse(code = 200, message = "(성공)"),
-            @ApiResponse(code = 409, message = "(중복시) 이미 등록된 이메일입니다. / 이미 등록된 닉네임입니다.")
+            @ApiResponse(code = 400, message = "(중복시) 이미 등록된 이메일입니다.|이미 등록된 닉네임입니다.")
     })
     @PostMapping("/join")
     public void joinMember(@RequestBody @Valid JoinMemberRequestDto requestDto) {
@@ -61,10 +61,9 @@ public class MemberApiController {
     @Tag(name = "auth")
     @ApiResponses({
             @ApiResponse(code = 200, message = "(성공) ROLE_USER|ROLE_ADMIN"),
+            @ApiResponse(code = 201, message = "(성공) ROLE_NOT_PERMITTED"),
             @ApiResponse(code = 202, message = "(성공) ROLE_SURVEY"),
-            @ApiResponse(code = 403, message = "ROLE_NOT_PERMITTED"),
-            @ApiResponse(code = 404, message = "등록된 이메일 정보가 없습니다."),
-            @ApiResponse(code = 409, message = "비밀번호가 일치하지 않습니다.")
+            @ApiResponse(code = 400, message = "등록된 이메일 정보가 없습니다.|비밀번호가 일치하지 않습니다.")
     })
     @PostMapping("/login")
     public ResponseEntity<LoginMemberDto> login(@RequestBody @Valid LoginRequestDto requestDto,
@@ -93,9 +92,9 @@ public class MemberApiController {
     @Tag(name = "auth")
     @ApiResponses({
             @ApiResponse(code = 200, message = "(성공) ROLE_USER|ROLE_ADMIN"),
+            @ApiResponse(code = 201, message = "(성공) ROLE_NOT_PERMITTED"),
             @ApiResponse(code = 202, message = "(성공) ROLE_SURVEY"),
-            @ApiResponse(code = 200, message = "ROLE_NOT_PERMITTED"),
-            @ApiResponse(code = 404, message = "세션이 만료되었습니다.")
+            @ApiResponse(code = 400, message = "세션이 만료되었습니다.")
     })
     @PostMapping("/autologin")
     public LoginMemberDto autoLogin(HttpServletRequest httpServletRequest) {
@@ -126,7 +125,7 @@ public class MemberApiController {
     @Tag(name = "auth")
     @ApiResponses({
             @ApiResponse(code = 200, message = "(성공)"),
-            @ApiResponse(code = 409, message = "(중복시) 이미 등록된 이메일입니다.")
+            @ApiResponse(code = 400, message = "(중복시) 이미 등록된 이메일입니다.")
     })
     @PostMapping("/check/email")
     public void checkEmail(@RequestBody @Valid EmailRequestDto requestDto) {
@@ -137,7 +136,7 @@ public class MemberApiController {
     @Tag(name = "auth")
     @ApiResponses({
             @ApiResponse(code = 200, message = "(성공)"),
-            @ApiResponse(code = 409, message = "(중복시) 이미 등록된 닉네임입니다.")
+            @ApiResponse(code = 400, message = "(중복시) 이미 등록된 닉네임입니다.")
     })
     @PostMapping("/check/nickname")
     public void checkNickname(@RequestBody @Valid CheckNicknameRequestDto requestDto) {
@@ -148,8 +147,7 @@ public class MemberApiController {
     @Tag(name = "auth")
     @ApiResponses({
             @ApiResponse(code = 200, message = "(성공)"),
-            @ApiResponse(code = 404, message = "등록된 회원 정보가 없습니다."),
-            @ApiResponse(code = 409, message = "이메일 전송에 실패하였습니다.")
+            @ApiResponse(code = 400, message = "등록된 회원 정보가 없습니다.|이메일 전송에 실패하였습니다.")
     })
     @PostMapping("/email/confirm/submit")
     public void emailConfirmSubmit(@RequestBody @Valid EmailRequestDto requestDto, HttpServletRequest httpServletRequest) {
@@ -168,8 +166,7 @@ public class MemberApiController {
     @Tag(name = "auth")
     @ApiResponses({
             @ApiResponse(code = 200, message = "(성공)"),
-            @ApiResponse(code = 404, message = "인증 코드의 유효 시간이 초과되었습니다."),
-            @ApiResponse(code = 409, message = "인증 코드가 일치하지 않습니다.")
+            @ApiResponse(code = 400, message = "인증 코드의 유효 시간이 초과되었습니다.|인증 코드가 일치하지 않습니다.")
     })
     @PostMapping("/email/confirm")
     public void emailConfirm(@RequestBody @Valid ConfirmCodeRequestDto requestDto, HttpServletRequest httpServletRequest) {
@@ -188,8 +185,7 @@ public class MemberApiController {
     @Tag(name = "auth")
     @ApiResponses({
             @ApiResponse(code = 200, message = "(성공)"),
-            @ApiResponse(code = 404, message = "등록된 회원 정보가 없습니다."),
-            @ApiResponse(code = 409, message = "인증 메일 전송을 실패하였습니다.")
+            @ApiResponse(code = 400, message = "등록된 회원 정보가 없습니다.|인증 메일 전송을 실패하였습니다.")
     })
     @PostMapping("/password/reset")
     public void passwordReset(@RequestBody @Valid EmailRequestDto requestDto) {
