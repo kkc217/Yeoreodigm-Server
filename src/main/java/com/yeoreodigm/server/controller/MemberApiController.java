@@ -76,7 +76,7 @@ public class MemberApiController {
                 member.getEmail(), member.getNickname(), member.getAuthority());
 
         if (member.getAuthority() == Authority.ROLE_NOT_PERMITTED) {
-            throw new BadRequestException("이메일 인증이 완료되지 않았습니다.");
+            return new ResponseEntity<>(HttpStatus.CREATED);
         } else if (member.getAuthority() == Authority.ROLE_SURVEY) {
             loginMemberDto.setSurveyIndex(surveyService.getProgress(member));
         }
