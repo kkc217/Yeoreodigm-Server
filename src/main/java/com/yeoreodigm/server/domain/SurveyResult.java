@@ -29,12 +29,12 @@ public class SurveyResult {
         this.result = "";
     }
 
-    public void updateProgress() {
-        this.progress++;
+    public void changeProgress(int newProgress) {
+        this.progress = newProgress;
     }
 
-    public void changeResult(String result) {
-        this.result = result;
+    public void changeResult(String newResult) {
+        this.result = newResult;
     }
 
 }

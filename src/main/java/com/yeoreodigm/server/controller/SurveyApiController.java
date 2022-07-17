@@ -35,7 +35,7 @@ public class SurveyApiController {
         HttpSession session = httpServletRequest.getSession(false);
         if (session != null) {
             LoginMemberDto loginMemberDto = (LoginMemberDto) session.getAttribute(SessionConst.LOGIN_MEMBER);
-            surveyService.putSurveyResult(loginMemberDto.getEmail(), surveySubmitRequestDto.getContentId());
+            surveyService.putSurveyResult(loginMemberDto.getEmail(), surveySubmitRequestDto.getContentId(), progress);
         } else {
             throw new BadRequestException("세션이 만료되었습니다.");
         }

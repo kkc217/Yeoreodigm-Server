@@ -1,8 +1,10 @@
 package com.yeoreodigm.server.service;
 
+import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyItem;
 import com.yeoreodigm.server.domain.SurveyResult;
+import com.yeoreodigm.server.dto.constraint.SurveyConst;
 import com.yeoreodigm.server.dto.surveypage.SurveyItemDto;
 import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
@@ -35,11 +37,17 @@ public class SurveyService {
     }
 
     @Transactional
-    public void putSurveyResult(String email, String contentId) {
+    public void putSurveyResult(String email, String contentId, int progress) {
         SurveyResult surveyResult = surveyRepository.findSurveyResultByEmail(memberRepository.findOneByEmail(email));
-        surveyResult.updateProgress();
+        surveyResult.changeProgress(progress + 1);
         surveyResult.changeResult(surveyResult.getResult() + "/" + contentId);
         surveyRepository.saveResult(surveyResult);
+
+        if (progress == SurveyConst.MAX_SURVEY) {
+            Member member = memberRepository.findOneByEmail(email);
+            member.changeAuthority(Authority.ROLE_USER);
+            memberRepository.save(member);
+        }
     }
 
     public int getProgress(Member member) {
