@@ -92,6 +92,16 @@ public class MemberService {
         }
     }
 
+    public Member checkMemberByEmail(String email) {
+        Member member = memberRepository.findOneByEmail(email);
+
+        if (member != null) {
+            return member;
+        } else {
+            throw new BadRequestException("등록된 이메일 정보가 없습니다.");
+        }
+    }
+
     private String genPassword() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString().split("-")[4];

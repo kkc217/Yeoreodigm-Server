@@ -1,9 +1,12 @@
 package com.yeoreodigm.server.controller;
 
+import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.LoginMemberDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
+import com.yeoreodigm.server.dto.surveypage.SurveyProgressResponseDto;
 import com.yeoreodigm.server.dto.surveypage.SurveySubmitRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.SurveyService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -24,6 +27,8 @@ public class SurveyApiController {
 
     private final SurveyService surveyService;
 
+    private final MemberService memberService;
+
     @GetMapping("/{progress}")
     public Result surveyInfo(@PathVariable("progress") int progress) {
         return new Result(surveyService.getSurveyInfo(progress));
@@ -36,6 +41,18 @@ public class SurveyApiController {
         if (session != null) {
             LoginMemberDto loginMemberDto = (LoginMemberDto) session.getAttribute(SessionConst.LOGIN_MEMBER);
             surveyService.putSurveyResult(loginMemberDto.getEmail(), surveySubmitRequestDto.getContentId(), progress);
+        } else {
+            throw new BadRequestException("세션이 만료되었습니다.");
+        }
+    }
+
+    @PostMapping("/progress")
+    public SurveyProgressResponseDto surveyProgress(HttpServletRequest httpServletRequest) {
+        HttpSession session = httpServletRequest.getSession(false);
+        if (session != null) {
+            LoginMemberDto loginMemberDto = (LoginMemberDto) session.getAttribute(SessionConst.LOGIN_MEMBER);
+            Member member = memberService.checkMemberByEmail(loginMemberDto.getEmail());
+            return new SurveyProgressResponseDto(surveyService.getProgress(member));
         } else {
             throw new BadRequestException("세션이 만료되었습니다.");
         }
