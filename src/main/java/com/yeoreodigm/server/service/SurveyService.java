@@ -36,7 +36,7 @@ public class SurveyService {
     }
 
     @Transactional
-    public void submitSurveyResult(Member member, String contentId, int progress) {
+    public void submitSurveyResult(Member member, Long contentId, int progress) {
         SurveyResult surveyResult = surveyRepository.findSurveyResult(member);
         surveyResult.changeProgress(progress + 1);
         surveyResult.addResult(contentId);

@@ -7,7 +7,6 @@ import javax.validation.constraints.NotEmpty;
 @Data
 public class SurveySubmitRequestDto {
 
-    @NotEmpty
-    private String contentId;
+    private Long contentId;
 
 }

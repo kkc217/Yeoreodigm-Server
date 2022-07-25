@@ -38,8 +38,9 @@ public class MemberService {
             member.changeAuthority(Authority.ROLE_ADMIN);
         }
 
-        surveyRepository.save(new SurveyResult(member));
         memberRepository.saveAndFlush(member);
+
+        surveyRepository.saveAndFlush(new SurveyResult(member));
     }
 
     public Member login(String email, String password) {

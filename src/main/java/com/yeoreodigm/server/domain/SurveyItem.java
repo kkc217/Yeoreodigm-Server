@@ -13,7 +13,7 @@ public class SurveyItem {
     @Id @GeneratedValue
     private Long id;
 
-    private String contentId;
+    private Long placeId;
 
     private int progress;
 

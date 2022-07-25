@@ -31,7 +31,7 @@ public class SurveyResult {
 
     @Type(type = "list-array")
     @Column(columnDefinition = "varchar(250) []")
-    private List<String> result;
+    private List<Long> result;
 
     public SurveyResult(Member member) {
         this.member = member;
@@ -43,7 +43,7 @@ public class SurveyResult {
         this.progress = newProgress;
     }
 
-    public void addResult(String newResult) {
+    public void addResult(Long newResult) {
         this.result.add(newResult);
     }
 

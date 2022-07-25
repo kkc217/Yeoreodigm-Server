@@ -8,7 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class SurveyItemDto {
 
-    private String contentId;
+    private Long contentId;
 
     private String title;
 
@@ -17,7 +17,7 @@ public class SurveyItemDto {
     private String imageUrl;
 
     public SurveyItemDto(SurveyItem surveyItem) {
-        this.contentId = surveyItem.getContentId();
+        this.contentId = surveyItem.getPlaceId();
         this.title = surveyItem.getTitle();
         this.tag = surveyItem.getTag();
         this.imageUrl = surveyItem.getImageUrl();
