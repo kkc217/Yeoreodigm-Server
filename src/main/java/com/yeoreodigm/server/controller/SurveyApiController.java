@@ -2,7 +2,9 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.LoginResponseDto;
+import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
+import com.yeoreodigm.server.dto.surveypage.SurveyItemDto;
 import com.yeoreodigm.server.dto.surveypage.SurveyProgressResponseDto;
 import com.yeoreodigm.server.dto.surveypage.SurveySubmitRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -29,8 +31,8 @@ public class SurveyApiController {
     private final MemberService memberService;
 
     @GetMapping("/{progress}")
-    public Result surveyInfo(@PathVariable("progress") int progress) {
-        return new Result(surveyService.getSurveyInfo(progress));
+    public Result<SurveyItemDto> surveyInfo(@PathVariable("progress") int progress) {
+        return new Result<>((SurveyItemDto) surveyService.getSurveyInfo(progress));
     }
 
     @PostMapping("/submit/{progress}")
@@ -52,12 +54,6 @@ public class SurveyApiController {
         } else {
             throw new BadRequestException("세션이 만료되었습니다.");
         }
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class Result<T> {
-        private T data;
     }
 
 }
