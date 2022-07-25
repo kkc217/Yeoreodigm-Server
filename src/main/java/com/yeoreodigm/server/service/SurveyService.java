@@ -29,29 +29,29 @@ public class SurveyService {
 
         List<SurveyItemDto> result = new ArrayList<>();
         for (SurveyItem item : surveyItems) {
-            result.add(new SurveyItemDto(item.getContentId(),
-                    item.getTitle(), item.getTag(), item.getImageUrl()));
+            result.add(new SurveyItemDto(item));
         }
 
         return result;
     }
 
     @Transactional
-    public void putSurveyResult(String email, String contentId, int progress) {
-        SurveyResult surveyResult = surveyRepository.findSurveyResultByEmail(memberRepository.findOneByEmail(email));
+    public void submitSurveyResult(Member member, String contentId, int progress) {
+        SurveyResult surveyResult = surveyRepository.findSurveyResult(member);
         surveyResult.changeProgress(progress + 1);
-        surveyResult.changeResult(surveyResult.getResult() + "/" + contentId);
-        surveyRepository.saveResult(surveyResult);
+        surveyResult.addResult(contentId);
 
         if (progress == SurveyConst.MAX_SURVEY) {
-            Member member = memberRepository.findOneByEmail(email);
-            member.changeAuthority(Authority.ROLE_USER);
-            memberRepository.save(member);
+            Member loginMember = memberRepository.findByEmail(member.getEmail());
+            loginMember.changeAuthority(Authority.ROLE_USER);
+            memberRepository.save(loginMember);
         }
+
+        surveyRepository.saveAndFlush(surveyResult);
     }
 
     public int getProgress(Member member) {
-        return surveyRepository.findSurveyResultByEmail(member).getProgress();
+        return surveyRepository.findSurveyResult(member).getProgress();
     }
 
 }

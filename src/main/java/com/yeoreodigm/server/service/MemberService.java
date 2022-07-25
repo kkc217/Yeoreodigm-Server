@@ -11,8 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -39,53 +37,53 @@ public class MemberService {
             //관리자 권한 부여
             member.changeAuthority(Authority.ROLE_ADMIN);
         }
-        memberRepository.save(member);
 
-        surveyRepository.saveResult(new SurveyResult(member));
+        surveyRepository.save(new SurveyResult(member));
+        memberRepository.saveAndFlush(member);
+    }
+
+    public Member login(String email, String password) {
+        Member member = memberRepository.findByEmail(email);
+
+        if (member != null && passwordEncoder.matches(password, member.getPassword())) {
+            return member;
+        }
+        throw new BadRequestException("이메일 또는 비밀번호를 잘못 입력했습니다.");
     }
 
     public void validateDuplicateEmail(String email) {
-        List<Member> findMembers = memberRepository.findByEmail(email);
-        if (!findMembers.isEmpty()) {
+        Member findMembers = memberRepository.findByEmail(email);
+        if (findMembers != null) {
             throw new BadRequestException("이미 등록된 이메일입니다.");
         }
     }
 
     public void validateDuplicateNickname(String nickname) {
-        List<Member> findMembers = memberRepository.findByNickname(nickname);
-        if (!findMembers.isEmpty()) {
+        Member findMember = memberRepository.findByNickname(nickname);
+        if (findMember != null) {
             throw new BadRequestException("이미 등록된 닉네임입니다.");
         }
     }
 
-    public Member checkLoginInfo(String email, String password) {
-        Member member = memberRepository.findOneByEmail(email);
-        if (member  == null) {
-            throw new BadRequestException("등록된 이메일 정보가 없습니다.");
-        }
-
-        if (!passwordEncoder.matches(password, member.getPassword())) {
-            throw new BadRequestException("비밀번호가 일치하지 않습니다.");
-        }
-
-        return member;
-    }
-
     @Transactional
     public void updateMemberAuthority(String email, Authority authority) {
-        Member member = memberRepository.findOneByEmail(email);
-        member.changeAuthority(authority);
-        memberRepository.save(member);
+        Member member = memberRepository.findByEmail(email);
+        if (member != null) {
+            member.changeAuthority(authority);
+            memberRepository.saveAndFlush(member);
+        } else {
+            throw new BadRequestException("일치하는 이메일 정보가 없습니다.");
+        }
     }
 
     @Transactional
     public String resetPassword(String email) {
-        Member member = memberRepository.findOneByEmail(email);
+        Member member = memberRepository.findByEmail(email);
 
         if (member != null) {
             String newPassword = genPassword();
             member.changePassword(encodePassword(newPassword));
-            memberRepository.save(member);
+            memberRepository.saveAndFlush(member);
             return newPassword;
         } else {
             throw new BadRequestException("등록된 회원 정보가 없습니다.");
@@ -93,7 +91,7 @@ public class MemberService {
     }
 
     public Member checkMemberByEmail(String email) {
-        Member member = memberRepository.findOneByEmail(email);
+        Member member = memberRepository.findByEmail(email);
 
         if (member != null) {
             return member;

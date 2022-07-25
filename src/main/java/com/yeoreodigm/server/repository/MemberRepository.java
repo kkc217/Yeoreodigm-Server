@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.repository;
 
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -16,17 +17,14 @@ public class MemberRepository {
 
     public void save(Member member) {
         em.persist(member);
+    }
 
+    public void saveAndFlush(Member member) {
+        em.persist(member);
         em.flush();
     }
 
-    public List<Member> findByEmail(String email) {
-        return em.createQuery("select m from Member m where m.email = :email", Member.class)
-                .setParameter("email", email)
-                .getResultList();
-    }
-
-    public Member findOneByEmail(String email) {
+    public Member findByEmail(String email) {
         try {
             return em.createQuery("select m from Member m where m.email = :email", Member.class)
                     .setParameter("email", email)
@@ -36,10 +34,14 @@ public class MemberRepository {
         }
     }
 
-    public List<Member> findByNickname(String nickname) {
-        return em.createQuery("select m from Member m where m.nickname = :nickname", Member.class)
-                .setParameter("nickname", nickname)
-                .getResultList();
+    public Member findByNickname(String nickname) {
+        try {
+            return em.createQuery("select m from Member m where m.nickname = :nickname", Member.class)
+                    .setParameter("nickname", nickname)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
 }

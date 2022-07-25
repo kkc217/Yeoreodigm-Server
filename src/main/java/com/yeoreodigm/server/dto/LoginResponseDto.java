@@ -1,19 +1,15 @@
 package com.yeoreodigm.server.dto;
 
 import com.yeoreodigm.server.domain.Authority;
+import com.yeoreodigm.server.domain.Member;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
-@AllArgsConstructor
 @ApiModel(value = "로그인 응답")
-public class LoginMemberDto implements Serializable {
-
-    private static final long serialVersionUID = 6249349715519143742L;
+public class LoginResponseDto {
 
     @ApiModelProperty(example = "abc@google.com")
     private String email;
@@ -26,10 +22,10 @@ public class LoginMemberDto implements Serializable {
 
     private int surveyIndex;
 
-    public LoginMemberDto(String email, String nickname, Authority authority) {
-        this.email = email;
-        this.nickname = nickname;
-        this.authority = authority;
+    public LoginResponseDto(final Member member) {
+        this.email = member.getEmail();
+        this.nickname = member.getNickname();
+        this.authority = member.getAuthority();
         this.surveyIndex = 0;
     }
 

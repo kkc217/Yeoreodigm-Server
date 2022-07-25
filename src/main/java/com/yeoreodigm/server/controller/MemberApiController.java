@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
 
 @Tag(name = "auth", description = "인증에 관한 API")
 @RestController
@@ -66,25 +65,24 @@ public class MemberApiController {
             @ApiResponse(code = 400, message = "등록된 이메일 정보가 없습니다.|비밀번호가 일치하지 않습니다.")
     })
     @PostMapping("/login")
-    public ResponseEntity<LoginMemberDto> login(@RequestBody @Valid LoginRequestDto requestDto,
-                                HttpServletRequest httpServletRequest) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto requestDto,
+                                                  HttpServletRequest httpServletRequest) {
         //회원 유무, 비밀번호 일치 확인
-        Member member = memberService.checkLoginInfo(requestDto.getEmail(), requestDto.getPassword());
+        Member member = memberService.login(requestDto.getEmail(), requestDto.getPassword());
 
-        LoginMemberDto loginMemberDto = new LoginMemberDto(
-                member.getEmail(), member.getNickname(), member.getAuthority());
+        LoginResponseDto loginResponseDto = new LoginResponseDto(member);
 
         if (member.getAuthority() == Authority.ROLE_NOT_PERMITTED) {
-            return new ResponseEntity<>(loginMemberDto, HttpStatus.CREATED);
+            return new ResponseEntity<>(loginResponseDto, HttpStatus.CREATED);
         } else if (member.getAuthority() == Authority.ROLE_SURVEY) {
-            loginMemberDto.setSurveyIndex(surveyService.getProgress(member));
+            loginResponseDto.setSurveyIndex(surveyService.getProgress(member));
         }
 
         //세션에 회원 정보 저장
         HttpSession session = httpServletRequest.getSession(true);
-        session.setAttribute(SessionConst.LOGIN_MEMBER, loginMemberDto);
+        session.setAttribute(SessionConst.LOGIN_MEMBER, member);
 
-        return new ResponseEntity<>(loginMemberDto,
+        return new ResponseEntity<>(loginResponseDto,
                 member.getAuthority() == Authority.ROLE_SURVEY ? HttpStatus.ACCEPTED : HttpStatus.OK);
     }
 
@@ -97,11 +95,10 @@ public class MemberApiController {
             @ApiResponse(code = 400, message = "세션이 만료되었습니다.")
     })
     @PostMapping("/autologin")
-    public LoginMemberDto autoLogin(HttpServletRequest httpServletRequest) {
-        HttpSession session = httpServletRequest.getSession(false);
-
-        if (session != null) {
-            return (LoginMemberDto)session.getAttribute(SessionConst.LOGIN_MEMBER);
+    public LoginResponseDto autoLogin(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (member != null) {
+            return new LoginResponseDto(member);
         } else {
             throw new BadRequestException("세션이 만료되었습니다.");
         }
@@ -150,9 +147,9 @@ public class MemberApiController {
             @ApiResponse(code = 400, message = "등록된 회원 정보가 없습니다.|이메일 전송에 실패하였습니다.")
     })
     @PostMapping("/email/confirm/submit")
-    public void emailConfirmSubmit(@RequestBody @Valid EmailRequestDto requestDto, HttpServletRequest httpServletRequest) {
-        String confirmCode = emailService.genRandomCode();
-        emailService.sendConfirmMail(requestDto.getEmail(), confirmCode);
+    public void emailConfirmSubmit(@RequestBody @Valid EmailRequestDto requestDto,
+                                   HttpServletRequest httpServletRequest) {
+        String confirmCode = emailService.sendConfirmMail(requestDto.getEmail());
 
         ConfirmMemberDto confirmMemberDto = new ConfirmMemberDto(requestDto.getEmail(), confirmCode);
 
@@ -169,13 +166,10 @@ public class MemberApiController {
             @ApiResponse(code = 400, message = "인증 코드의 유효 시간이 초과되었습니다.|인증 코드가 일치하지 않습니다.")
     })
     @PostMapping("/email/confirm")
-    public void emailConfirm(@RequestBody @Valid ConfirmCodeRequestDto requestDto, HttpServletRequest httpServletRequest) {
-        HttpSession session = httpServletRequest.getSession(false);
-
-        if (session != null) {
-            ConfirmMemberDto confirmMemberDto = (ConfirmMemberDto) session.getAttribute(SessionConst.CONFIRM_MEMBER);
+    public void emailConfirm(@RequestBody @Valid ConfirmCodeRequestDto requestDto,
+         @SessionAttribute(name = SessionConst.CONFIRM_MEMBER, required = false) ConfirmMemberDto confirmMemberDto) {
+        if (confirmMemberDto != null) {
             emailService.checkConfirmMail(confirmMemberDto, requestDto.getConfirmCode());
-            session.invalidate();
         } else {
             throw new BadRequestException("인증 코드의 유효 시간이 초과되었습니다.");
         }

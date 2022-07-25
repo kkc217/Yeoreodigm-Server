@@ -1,7 +1,7 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.dto.LoginMemberDto;
+import com.yeoreodigm.server.dto.LoginResponseDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.surveypage.SurveyProgressResponseDto;
 import com.yeoreodigm.server.dto.surveypage.SurveySubmitRequestDto;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import java.util.NoSuchElementException;
 
 @Tag(name = "survey", description = "설문 페이지 API")
 @RestController
@@ -35,23 +34,20 @@ public class SurveyApiController {
     }
 
     @PostMapping("/submit/{progress}")
-    public void surveySubmit(@PathVariable("progress") int progress, HttpServletRequest httpServletRequest,
-                             @RequestBody @Valid SurveySubmitRequestDto surveySubmitRequestDto) {
-        HttpSession session = httpServletRequest.getSession(false);
-        if (session != null) {
-            LoginMemberDto loginMemberDto = (LoginMemberDto) session.getAttribute(SessionConst.LOGIN_MEMBER);
-            surveyService.putSurveyResult(loginMemberDto.getEmail(), surveySubmitRequestDto.getContentId(), progress);
+    public void surveySubmit(@PathVariable("progress") int progress,
+                             @RequestBody @Valid SurveySubmitRequestDto surveySubmitRequestDto,
+                             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (member != null) {
+            surveyService.submitSurveyResult(member, surveySubmitRequestDto.getContentId(), progress);
         } else {
             throw new BadRequestException("세션이 만료되었습니다.");
         }
     }
 
-    @PostMapping("/progress")
-    public SurveyProgressResponseDto surveyProgress(HttpServletRequest httpServletRequest) {
-        HttpSession session = httpServletRequest.getSession(false);
-        if (session != null) {
-            LoginMemberDto loginMemberDto = (LoginMemberDto) session.getAttribute(SessionConst.LOGIN_MEMBER);
-            Member member = memberService.checkMemberByEmail(loginMemberDto.getEmail());
+    @GetMapping("/progress")
+    public SurveyProgressResponseDto surveyProgress(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (member != null) {
             return new SurveyProgressResponseDto(surveyService.getProgress(member));
         } else {
             throw new BadRequestException("세션이 만료되었습니다.");

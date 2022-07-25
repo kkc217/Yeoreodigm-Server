@@ -30,8 +30,9 @@ public class EmailService {
 
     private final MemberService memberService;
 
-    public void sendConfirmMail(String email, String confirmCode) {
-        Member member = memberRepository.findOneByEmail(email);
+    public String sendConfirmMail(String email) {
+        Member member = memberRepository.findByEmail(email);
+        String confirmCode = genRandomCode();
 
         if (member != null) {
             Context context = new Context();
@@ -40,6 +41,8 @@ public class EmailService {
             String text = templateEngine.process("confirmCodeMail", context);
 
             sendMail(email, EmailConst.CONFIRM_SUBJECT, text, EmailConst.HTML);
+
+            return confirmCode;
         } else {
             throw new BadRequestException("등록된 회원 정보가 없습니다.");
         }

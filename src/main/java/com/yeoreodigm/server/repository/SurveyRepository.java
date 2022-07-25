@@ -16,7 +16,11 @@ public class SurveyRepository {
 
     private final EntityManager em;
 
-    public void saveResult(SurveyResult surveyResult) {
+    public void save(SurveyResult surveyResult) {
+        em.persist(surveyResult);
+    }
+
+    public void saveAndFlush(SurveyResult surveyResult) {
         em.persist(surveyResult);
         em.flush();
     }
@@ -27,7 +31,7 @@ public class SurveyRepository {
                 .getResultList();
     }
 
-    public SurveyResult findSurveyResultByEmail(Member member) {
+    public SurveyResult findSurveyResult(Member member) {
         try {
             return em.createQuery("select sr from SurveyResult sr where sr.member = :member", SurveyResult.class)
                     .setParameter("member", member)
