@@ -9,9 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
@@ -23,10 +21,16 @@ public class PlaceLikeService {
     private final PlacesRepository placesRepository;
 
     public List<Places> searchPlaceLike(Member member, int page) {
-        return placeLikeRepository.findByMemberPaging(member, 10 * (page - 1))
-                .stream()
-                .map(placeLike -> placesRepository.findById(placeLike.getPlaces().getId()))
-                .toList();
+        return placesRepository.findByPlacesIdList(
+                placeLikeRepository
+                        .findByMemberPaging(member, 10 * (page - 1))
+                        .stream()
+                        .map(PlaceLike::getId)
+                        .toList());
+    }
+
+    public boolean checkNextPage(Member member, int page) {
+        return placeLikeRepository.findByMemberPaging(member, 10 * page).size() != 0;
     }
 
 }
