@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class PlaceLikeService {
+public class PlaceService {
 
     private final PlaceLikeRepository placeLikeRepository;
 
@@ -29,8 +29,12 @@ public class PlaceLikeService {
                         .toList());
     }
 
-    public boolean checkNextPage(Member member, int page) {
-        return placeLikeRepository.findByMemberPaging(member, 10 * page).size() != 0;
+    public List<Places> searchPlaces(String content, int page) {
+        return placesRepository.searchByTitle(content);
+    }
+
+    public int checkNextPage(Member member, int page) {
+        return placeLikeRepository.findByMemberPaging(member, 10 * page).size() > 0 ? page + 1 : 0;
     }
 
 }
