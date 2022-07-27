@@ -1,10 +1,10 @@
-package com.yeoreodigm.server.dto.noteprepare;
+package com.yeoreodigm.server.dto;
 
 import com.yeoreodigm.server.domain.Places;
 import lombok.Data;
 
 @Data
-public class SearchPlacesLikeResponseDto {
+public class SearchPlacesResponseDto {
 
     private Long placeId;
 
@@ -14,7 +14,7 @@ public class SearchPlacesLikeResponseDto {
 
     private String imageUrl;
 
-    public SearchPlacesLikeResponseDto(Places places) {
+    public SearchPlacesResponseDto(Places places) {
         this.placeId = places.getId();
         this.title = places.getTitle();
         this.address = places.getAddress();
