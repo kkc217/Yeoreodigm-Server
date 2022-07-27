@@ -4,8 +4,31 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
-    <p>인증코드는 다음과 같다.</p>
-    <p th:text="${confirmCode}"></p>
-    <p>입력해주세요.</p>
+    <div style="text-align: center; padding: 40px;">
+        <img src="image/logo.png"/>
+        <br/>
+        <h1>이메일 인증</h1>
+        <br/>
+        <p style="font-size: 15px">진행 중인 화면에 인증 번호를 입력하여 이메일 인증을 완료해주세요.</p>
+        <br/>
+        <div style="display: flex; justify-content: center">
+            <div style="margin: 12px 0 12px 0; padding: 0; width: 400px; height: 80px; border: 1px solid #888; border-radius: 5px; display: flex; flex-direction: column; justify-content: center">
+                <p th:text="${confirmCode}" class="confirm_code" style="color: #f49349; text-align: center; margin: 0; font-size: 30px; font-weight: bold; letter-spacing: 4px"></p>
+            </div>
+        </div>
+        <p style="font-size: 15px">인증번호는 요청 시점으로부터 <span style="font-weight: bold">10분</span>동안 유효해요. 유효 시간이 초과되었을 경우 인증 번호를 재요청해주세요.</p>
+        <br/>
+        <div style="display: flex; justify-content: center">
+            <div style="margin: 12px; padding: 0; width: 650px; height: 170px; border-radius: 5px; background-color: #f4f4f4; display: flex; flex-direction: column; justify-content: center; font-size: 13px">
+                <p style="font-weight: bold; margin-bottom: 0;">주소</p>
+                <p style="margin-top: 0; color: #666">서울특별시 강남구 테헤란로 311(역삼동) 아남타워빌딩 7층(06151)</p>
+                <br/>
+                <p style="font-weight: bold; margin-bottom: 0;">문의</p>
+                <p style="margin-top: 0; color: #666">ki7348@naver.com</p>
+                <br/>
+                <p style="color: #aaa">Copyright 2022 Yeoreodigm all rights reserved.</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
