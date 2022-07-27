@@ -9,6 +9,6 @@ public class PageResult<T> {
 
     private T data;
 
-    private boolean hasNext;
+    private int next;
 
 }

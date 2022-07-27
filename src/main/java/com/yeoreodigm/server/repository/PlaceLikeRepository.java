@@ -34,7 +34,7 @@ public class PlaceLikeRepository {
         return em.createQuery("select pl from PlaceLike pl where pl.member = :member order by pl.id", PlaceLike.class)
                 .setParameter("member", member)
                 .setFirstResult(page)
-                .setMaxResults(QueryConst.MAX_RESULTS)
+                .setMaxResults(QueryConst.PAGING_LIMIT)
                 .getResultList();
     }
 

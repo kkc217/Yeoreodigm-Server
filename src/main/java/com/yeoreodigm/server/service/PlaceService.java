@@ -3,6 +3,7 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.PlaceLike;
 import com.yeoreodigm.server.domain.Places;
+import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.repository.PlaceLikeRepository;
 import com.yeoreodigm.server.repository.PlacesRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,11 @@ public class PlaceService {
     }
 
     public List<Places> searchPlaces(String content, int page) {
-        return placesRepository.searchByTitle(content);
+        return placesRepository.findByTitlePaging(content, 10 * (page - 1), QueryConst.PAGING_LIMIT);
+    }
+
+    public int checkNextSearchPlaces(String content, int page) {
+        return searchPlaces(content, page + 1).size() > 0 ? page + 1 : 0;
     }
 
     public int checkNextPage(Member member, int page) {

@@ -2,6 +2,6 @@ package com.yeoreodigm.server.dto.constraint;
 
 public class QueryConst {
 
-    public static final int MAX_RESULTS = 10;
+    public static final int PAGING_LIMIT = 10;
 
 }
