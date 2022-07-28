@@ -1,20 +1,25 @@
 package com.yeoreodigm.server.repository;
 
-import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.SurveyItem;
-import com.yeoreodigm.server.domain.SurveyResult;
+import com.querydsl.core.NonUniqueResultException;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yeoreodigm.server.domain.*;
+import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import java.util.List;
+
+import static com.yeoreodigm.server.domain.QSurveyItem.*;
+import static com.yeoreodigm.server.domain.QSurveyResult.*;
 
 @Repository
 @RequiredArgsConstructor
 public class SurveyRepository {
 
     private final EntityManager em;
+
+    private final JPAQueryFactory queryFactory;
 
     public void save(SurveyResult surveyResult) {
         em.persist(surveyResult);
@@ -23,21 +28,24 @@ public class SurveyRepository {
     public void saveAndFlush(SurveyResult surveyResult) {
         em.persist(surveyResult);
         em.flush();
+        em.clear();
     }
 
     public List<SurveyItem> findItemsByGroup(int progress) {
-        return em.createQuery("select si from SurveyItem si where si.progress = :progress", SurveyItem.class)
-                .setParameter("progress", progress)
-                .getResultList();
+        return queryFactory
+                .selectFrom(surveyItem)
+                .where(surveyItem.progress.eq(progress))
+                .fetch();
     }
 
-    public SurveyResult findSurveyResult(Member member) {
+    public SurveyResult findSurveyResultByMember(Member member) {
         try {
-            return em.createQuery("select sr from SurveyResult sr where sr.member = :member", SurveyResult.class)
-                    .setParameter("member", member)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
+            return queryFactory
+                    .selectFrom(surveyResult)
+                    .where(surveyResult.member.eq(member))
+                    .fetchOne();
+        } catch (NonUniqueResultException e) {
+            throw new BadRequestException("일치하는 설문 결과가 둘 이상입니다.");
         }
     }
 

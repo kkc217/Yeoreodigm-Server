@@ -1,13 +1,13 @@
 package com.yeoreodigm.server.repository;
 
+import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoreodigm.server.domain.Places;
-import com.yeoreodigm.server.domain.QPlaces;
+import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import java.util.List;
 
 import static com.yeoreodigm.server.domain.QPlaces.*;
@@ -22,18 +22,20 @@ public class PlacesRepository {
 
     public Places findByPlacesId(Long placeId) {
         try {
-            return em.createQuery("select p from Places p where p.id = :placeId", Places.class)
-                    .setParameter("placeId", placeId)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
+            return queryFactory
+                    .selectFrom(places)
+                    .where(places.id.eq(placeId))
+                    .fetchOne();
+        } catch (NonUniqueResultException e) {
+            throw new BadRequestException("일치하는 여행지가 둘 이상입니다.");
         }
     }
 
     public List<Places> findByPlacesIdList(List<Long> placeIdList) {
-        return em.createQuery("select p from Places p where p.id in :placeIdList", Places.class)
-                .setParameter("placeIdList", placeIdList)
-                .getResultList();
+        return queryFactory
+                .selectFrom(places)
+                .where(places.id.in(placeIdList))
+                .fetch();
     }
 
     public List<Places> findByTitlePaging(String keyword, int page, int limit) {
