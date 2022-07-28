@@ -37,7 +37,7 @@ public class SurveyService {
 
     @Transactional
     public void submitSurveyResult(Member member, Long contentId, int progress) {
-        SurveyResult surveyResult = surveyRepository.findSurveyResult(member);
+        SurveyResult surveyResult = surveyRepository.findSurveyResultByMember(member);
         surveyResult.changeProgress(progress + 1);
         surveyResult.addResult(contentId);
 
@@ -51,7 +51,7 @@ public class SurveyService {
     }
 
     public int getProgress(Member member) {
-        return surveyRepository.findSurveyResult(member).getProgress();
+        return surveyRepository.findSurveyResultByMember(member).getProgress();
     }
 
 }

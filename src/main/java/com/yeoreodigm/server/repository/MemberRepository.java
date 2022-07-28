@@ -1,19 +1,23 @@
 package com.yeoreodigm.server.repository;
 
+import com.querydsl.core.NonUniqueResultException;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import java.util.List;
+
+import static com.yeoreodigm.server.domain.QMember.*;
 
 @Repository
 @RequiredArgsConstructor
 public class MemberRepository {
 
     private final EntityManager em;
+
+    private final JPAQueryFactory queryFactory;
 
     public void save(Member member) {
         em.persist(member);
@@ -22,25 +26,28 @@ public class MemberRepository {
     public void saveAndFlush(Member member) {
         em.persist(member);
         em.flush();
+        em.clear();
     }
 
     public Member findByEmail(String email) {
         try {
-            return em.createQuery("select m from Member m where m.email = :email", Member.class)
-                    .setParameter("email", email)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
+            return queryFactory
+                    .selectFrom(member)
+                    .where(member.email.eq(email))
+                    .fetchOne();
+        } catch (NonUniqueResultException e) {
+            throw new BadRequestException("일치하는 이메일이 둘 이상입니다.");
         }
     }
 
     public Member findByNickname(String nickname) {
         try {
-            return em.createQuery("select m from Member m where m.nickname = :nickname", Member.class)
-                    .setParameter("nickname", nickname)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
+            return queryFactory
+                    .selectFrom(member)
+                    .where(member.nickname.eq(nickname))
+                    .fetchOne();
+        } catch (NonUniqueResultException e) {
+            throw new BadRequestException("일치하는 닉네임이 둘 이상입니다.");
         }
     }
 

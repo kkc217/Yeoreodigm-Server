@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "note_prepare", description = "여행 메이킹 노트 준비 페이지 API")
@@ -31,6 +30,9 @@ public class NotePrepareApiController {
     public PageResult<List<SearchPlacesResponseDto>> searchPlacesLike(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member,
             @PathVariable("page") int page) {
+        if (page <= 0) {
+            throw new BadRequestException("잘못된 페이지 요청입니다.");
+        }
         if (member != null) {
             return new PageResult<>(
                         placeService
