@@ -6,11 +6,10 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,10 +47,16 @@ public class TravelNote {
     private List<String> theme = new ArrayList<>();
 
     @Type(type = "list-array")
-    private List<Long> course = new ArrayList<>();
+    private List<Long> placesInput = new ArrayList<>();
+
+    private LocalDateTime createdTime;
+
+    private LocalDateTime lastModifiedTime;
+
+    private boolean publicShare;
 
     @Builder
-    public TravelNote(Member member, LocalDate dayStart, LocalDate dayEnd, int adult, int child, int animal, String region, List<String> theme, List<Long> course) {
+    public TravelNote(Member member, LocalDate dayStart, LocalDate dayEnd, int adult, int child, int animal, String region, List<String> theme, List<Long> placesInput) {
         this.title = "Untitled";
         this.member = member;
         this.dayStart = dayStart;
@@ -63,10 +68,12 @@ public class TravelNote {
         if (theme != null) {
             this.theme = theme;
         }
-        if (course != null) {
-            this.course = course;
+        if (placesInput != null) {
+            this.placesInput = placesInput;
         }
+        this.createdTime = LocalDateTime.now();
+        this.lastModifiedTime = LocalDateTime.now();
+        this.publicShare = false;
     }
-
 
 }

@@ -60,7 +60,7 @@ public class NotePrepareApiController {
                     .animal(requestDto.getAnimal())
                     .region(requestDto.getRegion())
                     .theme(requestDto.getTheme())
-                    .course(requestDto.getPlaces())
+                    .placesInput(requestDto.getPlaces())
                     .build();
 
             travelNoteService.submitNotePrepare(travelNote);
