@@ -3,7 +3,8 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.PageResult;
-import com.yeoreodigm.server.dto.noteprepare.PrepareResultRequestDto;
+import com.yeoreodigm.server.dto.noteprepare.SubmitPrepareResponseDto;
+import com.yeoreodigm.server.dto.noteprepare.SubmitPrepareRequestDto;
 import com.yeoreodigm.server.dto.SearchPlacesResponseDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -47,8 +48,8 @@ public class NotePrepareApiController {
     }
 
     @PutMapping("/submit")
-    public void submitPrepareResult(
-            @RequestBody @Valid PrepareResultRequestDto requestDto,
+    public SubmitPrepareResponseDto submitPrepareResult(
+            @RequestBody @Valid SubmitPrepareRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         if (member != null) {
             TravelNote travelNote = TravelNote.builder()
@@ -63,7 +64,7 @@ public class NotePrepareApiController {
                     .placesInput(requestDto.getPlaces())
                     .build();
 
-            travelNoteService.submitNotePrepare(travelNote);
+            return new SubmitPrepareResponseDto(travelNoteService.submitNotePrepare(travelNote));
         } else {
             throw new BadRequestException("세션이 만료되었습니다.");
         }

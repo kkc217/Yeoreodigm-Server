@@ -1,6 +1,6 @@
 package com.yeoreodigm.server.dto.noteprepare;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
-public class PrepareResultRequestDto {
+public class SubmitPrepareRequestDto {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dayStart;

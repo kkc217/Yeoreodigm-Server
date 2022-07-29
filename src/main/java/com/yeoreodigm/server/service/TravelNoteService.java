@@ -15,7 +15,8 @@ public class TravelNoteService {
     private final TravelNoteRepository travelNoteRepository;
 
     @Transactional
-    public void submitNotePrepare(TravelNote travelNote) {
+    public Long submitNotePrepare(TravelNote travelNote) {
         travelNoteRepository.saveAndFlush(travelNote);
+        return travelNote.getId();
     }
 }
