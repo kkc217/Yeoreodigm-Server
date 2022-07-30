@@ -23,8 +23,7 @@ public class SubmitPrepareRequestDto {
 
     private int animal;
 
-    @NotEmpty
-    private String region;
+    private List<String> region;
 
     private List<String> theme;
 
