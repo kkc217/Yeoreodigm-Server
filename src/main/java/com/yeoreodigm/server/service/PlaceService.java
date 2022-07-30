@@ -21,25 +21,25 @@ public class PlaceService {
 
     private final PlacesRepository placesRepository;
 
-    public List<Places> searchPlaceLike(Member member, int page) {
+    public List<Places> searchPlaceLike(Member member, int page, int limit) {
         return placesRepository.findByPlacesIdList(
                 placeLikeRepository
-                        .findByMemberPaging(member, 10 * (page - 1))
+                        .findByMemberPaging(member, limit * (page - 1), limit)
                         .stream()
                         .map(PlaceLike::getId)
                         .toList());
     }
 
-    public List<Places> searchPlaces(String content, int page) {
-        return placesRepository.findByTitlePaging(content, 10 * (page - 1), QueryConst.PAGING_LIMIT);
+    public List<Places> searchPlaces(String content, int page, int limit) {
+        return placesRepository.findByTitlePaging(content, limit * (page - 1), limit);
     }
 
-    public int checkNextSearchPlaces(String content, int page) {
-        return searchPlaces(content, page + 1).size() > 0 ? page + 1 : 0;
+    public int checkNextSearchPage(String content, int page) {
+        return searchPlaces(content, page + 1, QueryConst.PAGING_LIMIT_PUBLIC).size() > 0 ? page + 1 : 0;
     }
 
-    public int checkNextPage(Member member, int page) {
-        return placeLikeRepository.findByMemberPaging(member, 10 * page).size() > 0 ? page + 1 : 0;
+    public int checkNextLikePage(Member member, int page) {
+        return searchPlaceLike(member, page + 1, QueryConst.PAGING_LIMIT_PUBLIC).size() > 0 ? page + 1 : 0;
     }
 
 }

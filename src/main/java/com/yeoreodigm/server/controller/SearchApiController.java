@@ -2,6 +2,7 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.SearchPlacesResponseDto;
+import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +22,12 @@ public class SearchApiController {
             @PathVariable("page") int page) {
         List<SearchPlacesResponseDto> responseDtoList =
                 placeService
-                        .searchPlaces(content, page)
+                        .searchPlaces(content, page, QueryConst.PAGING_LIMIT_PUBLIC)
                         .stream()
                         .map(SearchPlacesResponseDto::new)
                         .toList();
 
-        int next = placeService.checkNextSearchPlaces(content, page);
+        int next = placeService.checkNextSearchPage(content, page);
 
         return new PageResult<>(responseDtoList, next);
     }

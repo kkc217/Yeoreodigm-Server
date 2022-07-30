@@ -37,12 +37,12 @@ public class PlaceLikeRepository {
                 .fetch();
     }
 
-    public List<PlaceLike> findByMemberPaging(Member member, int page) {
+    public List<PlaceLike> findByMemberPaging(Member member, int page, int limit) {
         return queryFactory
                 .selectFrom(placeLike)
                 .where(placeLike.member.eq(member))
                 .offset(page)
-                .limit(QueryConst.PAGING_LIMIT)
+                .limit(limit)
                 .fetch();
     }
 
