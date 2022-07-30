@@ -1,7 +1,9 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.domain.NoteAuthority;
 import com.yeoreodigm.server.domain.Places;
+import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.note.CallNoteInfoResponseDto;
 import com.yeoreodigm.server.service.PlaceService;
@@ -25,9 +27,20 @@ public class TravelNoteApiController {
     public CallNoteInfoResponseDto callNoteInfo(
             @PathVariable("travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        //--------수정하기--------
-        List<Places> placesRecommended = placeService.searchPlaces("폭포", 1, 4);
-        //----------------------
-        return new CallNoteInfoResponseDto(travelNoteService.callNoteInfo(member, travelNoteId), placesRecommended);
+        TravelNote travelNote = travelNoteService.callNoteInfo(travelNoteId);
+
+        NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(member, travelNoteId);
+
+        if (noteAuthority == NoteAuthority.ROLE_OWNER) {
+            //--------수정하기--------
+            List<Places> placesRecommended = placeService.searchPlaces("폭포", 1, 4);
+            //----------------------
+            return new CallNoteInfoResponseDto(noteAuthority, travelNote, placesRecommended);
+        } else if (noteAuthority == NoteAuthority.ROLE_COMPANION) {
+            return new CallNoteInfoResponseDto(noteAuthority, travelNote);
+        } else {
+            return new CallNoteInfoResponseDto(noteAuthority, travelNote);
+        }
     }
+
 }

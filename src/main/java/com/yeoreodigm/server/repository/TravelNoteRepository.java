@@ -30,6 +30,17 @@ public class TravelNoteRepository {
         em.flush();
     }
 
+    public TravelNote findById(Long id) {
+        try {
+            return queryFactory
+                    .selectFrom(travelNote)
+                    .where(travelNote.id.eq(id))
+                    .fetchOne();
+        } catch (NonUniqueResultException e) {
+            throw new BadRequestException("일치하는 메이킹 노트가 둘 이상입니다.");
+        }
+    }
+
     public TravelNote findByMemberAndId(Member member, Long id) {
         try {
             return queryFactory

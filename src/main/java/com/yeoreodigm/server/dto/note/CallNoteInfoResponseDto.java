@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.dto.note;
 
+import com.yeoreodigm.server.domain.NoteAuthority;
 import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.TravelNote;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class CallNoteInfoResponseDto {
+
+    private NoteAuthority noteAuthority;
 
     private String title;
 
@@ -34,7 +37,8 @@ public class CallNoteInfoResponseDto {
 
     private List<PlacesRecommended> placesRecommended = new ArrayList<>();
 
-    public CallNoteInfoResponseDto(TravelNote travelNote, List<Places> placesList) {
+    public CallNoteInfoResponseDto(NoteAuthority noteAuthority, TravelNote travelNote, List<Places> placesList) {
+        this.noteAuthority = noteAuthority;
         this.title = travelNote.getTitle();
         this.dayStart = travelNote.getDayStart();
         this.dayEnd = travelNote.getDayEnd();
@@ -48,6 +52,19 @@ public class CallNoteInfoResponseDto {
         for (Places place : placesList) {
             this.placesRecommended.add(new PlacesRecommended(place.getId(), place.getTitle(), place.getImageUrl()));
         }
+    }
+
+    public CallNoteInfoResponseDto(NoteAuthority noteAuthority, TravelNote travelNote) {
+        this.noteAuthority = noteAuthority;
+        this.title = travelNote.getTitle();
+        this.dayStart = travelNote.getDayStart();
+        this.dayEnd = travelNote.getDayEnd();
+        this.adult = travelNote.getAdult();
+        this.child = travelNote.getChild();
+        this.animal = travelNote.getAnimal();
+        this.region = travelNote.getRegion();
+        this.theme = travelNote.getTheme();
+        this.publicShare = travelNote.isPublicShare();
     }
 
     @Getter
