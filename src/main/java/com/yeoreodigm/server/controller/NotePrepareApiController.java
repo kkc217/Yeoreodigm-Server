@@ -3,6 +3,7 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.PageResult;
+import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.noteprepare.SubmitPrepareResponseDto;
 import com.yeoreodigm.server.dto.noteprepare.SubmitPrepareRequestDto;
 import com.yeoreodigm.server.dto.SearchPlacesResponseDto;
@@ -37,11 +38,11 @@ public class NotePrepareApiController {
         if (member != null) {
             return new PageResult<>(
                         placeService
-                            .searchPlaceLike(member, page)
+                            .searchPlaceLike(member, page, QueryConst.PAGING_LIMIT_PUBLIC)
                             .stream()
                             .map(SearchPlacesResponseDto::new)
                             .toList()
-                        , placeService.checkNextPage(member, page));
+                        , placeService.checkNextLikePage(member, page));
         } else {
             throw new BadRequestException("세션이 만료되었습니다.");
         }
