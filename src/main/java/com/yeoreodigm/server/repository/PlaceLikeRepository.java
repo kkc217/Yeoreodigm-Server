@@ -3,7 +3,6 @@ package com.yeoreodigm.server.repository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.PlaceLike;
-import com.yeoreodigm.server.dto.constraint.QueryConst;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

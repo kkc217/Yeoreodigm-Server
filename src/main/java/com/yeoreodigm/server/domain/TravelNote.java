@@ -3,6 +3,7 @@ package com.yeoreodigm.server.domain;
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Getter
 @TypeDef(
         name = "list-array",
         typeClass = ListArrayType.class
@@ -41,7 +43,8 @@ public class TravelNote {
 
     private int animal;
 
-    private String region;
+    @Type(type = "list-array")
+    private List<String> region = new ArrayList<>();
 
     @Type(type = "list-array")
     private List<String> theme = new ArrayList<>();
@@ -55,8 +58,11 @@ public class TravelNote {
 
     private boolean publicShare;
 
+    @OneToMany(mappedBy = "travelNote", cascade = CascadeType.ALL)
+    private List<Course> courses = new ArrayList<>();
+
     @Builder
-    public TravelNote(Member member, LocalDate dayStart, LocalDate dayEnd, int adult, int child, int animal, String region, List<String> theme, List<Long> placesInput) {
+    public TravelNote(Member member, LocalDate dayStart, LocalDate dayEnd, int adult, int child, int animal, List<String> region, List<String> theme, List<Long> placesInput) {
         this.title = "Untitled";
         this.member = member;
         this.dayStart = dayStart;
