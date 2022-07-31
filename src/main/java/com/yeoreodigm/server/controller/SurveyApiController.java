@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.List;
 
 @Tag(name = "survey", description = "설문 페이지 API")
 @RestController
@@ -31,8 +32,8 @@ public class SurveyApiController {
     private final MemberService memberService;
 
     @GetMapping("/{progress}")
-    public Result<SurveyItemDto> surveyInfo(@PathVariable("progress") int progress) {
-        return new Result<>((SurveyItemDto) surveyService.getSurveyInfo(progress));
+    public Result<List<SurveyItemDto>> surveyInfo(@PathVariable("progress") int progress) {
+        return new Result<>(surveyService.getSurveyInfo(progress));
     }
 
     @PostMapping("/submit/{progress}")
