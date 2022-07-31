@@ -42,7 +42,7 @@ public class NotePrepareApiController {
                             .stream()
                             .map(SearchPlacesResponseDto::new)
                             .toList()
-                        , placeService.checkNextLikePage(member, page));
+                        , placeService.checkNextLikePage(member, page, QueryConst.PAGING_LIMIT_PUBLIC));
         } else {
             throw new BadRequestException("세션이 만료되었습니다.");
         }
