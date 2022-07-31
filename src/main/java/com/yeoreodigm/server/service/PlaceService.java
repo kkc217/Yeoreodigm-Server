@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.service;
 
+import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.PlaceLike;
 import com.yeoreodigm.server.domain.Places;
@@ -34,12 +35,16 @@ public class PlaceService {
         return placesRepository.findByTitlePaging(content, limit * (page - 1), limit);
     }
 
-    public int checkNextSearchPage(String content, int page) {
-        return searchPlaces(content, page + 1, QueryConst.PAGING_LIMIT_PUBLIC).size() > 0 ? page + 1 : 0;
+    public int checkNextSearchPage(String content, int page, int limit) {
+        return searchPlaces(content, page + 1, limit).size() > 0 ? page + 1 : 0;
     }
 
-    public int checkNextLikePage(Member member, int page) {
-        return searchPlaceLike(member, page + 1, QueryConst.PAGING_LIMIT_PUBLIC).size() > 0 ? page + 1 : 0;
+    public int checkNextLikePage(Member member, int page, int limit) {
+        return searchPlaceLike(member, page + 1, limit).size() > 0 ? page + 1 : 0;
+    }
+
+    public List<Places> searchPlacesByCourse(Course course) {
+        return placesRepository.findByPlacesIdList(course.getPlaces());
     }
 
 }

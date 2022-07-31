@@ -2,6 +2,7 @@ package com.yeoreodigm.server.domain;
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -10,6 +11,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @TypeDef(
         name = "list-array",

@@ -27,7 +27,7 @@ public class SearchApiController {
                         .map(SearchPlacesResponseDto::new)
                         .toList();
 
-        int next = placeService.checkNextSearchPage(content, page);
+        int next = placeService.checkNextSearchPage(content, page, QueryConst.PAGING_LIMIT_PUBLIC);
 
         return new PageResult<>(responseDtoList, next);
     }

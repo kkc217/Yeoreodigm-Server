@@ -1,14 +1,13 @@
 package com.yeoreodigm.server.service;
 
-import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.NoteAuthority;
-import com.yeoreodigm.server.domain.TravelNote;
+import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.TravelNoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -24,7 +23,7 @@ public class TravelNoteService {
         return travelNote.getId();
     }
 
-    public TravelNote callNoteInfo(Long id) {
+    public TravelNote callNote(Long id) {
         TravelNote travelNote = travelNoteRepository.findById(id);
         if (travelNote != null) {
             return travelNote;
