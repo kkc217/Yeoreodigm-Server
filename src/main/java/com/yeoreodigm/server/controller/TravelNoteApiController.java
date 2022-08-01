@@ -32,9 +32,9 @@ public class TravelNoteApiController {
     public CallNoteInfoResponseDto callNoteInfo(
             @PathVariable("travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        TravelNote travelNote = travelNoteService.callNote(travelNoteId);
 
-        NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(member, travelNoteId);
+        TravelNote travelNote = travelNoteService.callNote(travelNoteId);
+        NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(member, travelNote);
 
         if (noteAuthority == NoteAuthority.ROLE_OWNER) {
             //--------수정하기--------

@@ -32,16 +32,15 @@ public class TravelNoteService {
         }
     }
 
-    public NoteAuthority checkNoteAuthority(Member member, Long travelNoteId) {
+    public NoteAuthority checkNoteAuthority(Member member, TravelNote travelNote) {
         if (member == null) {
             return NoteAuthority.ROLE_VISITOR;
         }
 
-        TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
         if (Objects.equals(travelNote.getMember().getId(), member.getId())) {
             return NoteAuthority.ROLE_OWNER;
         } else {
-            return NoteAuthority.ROLE_VISITOR;
+            return NoteAuthority.ROLE_COMPANION;
         }
         //동행자 추가하면 ROLE_COMPANION 확인하도록 수정
     }
