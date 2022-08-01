@@ -18,7 +18,14 @@ public class CallNoteCourseResponseDto {
     public CallNoteCourseResponseDto(int day, List<Places> placeList) {
         this.day = day;
         for (Places place : placeList) {
-            places.add(new PlaceInfo(place.getId(), place.getTitle(), place.getImageUrl(), place.getAddress()));
+            places.add(new PlaceInfo(
+                    place.getId(),
+                    place.getTitle(),
+                    place.getImageUrl(),
+                    place.getAddress(),
+                    place.getLatitude(),
+                    place.getLongitude()
+            ));
         }
     }
 
@@ -33,6 +40,10 @@ public class CallNoteCourseResponseDto {
         private String imageUrl;
 
         private String address;
+
+        private float latitude;
+
+        private float longitude;
 
     }
 
