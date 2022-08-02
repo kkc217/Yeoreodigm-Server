@@ -13,12 +13,12 @@ public class CallNoteCourseResponseDto {
 
     private int day;
 
-    private List<PlaceInfo> places = new ArrayList<>();
+    private List<Coordinate> places = new ArrayList<>();
 
     public CallNoteCourseResponseDto(int day, List<Places> placeList) {
         this.day = day;
         for (Places place : placeList) {
-            places.add(new PlaceInfo(
+            places.add(new Coordinate(
                     place.getId(),
                     place.getTitle(),
                     place.getImageUrl(),
@@ -31,7 +31,7 @@ public class CallNoteCourseResponseDto {
 
     @Getter
     @AllArgsConstructor
-    static class PlaceInfo {
+    static class Coordinate {
 
         private Long placeId;
 
