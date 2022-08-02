@@ -1,11 +1,9 @@
 package com.yeoreodigm.server.dto;
 
 import com.yeoreodigm.server.domain.Member;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class MemberResponseDto {
 
     private String profileImage;

@@ -44,7 +44,7 @@ public class SearchApiController {
 
         Member member = memberService.searchMember(content);
         if (member != null) {
-            return new MemberResponseDto(member.getProfileImage(), member.getNickname(), member.getEmail());
+            return new MemberResponseDto(member);
         } else {
             throw new BadRequestException("일치하는 사용자가 없습니다.");
         }

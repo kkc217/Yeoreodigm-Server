@@ -125,7 +125,7 @@ public class TravelNoteApiController {
     public MemberResponseDto addCompanion(
             @RequestBody @Valid ChangeCompanionRequestDto requestDto) {
         Member member = travelNoteService.addNoteCompanion(requestDto.getTravelNoteId(), requestDto.getMemberId());
-        return new MemberResponseDto(member.getProfileImage(), member.getNickname(), member.getEmail());
+        return new MemberResponseDto(member);
     }
 
     @PostMapping("/companion/delete")
