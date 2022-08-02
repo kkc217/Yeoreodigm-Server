@@ -73,4 +73,22 @@ public class TravelNoteService {
         }
         courseRepository.flush();
     }
+
+    @Transactional
+    public void changeTitle(Long travelNoteId, String newTitle) {
+        if (newTitle.length() > 30) {
+            throw new BadRequestException("여행 메이킹 노트의 이름은 30자 이하만 가능합니다.");
+        }
+
+        TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
+
+        if (travelNote != null) {
+            travelNote.changeTitle(newTitle);
+
+            travelNoteRepository.saveAndFlush(travelNote);
+        } else {
+            throw new BadRequestException("일치하는 여행 메이킹 노트가 없습니다.");
+        }
+    }
+
 }

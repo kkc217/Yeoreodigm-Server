@@ -88,4 +88,10 @@ public class TravelNoteApiController {
         travelNoteService.updateNoteCourse(travelNoteId, request);
     }
 
+    @PostMapping("/title/change")
+    public void changeNoteTitle(
+            @RequestBody @Valid ChangeNoteTitleRequestDto requestDto) {
+        travelNoteService.changeTitle(requestDto.getTravelNoteId(), requestDto.getNewTitle());
+    }
+
 }
