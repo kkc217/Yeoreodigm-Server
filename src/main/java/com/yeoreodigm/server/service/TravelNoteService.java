@@ -143,4 +143,17 @@ public class TravelNoteService {
         travelNoteRepository.saveAndFlush(travelNote);
 
     }
+
+    public List<Member> findCompanion(Long travelNoteId) {
+
+        TravelNote travelNote = findTravelNote(travelNoteId);
+
+        return travelNote
+                .getCompanion()
+                .stream()
+                .map(memberRepository::findById)
+                .toList();
+
+    }
+
 }
