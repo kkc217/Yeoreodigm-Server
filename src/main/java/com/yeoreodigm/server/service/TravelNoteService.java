@@ -124,10 +124,22 @@ public class TravelNoteService {
         if (companion.contains(memberId)) {
             throw new BadRequestException("이미 추가된 사용자입니다.");
         } else {
-            travelNote.addCompanion(memberId);
+            companion.add(memberId);
+            travelNote.changeCompanion(companion);
             travelNoteRepository.saveAndFlush(travelNote);
         }
 
     }
 
+    @Transactional
+    public void deleteCompanion(Long travelNoteId, Long memberId) {
+
+        TravelNote travelNote = findTravelNote(travelNoteId);
+        List<Long> companion = travelNote.getCompanion();
+
+        companion.remove(memberId);
+        travelNote.changeCompanion(companion);
+        travelNoteRepository.saveAndFlush(travelNote);
+
+    }
 }
