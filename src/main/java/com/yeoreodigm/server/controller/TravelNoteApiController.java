@@ -94,4 +94,10 @@ public class TravelNoteApiController {
         travelNoteService.changeTitle(requestDto.getTravelNoteId(), requestDto.getNewTitle());
     }
 
+    @PostMapping("/composition/change")
+    public void changeNoteComposition(
+            @RequestBody @Valid ChangeNoteCompositionRequestDto requestDto) {
+        travelNoteService.changeComposition(requestDto.getTravelNoteId(), requestDto.getAdult(), requestDto.getChild(), requestDto.getAnimal());
+    }
+
 }

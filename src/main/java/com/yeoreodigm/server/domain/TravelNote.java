@@ -86,4 +86,9 @@ public class TravelNote {
         this.title = title;
     }
 
+    public void changeComposition(int adult, int child, int animal) {
+        this.adult = adult;
+        this.child = child;
+        this.animal = animal;
+    }
 }
