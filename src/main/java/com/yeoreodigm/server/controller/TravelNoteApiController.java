@@ -107,6 +107,20 @@ public class TravelNoteApiController {
         travelNoteService.changePublicShare(requestDto.getTravelNoteId(), requestDto.isPublicShare());
     }
 
+    @PostMapping("/companion")
+    public Result<List<MemberResponseDto>> callCompanion(
+            @RequestBody @Valid CallCompanionRequestDto requestDto) {
+
+        List<Member> memberList = travelNoteService.findCompanion(requestDto.getTravelNoteId());
+        List<MemberResponseDto> response = memberList
+                .stream()
+                .map(MemberResponseDto::new)
+                .toList();
+
+        return new Result<>(response);
+
+    }
+
     @PostMapping("/companion/add")
     public MemberResponseDto addCompanion(
             @RequestBody @Valid ChangeCompanionRequestDto requestDto) {
