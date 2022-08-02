@@ -2,16 +2,17 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.PageResult;
+import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.note.CallNoteCourseResponseDto;
-import com.yeoreodigm.server.dto.note.CallNoteInfoResponseDto;
+import com.yeoreodigm.server.dto.note.*;
 import com.yeoreodigm.server.service.CourseService;
 import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.TravelNoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,22 +48,44 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/course/{travelNoteId}/{page}")
-    public PageResult<List<CallNoteCourseResponseDto>> callNoteCourse(
+    public PageResult<List<CallNoteCoursePagingResponseDto>> callNoteCoursePaging(
             @PathVariable("travelNoteId") Long travelNoteId,
             @PathVariable("page") int page) {
 
-        List<Course> courseList = courseService.searchCourse(
+        List<Course> courseList = courseService.searchCoursePaging(
                 travelNoteId, page, QueryConst.PAGING_LIMIT_PUBLIC);
 
-        List<CallNoteCourseResponseDto> response = new ArrayList<>();
+        List<CallNoteCoursePagingResponseDto> response = new ArrayList<>();
         for (Course course : courseList) {
-            response.add(new CallNoteCourseResponseDto(course.getDay(), placeService.searchPlacesByCourse(course)));
+            response.add(new CallNoteCoursePagingResponseDto(course.getDay(), placeService.searchPlacesByCourse(course)));
         }
 
         int next = courseService.checkNextCoursePage(
                 travelNoteId, page, QueryConst.PAGING_LIMIT_PUBLIC);
 
         return new PageResult<>(response, next);
+    }
+
+    @GetMapping("/course/{travelNoteId}")
+    public Result<List<CallNoteCourseResponseDto>> callNoteCourse(
+            @PathVariable("travelNoteId") Long travelNoteId) {
+
+        List<Course> courseList = courseService.searchCourse(travelNoteId);
+
+        List<CallNoteCourseResponseDto> response = new ArrayList<>();
+        for (Course course : courseList) {
+            response.add(new CallNoteCourseResponseDto(course.getDay(), placeService.searchPlacesByCourse(course)));
+        }
+
+        return new Result<>(response);
+
+    }
+
+    @PostMapping("/course/save/{travelNoteId}")
+    public void saveNoteCourse(
+            @PathVariable("travelNoteId") Long travelNoteId,
+            @RequestBody @Valid List<List<Long>> request) {
+        travelNoteService.updateNoteCourse(travelNoteId, request);
     }
 
 }

@@ -9,6 +9,7 @@ import com.yeoreodigm.server.dto.noteprepare.SubmitPrepareRequestDto;
 import com.yeoreodigm.server.dto.SearchPlacesResponseDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.service.CourseService;
 import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.TravelNoteService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,6 +28,8 @@ public class NotePrepareApiController {
     private final PlaceService placeService;
 
     private final TravelNoteService travelNoteService;
+
+    private final CourseService courseService;
 
     @GetMapping("/like/{page}")
     public PageResult<List<SearchPlacesResponseDto>> searchPlacesLike(
@@ -65,7 +68,13 @@ public class NotePrepareApiController {
                     .placesInput(requestDto.getPlaces())
                     .build();
 
-            return new SubmitPrepareResponseDto(travelNoteService.submitNotePrepare(travelNote));
+            Long travelNoteId = travelNoteService.submitNotePrepare(travelNote);
+
+            //---------AI 완료 후 수정---------
+            courseService.saveCourseList(travelNote, 1, requestDto.getPlaces());
+            //-------------------------------
+
+            return new SubmitPrepareResponseDto(travelNoteId);
         } else {
             throw new BadRequestException("세션이 만료되었습니다.");
         }

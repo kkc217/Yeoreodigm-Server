@@ -32,4 +32,14 @@ public class Course {
     @Column(columnDefinition = "bigint []")
     private List<Long> places;
 
+    public Course(TravelNote travelNote, int day, List<Long> places) {
+        this.travelNote = travelNote;
+        this.day = day;
+        this.places = places;
+    }
+
+    public void changePlaces(List<Long> places) {
+        this.places = places;
+    }
+
 }

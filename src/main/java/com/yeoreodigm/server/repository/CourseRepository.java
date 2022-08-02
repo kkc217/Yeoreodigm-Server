@@ -27,6 +27,10 @@ public class CourseRepository {
         em.flush();
     }
 
+    public void flush() {
+        em.flush();
+    }
+
     public List<Course> findByTravelNoteIdPaging(Long travelNoteId, int page, int limit) {
         return queryFactory
                 .selectFrom(course)
@@ -37,4 +41,17 @@ public class CourseRepository {
                 .fetch();
     }
 
+    public List<Course> findByTravelNoteId(Long travelNoteId) {
+        return queryFactory
+                .selectFrom(course)
+                .where(course.travelNote.id.eq(travelNoteId))
+                .fetch();
+    }
+
+    public void delete(Course target) {
+        queryFactory
+                .delete(course)
+                .where(course.eq(target))
+                .execute();
+    }
 }
