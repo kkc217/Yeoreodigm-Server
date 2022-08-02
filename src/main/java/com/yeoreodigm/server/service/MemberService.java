@@ -3,6 +3,7 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
+import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
 @Transactional(readOnly = true)
@@ -108,6 +110,16 @@ public class MemberService {
 
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
+    }
+
+    public Member searchMember(String content) {
+
+        if (Pattern.matches(EmailConst.EMAIL_PATTERN, content)) {
+            return memberRepository.findByEmail(content);
+        } else {
+            return memberRepository.findByNickname(content);
+        }
+
     }
 
 }

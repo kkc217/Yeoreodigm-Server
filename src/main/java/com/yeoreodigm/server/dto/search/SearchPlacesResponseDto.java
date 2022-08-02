@@ -1,4 +1,4 @@
-package com.yeoreodigm.server.dto;
+package com.yeoreodigm.server.dto.search;
 
 import com.yeoreodigm.server.domain.Places;
 import lombok.Data;

@@ -13,4 +13,6 @@ public class EmailConst {
     public static final boolean HTML = true;
     public static final boolean TEXT = false;
 
+    public static final String EMAIL_PATTERN = "^\\w+@\\w+\\.\\w+(\\.\\w+)*$";
+
 }

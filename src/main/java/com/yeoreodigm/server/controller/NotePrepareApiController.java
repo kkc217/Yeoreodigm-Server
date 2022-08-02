@@ -6,7 +6,7 @@ import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.noteprepare.SubmitPrepareResponseDto;
 import com.yeoreodigm.server.dto.noteprepare.SubmitPrepareRequestDto;
-import com.yeoreodigm.server.dto.SearchPlacesResponseDto;
+import com.yeoreodigm.server.dto.search.SearchPlacesResponseDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.CourseService;
