@@ -3,6 +3,7 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
+import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.TravelNoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,17 @@ public class TravelNoteService {
     private final TravelNoteRepository travelNoteRepository;
 
     private final CourseRepository courseRepository;
+
+    private final MemberRepository memberRepository;
+
+    public TravelNote findTravelNote(Long travelNoteId) {
+        TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
+        if (travelNote != null) {
+            return travelNote;
+        } else {
+            throw new BadRequestException("일치하는 여행 메이킹 노트가 없습니다.");
+        }
+    }
 
     @Transactional
     public Long submitNotePrepare(TravelNote travelNote) {
@@ -96,13 +108,26 @@ public class TravelNoteService {
         travelNoteRepository.saveAndFlush(travelNote);
     }
 
-    public TravelNote findTravelNote(Long travelNoteId) {
-        TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
-        if (travelNote != null) {
-            return travelNote;
-        } else {
-            throw new BadRequestException("일치하는 여행 메이킹 노트가 없습니다.");
+    @Transactional
+    public void addNoteCompanion(Long travelNoteId, Long memberId) {
+
+        TravelNote travelNote = findTravelNote(travelNoteId);
+        if (travelNote.getMember().getId().equals(memberId)) {
+            throw new BadRequestException("여행 메이킹 노트의 소유자입니다.");
         }
+
+        if (memberRepository.findById(memberId) == null) {
+            throw new BadRequestException("일치하는 사용자가 없습니다.");
+        }
+
+        List<Long> companion = travelNote.getCompanion();
+        if (companion.contains(memberId)) {
+            throw new BadRequestException("이미 추가된 사용자입니다.");
+        } else {
+            travelNote.addCompanion(memberId);
+            travelNoteRepository.saveAndFlush(travelNote);
+        }
+
     }
 
 }

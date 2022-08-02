@@ -58,6 +58,9 @@ public class TravelNote {
 
     private boolean publicShare;
 
+    @Type(type = "list-array")
+    private List<Long> companion = new ArrayList<>();
+
     @OneToMany(mappedBy = "travelNote", cascade = CascadeType.ALL)
     private List<Course> courses = new ArrayList<>();
 
@@ -94,5 +97,9 @@ public class TravelNote {
 
     public void changePublicShare(boolean publicShare) {
         this.publicShare = publicShare;
+    }
+
+    public void addCompanion(Long memberId) {
+        this.companion.add(memberId);
     }
 }
