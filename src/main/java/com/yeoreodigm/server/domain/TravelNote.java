@@ -82,4 +82,8 @@ public class TravelNote {
         this.publicShare = false;
     }
 
+    public void changeTitle(String title) {
+        this.title = title;
+    }
+
 }
