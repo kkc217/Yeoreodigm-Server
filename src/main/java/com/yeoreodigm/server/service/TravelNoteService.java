@@ -26,13 +26,8 @@ public class TravelNoteService {
         return travelNote.getId();
     }
 
-    public TravelNote callNote(Long id) {
-        TravelNote travelNote = travelNoteRepository.findById(id);
-        if (travelNote != null) {
-            return travelNote;
-        } else {
-            throw new BadRequestException("일치하는 여행 메이킹 노트가 없습니다.");
-        }
+    public TravelNote callNote(Long travelNoteId) {
+        return findTravelNote(travelNoteId);
     }
 
     public NoteAuthority checkNoteAuthority(Member member, TravelNote travelNote) {
@@ -50,10 +45,7 @@ public class TravelNoteService {
 
     @Transactional
     public void updateNoteCourse(Long travelNoteId, List<List<Long>> courseListNew) {
-        TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
-        if (travelNote == null) {
-            throw new BadRequestException("일치하는 여행 메이킹 노트가 없습니다.");
-        }
+        TravelNote travelNote = findTravelNote(travelNoteId);
 
         List<Course> courseListOld = travelNote.getCourses();
 
@@ -80,12 +72,27 @@ public class TravelNoteService {
             throw new BadRequestException("여행 메이킹 노트의 이름은 30자 이하만 가능합니다.");
         }
 
+        TravelNote travelNote = findTravelNote(travelNoteId);
+        travelNote.changeTitle(newTitle);
+
+        travelNoteRepository.saveAndFlush(travelNote);
+    }
+
+    @Transactional
+    public void changeComposition(Long travelNoteId, int adult, int child, int animal) {
+        if (adult < 0 || child < 0 || animal < 0) {
+            throw new BadRequestException("여행 인원을 확인해주시기 바랍니다.");
+        }
+
+        TravelNote travelNote = findTravelNote(travelNoteId);
+        travelNote.changeComposition(adult, child, animal);
+        travelNoteRepository.saveAndFlush(travelNote);
+    }
+
+    public TravelNote findTravelNote(Long travelNoteId) {
         TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
-
         if (travelNote != null) {
-            travelNote.changeTitle(newTitle);
-
-            travelNoteRepository.saveAndFlush(travelNote);
+            return travelNote;
         } else {
             throw new BadRequestException("일치하는 여행 메이킹 노트가 없습니다.");
         }
