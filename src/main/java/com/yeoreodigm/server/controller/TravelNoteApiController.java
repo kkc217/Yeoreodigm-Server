@@ -108,8 +108,14 @@ public class TravelNoteApiController {
 
     @PostMapping("/companion/add")
     public void addCompanion(
-            @RequestBody @Valid AddCompanionRequestDto requestDto) {
+            @RequestBody @Valid ChangeCompanionRequestDto requestDto) {
         travelNoteService.addNoteCompanion(requestDto.getTravelNoteId(), requestDto.getMemberId());
+    }
+
+    @PostMapping("/companion/delete")
+    public void deleteCompanion(
+            @RequestBody @Valid ChangeCompanionRequestDto requestDto) {
+        travelNoteService.deleteCompanion(requestDto.getTravelNoteId(), requestDto.getMemberId());
     }
 
 }

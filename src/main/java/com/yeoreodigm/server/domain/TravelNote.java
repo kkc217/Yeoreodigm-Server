@@ -99,7 +99,7 @@ public class TravelNote {
         this.publicShare = publicShare;
     }
 
-    public void addCompanion(Long memberId) {
-        this.companion.add(memberId);
+    public void changeCompanion(List<Long> companion) {
+        this.companion = companion;
     }
 }
