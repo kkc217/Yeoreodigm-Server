@@ -91,4 +91,8 @@ public class TravelNote {
         this.child = child;
         this.animal = animal;
     }
+
+    public void changePublicShare(boolean publicShare) {
+        this.publicShare = publicShare;
+    }
 }
