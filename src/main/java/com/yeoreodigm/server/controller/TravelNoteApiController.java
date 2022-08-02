@@ -4,7 +4,6 @@ import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.note.CallNoteCourseRequestDto;
 import com.yeoreodigm.server.dto.note.CallNoteCourseResponseDto;
 import com.yeoreodigm.server.dto.note.CallNoteInfoResponseDto;
 import com.yeoreodigm.server.service.CourseService;
@@ -13,7 +12,6 @@ import com.yeoreodigm.server.service.TravelNoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,13 +46,13 @@ public class TravelNoteApiController {
         }
     }
 
-    @PostMapping("/course/{page}")
+    @GetMapping("/course/{travelNoteId}/{page}")
     public PageResult<List<CallNoteCourseResponseDto>> callNoteCourse(
-            @PathVariable("page") int page,
-            @RequestBody @Valid CallNoteCourseRequestDto requestDto) {
+            @PathVariable("travelNoteId") Long travelNoteId,
+            @PathVariable("page") int page) {
 
         List<Course> courseList = courseService.searchCourse(
-                requestDto.getTravelNoteId(), page, QueryConst.PAGING_LIMIT_PUBLIC);
+                travelNoteId, page, QueryConst.PAGING_LIMIT_PUBLIC);
 
         List<CallNoteCourseResponseDto> response = new ArrayList<>();
         for (Course course : courseList) {
@@ -62,14 +60,9 @@ public class TravelNoteApiController {
         }
 
         int next = courseService.checkNextCoursePage(
-                requestDto.getTravelNoteId(), page, QueryConst.PAGING_LIMIT_PUBLIC);
+                travelNoteId, page, QueryConst.PAGING_LIMIT_PUBLIC);
 
-        if (requestDto.getNoteAuthority() != NoteAuthority.ROLE_VISITOR) {
-            return new PageResult<>(response, next);
-        } else {
-            //(수정하기) 방문자인 경우 - 댓글 없이 전달
-            return new PageResult<>(response, next);
-        }
+        return new PageResult<>(response, next);
     }
 
 }
