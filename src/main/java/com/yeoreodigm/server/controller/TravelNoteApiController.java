@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.*;
+import com.yeoreodigm.server.dto.MemberResponseDto;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
@@ -107,9 +108,10 @@ public class TravelNoteApiController {
     }
 
     @PostMapping("/companion/add")
-    public void addCompanion(
+    public MemberResponseDto addCompanion(
             @RequestBody @Valid ChangeCompanionRequestDto requestDto) {
-        travelNoteService.addNoteCompanion(requestDto.getTravelNoteId(), requestDto.getMemberId());
+        Member member = travelNoteService.addNoteCompanion(requestDto.getTravelNoteId(), requestDto.getMemberId());
+        return new MemberResponseDto(member.getProfileImage(), member.getNickname(), member.getEmail());
     }
 
     @PostMapping("/companion/delete")

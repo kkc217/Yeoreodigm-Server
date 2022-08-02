@@ -109,7 +109,7 @@ public class TravelNoteService {
     }
 
     @Transactional
-    public void addNoteCompanion(Long travelNoteId, Long memberId) {
+    public Member addNoteCompanion(Long travelNoteId, Long memberId) {
 
         TravelNote travelNote = findTravelNote(travelNoteId);
         if (travelNote.getMember().getId().equals(memberId)) {
@@ -127,6 +127,7 @@ public class TravelNoteService {
             companion.add(memberId);
             travelNote.changeCompanion(companion);
             travelNoteRepository.saveAndFlush(travelNote);
+            return memberRepository.findById(memberId);
         }
 
     }

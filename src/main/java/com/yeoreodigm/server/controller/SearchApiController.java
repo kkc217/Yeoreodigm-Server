@@ -4,7 +4,7 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.search.SearchPlacesResponseDto;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
-import com.yeoreodigm.server.dto.search.SearchMemberResponseDto;
+import com.yeoreodigm.server.dto.MemberResponseDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceService;
@@ -39,12 +39,12 @@ public class SearchApiController {
     }
 
     @GetMapping("/member/{content}")
-    public SearchMemberResponseDto searchMember(
+    public MemberResponseDto searchMember(
             @PathVariable("content") String content) {
 
         Member member = memberService.searchMember(content);
         if (member != null) {
-            return new SearchMemberResponseDto(member.getProfileImage(), member.getNickname(), member.getEmail());
+            return new MemberResponseDto(member.getProfileImage(), member.getNickname(), member.getEmail());
         } else {
             throw new BadRequestException("일치하는 사용자가 없습니다.");
         }

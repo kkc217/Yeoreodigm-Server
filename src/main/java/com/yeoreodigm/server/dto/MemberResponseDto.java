@@ -1,11 +1,11 @@
-package com.yeoreodigm.server.dto.search;
+package com.yeoreodigm.server.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class SearchMemberResponseDto {
+public class MemberResponseDto {
 
     private String profileImage;
 
