@@ -100,4 +100,10 @@ public class TravelNoteApiController {
         travelNoteService.changeComposition(requestDto.getTravelNoteId(), requestDto.getAdult(), requestDto.getChild(), requestDto.getAnimal());
     }
 
+    @PostMapping("/publicshare/change")
+    public void changePublicShare(
+            @RequestBody @Valid ChangePublicShareRequestDto requestDto) {
+        travelNoteService.changePublicShare(requestDto.getTravelNoteId(), requestDto.isPublicShare());
+    }
+
 }

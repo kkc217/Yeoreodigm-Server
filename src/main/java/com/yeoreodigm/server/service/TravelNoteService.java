@@ -89,6 +89,13 @@ public class TravelNoteService {
         travelNoteRepository.saveAndFlush(travelNote);
     }
 
+    @Transactional
+    public void changePublicShare(Long travelNoteId, boolean publicShare) {
+        TravelNote travelNote = findTravelNote(travelNoteId);
+        travelNote.changePublicShare(publicShare);
+        travelNoteRepository.saveAndFlush(travelNote);
+    }
+
     public TravelNote findTravelNote(Long travelNoteId) {
         TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
         if (travelNote != null) {
