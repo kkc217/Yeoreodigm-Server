@@ -106,4 +106,10 @@ public class TravelNoteApiController {
         travelNoteService.changePublicShare(requestDto.getTravelNoteId(), requestDto.isPublicShare());
     }
 
+    @PostMapping("/companion/add")
+    public void addCompanion(
+            @RequestBody @Valid AddCompanionRequestDto requestDto) {
+        travelNoteService.addNoteCompanion(requestDto.getTravelNoteId(), requestDto.getMemberId());
+    }
+
 }

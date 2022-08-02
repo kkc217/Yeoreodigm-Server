@@ -29,6 +29,10 @@ public class MemberRepository {
         em.clear();
     }
 
+    public Member findById(Long memberId) {
+        return em.find(Member.class, memberId);
+    }
+
     public Member findByEmail(String email) {
         try {
             return queryFactory
