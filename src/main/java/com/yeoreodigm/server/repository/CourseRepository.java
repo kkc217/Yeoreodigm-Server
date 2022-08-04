@@ -61,7 +61,7 @@ public class CourseRepository {
         }
     }
 
-    public void delete(Course target) {
+    public void deleteByCourse(Course target) {
         queryFactory
                 .delete(course)
                 .where(course.eq(target))
