@@ -7,6 +7,10 @@ import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.note.*;
+import com.yeoreodigm.server.dto.note.comment.CommentResponseDto;
+import com.yeoreodigm.server.dto.note.comment.CourseCommentRequestDto;
+import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.service.CourseCommentService;
 import com.yeoreodigm.server.service.CourseService;
 import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.TravelNoteService;
@@ -27,6 +31,8 @@ public class TravelNoteApiController {
     private final PlaceService placeService;
 
     private final CourseService courseService;
+
+    private final CourseCommentService commentService;
 
     @GetMapping("/{travelNoteId}")
     public CallNoteInfoResponseDto callNoteInfo(
@@ -132,6 +138,25 @@ public class TravelNoteApiController {
     public void deleteCompanion(
             @RequestBody @Valid ChangeCompanionRequestDto requestDto) {
         travelNoteService.deleteCompanion(requestDto.getTravelNoteId(), requestDto.getMemberId());
+    }
+
+    @PostMapping("/comment/add")
+    public CommentResponseDto addCourseComment(
+            @RequestBody @Valid CourseCommentRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+
+        if (member == null) {
+            throw new BadRequestException("세션이 만료되었습니다.");
+        }
+
+        CourseComment courseComment = commentService.saveCourseComment(
+                requestDto.getTravelNoteId(),
+                requestDto.getDay(),
+                member,
+                requestDto.getText());
+
+        return new CommentResponseDto(courseComment.getId(), courseComment.getCreated());
+
     }
 
 }
