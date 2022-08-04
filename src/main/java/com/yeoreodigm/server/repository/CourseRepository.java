@@ -1,7 +1,9 @@
 package com.yeoreodigm.server.repository;
 
+import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoreodigm.server.domain.Course;
+import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -46,6 +48,17 @@ public class CourseRepository {
                 .selectFrom(course)
                 .where(course.travelNote.id.eq(travelNoteId))
                 .fetch();
+    }
+
+    public Course findByTravelNoteIdAndDay(Long travelNoteId, int day) {
+        try {
+            return queryFactory
+                    .selectFrom(course)
+                    .where(course.travelNote.id.eq(travelNoteId), course.day.eq(day))
+                    .fetchOne();
+        } catch (NonUniqueResultException e) {
+            throw new BadRequestException("일치하는 코스가 둘 이상입니다.");
+        }
     }
 
     public void delete(Course target) {
