@@ -159,4 +159,11 @@ public class TravelNoteApiController {
 
     }
 
+    @PostMapping("/comment/delete")
+    public void deleteCourseComment(
+            @RequestBody @Valid CourseCommentRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        commentService.deleteCourseComment(requestDto.getCommentId(), member);
+    }
+
 }

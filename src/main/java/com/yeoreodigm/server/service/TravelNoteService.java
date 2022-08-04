@@ -69,7 +69,7 @@ public class TravelNoteService {
                 courseOld.changePlaces(courseListNew.get(day - 1));
                 courseRepository.save(courseOld);
             } else {
-                courseRepository.delete(courseOld);
+                courseRepository.deleteByCourse(courseOld);
             }
         }
         if (courseListNew.size() > courseListOld.size()) {

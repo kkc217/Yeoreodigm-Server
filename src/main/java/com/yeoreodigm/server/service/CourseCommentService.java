@@ -27,7 +27,7 @@ public class CourseCommentService {
 
         Course course = courseRepository.findByTravelNoteIdAndDay(travelNoteId, day);
         if (!course.getTravelNote().getCompanion().contains(member.getId())
-                && !course.getTravelNote().getMember().equals(member)) {
+                && !course.getTravelNote().getMember().getId().equals(member.getId())) {
             throw new BadRequestException("이 여행 메이킹 노트에 댓글을 작성할 수 있는 권한이 없습니다.");
         }
 
@@ -38,4 +38,19 @@ public class CourseCommentService {
 
     }
 
+    @Transactional
+    public void deleteCourseComment(Long commentId, Member member) {
+
+        CourseComment courseComment = courseCommentRepository.findById(commentId);
+
+        if (courseComment != null) {
+            if (!courseComment.getCourse().getTravelNote().getMember().getId().equals(member.getId())
+                    && !courseComment.getMember().getId().equals(member.getId())) {
+                throw new BadRequestException("댓글을 삭제할 수 있는 권한이 없습니다.");
+            }
+
+            courseCommentRepository.deleteByCourseComment(courseComment);
+        }
+
+    }
 }
