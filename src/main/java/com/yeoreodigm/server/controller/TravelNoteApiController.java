@@ -163,6 +163,9 @@ public class TravelNoteApiController {
     public void deleteCourseComment(
             @RequestBody @Valid CourseCommentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (member == null) {
+            throw new BadRequestException("세션이 만료되었습니다.");
+        }
         commentService.deleteCourseComment(requestDto.getCommentId(), member);
     }
 

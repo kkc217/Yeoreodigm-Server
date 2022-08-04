@@ -20,8 +20,6 @@ public class CourseCommentService {
 
     private final CourseRepository courseRepository;
 
-    private final MemberRepository memberRepository;
-
     @Transactional
     public CourseComment saveCourseComment(Long travelNoteId, int day, Member member, String text) {
 
@@ -53,4 +51,5 @@ public class CourseCommentService {
         }
 
     }
+
 }
