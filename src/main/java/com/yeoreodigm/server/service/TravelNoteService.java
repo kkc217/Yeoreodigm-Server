@@ -23,6 +23,8 @@ public class TravelNoteService {
 
     private final MemberRepository memberRepository;
 
+    private final MemberService memberService;
+
     public TravelNote findTravelNote(Long travelNoteId) {
         TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
         if (travelNote != null) {
@@ -109,25 +111,26 @@ public class TravelNoteService {
     }
 
     @Transactional
-    public Member addNoteCompanion(Long travelNoteId, Long memberId) {
+    public Member addNoteCompanion(Long travelNoteId, String content) {
 
+        Member member = memberService.searchMember(content);
         TravelNote travelNote = findTravelNote(travelNoteId);
-        if (travelNote.getMember().getId().equals(memberId)) {
-            throw new BadRequestException("여행 메이킹 노트의 소유자입니다.");
-        }
-
-        if (memberRepository.findById(memberId) == null) {
+        if (member == null) {
             throw new BadRequestException("일치하는 사용자가 없습니다.");
         }
 
+        if (travelNote.getMember().getId().equals(member.getId())) {
+            throw new BadRequestException("여행 메이킹 노트의 소유자입니다.");
+        }
+
         List<Long> companion = travelNote.getCompanion();
-        if (companion.contains(memberId)) {
+        if (companion.contains(member.getId())) {
             throw new BadRequestException("이미 추가된 사용자입니다.");
         } else {
-            companion.add(memberId);
+            companion.add(member.getId());
             travelNote.changeCompanion(companion);
             travelNoteRepository.saveAndFlush(travelNote);
-            return memberRepository.findById(memberId);
+            return member;
         }
 
     }

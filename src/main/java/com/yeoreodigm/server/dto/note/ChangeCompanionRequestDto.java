@@ -8,5 +8,7 @@ public class ChangeCompanionRequestDto {
     private Long travelNoteId;
 
     private Long memberId;
+
+    private String content;
     
 }

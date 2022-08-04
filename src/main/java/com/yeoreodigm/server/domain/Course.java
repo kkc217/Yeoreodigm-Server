@@ -20,6 +20,7 @@ import java.util.List;
 public class Course {
 
     @Id @GeneratedValue
+    @Column(name = "course_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

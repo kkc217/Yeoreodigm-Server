@@ -17,8 +17,13 @@ public class CallNoteCoursePagingResponseDto {
 
     public CallNoteCoursePagingResponseDto(int day, List<Places> placeList) {
         this.day = day;
-        for (Places place : placeList) {
-            this.places.add(new PlaceInfo(place.getId(), place.getTitle(), place.getImageUrl(), place.getAddress()));
+        for (int idx = 0; idx < placeList.size(); idx++) {
+            Places place = placeList.get(idx);
+            if (idx != placeList.size() - 1) {
+                this.places.add(new PlaceInfo(place.getId(), place.getTitle(), place.getImageUrl(), place.getAddress(), false));
+            } else {
+                this.places.add(new PlaceInfo(place.getId(), place.getTitle(), place.getImageUrl(), place.getAddress(), true));
+            }
         }
     }
 
@@ -33,6 +38,8 @@ public class CallNoteCoursePagingResponseDto {
         private String imageUrl;
 
         private String address;
+
+        private boolean hasNext;
 
     }
 

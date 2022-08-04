@@ -107,11 +107,11 @@ public class TravelNoteApiController {
         travelNoteService.changePublicShare(requestDto.getTravelNoteId(), requestDto.isPublicShare());
     }
 
-    @PostMapping("/companion")
+    @GetMapping("/companion/{travelNoteId}")
     public Result<List<MemberResponseDto>> callCompanion(
-            @RequestBody @Valid CallCompanionRequestDto requestDto) {
+            @PathVariable("travelNoteId") Long travelNoteId) {
 
-        List<Member> memberList = travelNoteService.findCompanion(requestDto.getTravelNoteId());
+        List<Member> memberList = travelNoteService.findCompanion(travelNoteId);
         List<MemberResponseDto> response = memberList
                 .stream()
                 .map(MemberResponseDto::new)
@@ -124,7 +124,7 @@ public class TravelNoteApiController {
     @PostMapping("/companion/add")
     public MemberResponseDto addCompanion(
             @RequestBody @Valid ChangeCompanionRequestDto requestDto) {
-        Member member = travelNoteService.addNoteCompanion(requestDto.getTravelNoteId(), requestDto.getMemberId());
+        Member member = travelNoteService.addNoteCompanion(requestDto.getTravelNoteId(), requestDto.getContent());
         return new MemberResponseDto(member);
     }
 
