@@ -2,6 +2,7 @@ package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.TravelNote;
+import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,20 @@ public class CourseService {
 
     public int checkNextCoursePage(Long travelNoteId, int page, int limit) {
         return searchCoursePaging(travelNoteId, page + 1, limit).size() > 0 ? page + 1 : 0;
+    }
+
+    @Transactional
+    public void addPlace(Long travelNoteId, int day, Long placeId) {
+        Course course = courseRepository.findByTravelNoteIdAndDay(travelNoteId, day);
+
+        if (course != null) {
+            List<Long> places = course.getPlaces();
+            places.add(placeId);
+            course.changePlaces(places);
+            courseRepository.saveAndFlush(course);
+        } else {
+            throw new BadRequestException("일치하는 코스 정보가 없습니다.");
+        }
     }
 
 }

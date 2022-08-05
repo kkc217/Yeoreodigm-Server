@@ -173,4 +173,10 @@ public class TravelNoteApiController {
         commentService.deleteCourseComment(requestDto.getCommentId(), member);
     }
 
+    @PostMapping("/recommend/add")
+    public void addRecommendedPlace(
+            @RequestBody @Valid AddRecommendRequestDto requestDto) {
+        courseService.addPlace(requestDto.getTravelNoteId(), requestDto.getDay(), requestDto.getPlaceId());
+    }
+
 }
