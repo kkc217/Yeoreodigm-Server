@@ -34,7 +34,7 @@ public class CourseComment {
         this.member = member;
         this.text = text;
         this.created = LocalDateTime.now();
-        this.modified = LocalDateTime.now();
+        this.modified = this.created;
     }
 
 }

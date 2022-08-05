@@ -62,9 +62,13 @@ public class TravelNoteApiController {
         List<Course> courseList = courseService.searchCoursePaging(
                 travelNoteId, page, QueryConst.PAGING_LIMIT_PUBLIC);
 
+
         List<CallNoteCoursePagingResponseDto> response = new ArrayList<>();
         for (Course course : courseList) {
-            response.add(new CallNoteCoursePagingResponseDto(course.getDay(), placeService.searchPlacesByCourse(course)));
+            response.add(new CallNoteCoursePagingResponseDto(
+                            course.getDay(),
+                            placeService.searchPlacesByCourse(course),
+                            commentService.searchCourseCommentByCourse(course)));
         }
 
         int next = courseService.checkNextCoursePage(
