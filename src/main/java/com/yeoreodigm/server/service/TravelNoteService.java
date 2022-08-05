@@ -25,6 +25,10 @@ public class TravelNoteService {
 
     private final MemberService memberService;
 
+    private final RecommendService recommendService;
+
+    private final CourseService courseService;
+
     public TravelNote findTravelNote(Long travelNoteId) {
         TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
         if (travelNote != null) {
@@ -36,8 +40,21 @@ public class TravelNoteService {
 
     @Transactional
     public Long submitNotePrepare(TravelNote travelNote) {
+
         travelNoteRepository.saveAndFlush(travelNote);
+
+        List<List<Long>> recommendedCourseList = recommendService.getRecommendedCourses(
+                travelNote.getMember(),
+                travelNote.getDayStart(),
+                travelNote.getDayEnd(),
+                travelNote.getPlacesInput());
+
+        for (int idx = 0; idx < recommendedCourseList.size(); idx++) {
+            courseService.saveCourse(travelNote, idx + 1, recommendedCourseList.get(idx));
+        }
+
         return travelNote.getId();
+
     }
 
     public TravelNote callNote(Long travelNoteId) {

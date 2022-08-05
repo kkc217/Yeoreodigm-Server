@@ -17,7 +17,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
 
     @Transactional
-    public void saveCourseList(TravelNote travelNote, int day, List<Long> places) {
+    public void saveCourse(TravelNote travelNote, int day, List<Long> places) {
         Course course = new Course(travelNote, day, places);
         courseRepository.saveAndFlush(course);
     }
