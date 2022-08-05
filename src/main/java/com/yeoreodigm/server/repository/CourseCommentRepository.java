@@ -2,12 +2,15 @@ package com.yeoreodigm.server.repository;
 
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.CourseComment;
 import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+
+import java.util.List;
 
 import static com.yeoreodigm.server.domain.QCourseComment.*;
 
@@ -35,8 +38,16 @@ public class CourseCommentRepository {
                     .where(courseComment.id.eq(id))
                     .fetchOne();
         } catch (NonUniqueResultException e) {
-            throw new BadRequestException("일치하는 코멘트가 둘ㅊ이상입니다.");
+            throw new BadRequestException("일치하는 코멘트가 둘 이상입니다.");
         }
+    }
+
+    public List<CourseComment> findByCourse(Course course) {
+        return queryFactory
+                .selectFrom(courseComment)
+                .where(courseComment.course.eq(course))
+                .orderBy(courseComment.modified.asc())
+                .fetch();
     }
 
     public void deleteByCourseComment(CourseComment target) {

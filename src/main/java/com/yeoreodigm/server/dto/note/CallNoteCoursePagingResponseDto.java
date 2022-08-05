@@ -1,10 +1,13 @@
 package com.yeoreodigm.server.dto.note;
 
+import com.yeoreodigm.server.domain.CourseComment;
+import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.Places;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +18,11 @@ public class CallNoteCoursePagingResponseDto {
 
     private List<PlaceInfo> places = new ArrayList<>();
 
-    public CallNoteCoursePagingResponseDto(int day, List<Places> placeList) {
+    private List<CommentInfo> comments = new ArrayList<>();
+
+    public CallNoteCoursePagingResponseDto(int day, List<Places> placeList, List<CourseComment> commentList) {
         this.day = day;
+
         for (int idx = 0; idx < placeList.size(); idx++) {
             Places place = placeList.get(idx);
             if (idx != placeList.size() - 1) {
@@ -24,6 +30,24 @@ public class CallNoteCoursePagingResponseDto {
             } else {
                 this.places.add(new PlaceInfo(place.getId(), place.getTitle(), place.getImageUrl(), place.getAddress(), true));
             }
+        }
+
+        for (CourseComment comment : commentList) {
+            Member member = comment.getMember();
+
+            boolean isModified = !comment.getCreated().isEqual(comment.getModified());
+            LocalDateTime dateTime = isModified ? comment.getModified() : comment.getCreated();
+
+
+            this.comments.add(new CommentInfo(
+                    comment.getId(),
+                    comment.getText(),
+                    member.getId(),
+                    member.getProfileImage(),
+                    member.getNickname(),
+                    isModified,
+                    dateTime
+                    ));
         }
     }
 
@@ -40,6 +64,26 @@ public class CallNoteCoursePagingResponseDto {
         private String address;
 
         private boolean hasNext;
+
+    }
+
+    @Getter
+    @AllArgsConstructor
+    static class CommentInfo {
+
+        private Long commentId;
+
+        private String text;
+
+        private Long memberId;
+
+        private String imageUrl;
+
+        private String nickname;
+
+        private boolean hasModified;
+
+        private LocalDateTime dateTime;
 
     }
 

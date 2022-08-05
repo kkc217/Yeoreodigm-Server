@@ -11,6 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -34,6 +38,10 @@ public class CourseCommentService {
 
         return courseComment;
 
+    }
+
+    public List<CourseComment> searchCourseCommentByCourse(Course course) {
+        return Objects.requireNonNullElseGet(courseCommentRepository.findByCourse(course), ArrayList::new);
     }
 
     @Transactional
