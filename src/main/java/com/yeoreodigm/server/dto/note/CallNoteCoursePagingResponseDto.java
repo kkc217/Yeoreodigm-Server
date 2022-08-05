@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.dto.note;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yeoreodigm.server.domain.CourseComment;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.Places;
@@ -83,6 +84,7 @@ public class CallNoteCoursePagingResponseDto {
 
         private boolean hasModified;
 
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private LocalDateTime dateTime;
 
     }

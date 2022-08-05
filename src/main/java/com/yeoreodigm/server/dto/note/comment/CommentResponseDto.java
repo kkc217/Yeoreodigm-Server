@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.dto.note.comment;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ public class CommentResponseDto {
 
     private Long commentId;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createdTime;
 
 }

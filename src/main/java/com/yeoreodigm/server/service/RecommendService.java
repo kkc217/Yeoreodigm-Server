@@ -45,7 +45,7 @@ public class RecommendService {
                         .retrieve()
                         .bodyToMono(CoursesDto.class)
                         .block())
-                .getResult_path();
+                .getCourseList();
 
     }
 
