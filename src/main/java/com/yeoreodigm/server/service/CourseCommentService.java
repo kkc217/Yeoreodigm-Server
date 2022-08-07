@@ -6,7 +6,6 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseCommentRepository;
 import com.yeoreodigm.server.repository.CourseRepository;
-import com.yeoreodigm.server.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +39,13 @@ public class CourseCommentService {
 
     }
 
-    public List<CourseComment> searchCourseCommentByCourse(Course course) {
-        return Objects.requireNonNullElseGet(courseCommentRepository.findByCourse(course), ArrayList::new);
+    public List<CourseComment> searchCourseCommentByNoteAndDay(Long travelNoteId, int day) {
+        Course course = courseRepository.findByTravelNoteIdAndDay(travelNoteId, day);
+        if (course != null) {
+            return Objects.requireNonNullElseGet(courseCommentRepository.findByCourse(course), ArrayList::new);
+        } else {
+            throw new BadRequestException("일치하는 일차 정보가 없습니다.");
+        }
     }
 
     @Transactional
