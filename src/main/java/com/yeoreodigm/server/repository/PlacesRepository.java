@@ -32,10 +32,10 @@ public class PlacesRepository {
     }
 
     public List<Places> findByPlacesIdList(List<Long> placeIdList) {
-        return queryFactory
-                .selectFrom(places)
-                .where(places.id.in(placeIdList))
-                .fetch();
+        return placeIdList
+                .stream()
+                .map(this::findByPlacesId)
+                .toList();
     }
 
     public List<Places> findByTitlePaging(String keyword, int page, int limit) {
