@@ -2,12 +2,11 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.MemberResponseDto;
-import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
-import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.note.*;
 import com.yeoreodigm.server.dto.note.comment.CommentResponseDto;
+import com.yeoreodigm.server.dto.note.comment.CommentShortResponseDto;
 import com.yeoreodigm.server.dto.note.comment.CourseCommentRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.CourseCommentService;
@@ -141,8 +140,22 @@ public class TravelNoteApiController {
         travelNoteService.deleteCompanion(requestDto.getTravelNoteId(), requestDto.getMemberId());
     }
 
+    @GetMapping("/comment/{travelNoteId}/{day}")
+    public Result<List<CommentResponseDto>> callComment(
+            @PathVariable(name = "travelNoteId") Long travelNoteId,
+            @PathVariable(name = "day") int day) {
+        List<CourseComment> courseCommentList
+                = commentService.searchCourseCommentByNoteAndDay(travelNoteId, day);
+
+        return new Result<>(
+                courseCommentList
+                        .stream()
+                        .map(CommentResponseDto::new)
+                        .toList());
+    }
+
     @PostMapping("/comment/add")
-    public CommentResponseDto addCourseComment(
+    public CommentShortResponseDto addCourseComment(
             @RequestBody @Valid CourseCommentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
 
@@ -156,7 +169,7 @@ public class TravelNoteApiController {
                 member,
                 requestDto.getText());
 
-        return new CommentResponseDto(courseComment.getId(), courseComment.getCreated());
+        return new CommentShortResponseDto(courseComment.getId(), courseComment.getCreated());
 
     }
 
