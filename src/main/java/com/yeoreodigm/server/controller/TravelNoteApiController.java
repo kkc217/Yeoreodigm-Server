@@ -54,30 +54,27 @@ public class TravelNoteApiController {
         }
     }
 
-    @GetMapping("/course/{travelNoteId}/{page}")
-    public PageResult<List<CallNoteCoursePagingResponseDto>> callNoteCoursePaging(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @PathVariable("page") int page) {
+    @GetMapping("/course/{travelNoteId}")
+    public Result<List<CallNoteCoursePagingResponseDto>> callNoteCoursePaging(
+            @PathVariable("travelNoteId") Long travelNoteId) {
 
-        List<Course> courseList = courseService.searchCoursePaging(
-                travelNoteId, page, QueryConst.PAGING_LIMIT_PUBLIC);
-
+        List<Course> courseList = courseService.searchCourse(travelNoteId);
 
         List<CallNoteCoursePagingResponseDto> response = new ArrayList<>();
+        int indexStart = 0;
         for (Course course : courseList) {
+            List<Places> placeList = placeService.searchPlacesByCourse(course);
             response.add(new CallNoteCoursePagingResponseDto(
+                            indexStart,
                             course.getDay(),
-                            placeService.searchPlacesByCourse(course),
-                            commentService.searchCourseCommentByCourse(course)));
+                            placeList));
+            indexStart += placeList.size();
         }
 
-        int next = courseService.checkNextCoursePage(
-                travelNoteId, page, QueryConst.PAGING_LIMIT_PUBLIC);
-
-        return new PageResult<>(response, next);
+        return new Result<>(response);
     }
 
-    @GetMapping("/course/{travelNoteId}")
+    @GetMapping("/course/coordinate/{travelNoteId}")
     public Result<List<CallNoteCourseResponseDto>> callNoteCourse(
             @PathVariable("travelNoteId") Long travelNoteId) {
 
