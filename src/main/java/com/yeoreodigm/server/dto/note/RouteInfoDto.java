@@ -8,6 +8,10 @@ import java.text.DecimalFormat;
 @Data
 public class RouteInfoDto {
 
+    private Long start;
+
+    private Long goal;
+
     private String distance;
 
     private String car;
@@ -15,6 +19,9 @@ public class RouteInfoDto {
     private String walk;
 
     public RouteInfoDto(RouteInfo routeInfo) {
+        this.start = routeInfo.getStart();
+        this.goal = routeInfo.getGoal();
+
         int distance = routeInfo.getDistance();
         if (distance < 1000) {
             this.distance = distance + "m 이동";
