@@ -186,7 +186,19 @@ public class TravelNoteApiController {
     @PostMapping("/place/add")
     public void addRecommendedPlace(
             @RequestBody @Valid AddRecommendRequestDto requestDto) {
-        courseService.addPlace(requestDto.getTravelNoteId(), requestDto.getDay(), requestDto.getPlaceId());
+        if (requestDto.getPlaceId() != null) {
+            courseService.addPlace(requestDto.getTravelNoteId(), requestDto.getDay(), requestDto.getPlaceId());
+        } else {
+            courseService.addPlaceList(requestDto.getTravelNoteId(), requestDto.getDay(), requestDto.getPlaceIdList());
+        }
+    }
+
+    @GetMapping("/course/route/{travelNoteId}")
+    public Result<List<RouteInfoDto>> callRoutes(
+            @PathVariable("travelNoteId") Long travelNoteId) {
+        List<RouteInfo> routeInfoList = courseService.callRoutes(travelNoteId);
+
+        return new Result<>(routeInfoList.stream().map(RouteInfoDto::new).toList());
     }
 
 }

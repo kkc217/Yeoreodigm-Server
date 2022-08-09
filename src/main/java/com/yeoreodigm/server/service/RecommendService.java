@@ -1,7 +1,7 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.dto.constraint.WebClientConst;
+import com.yeoreodigm.server.dto.constraint.EnvConst;
 import com.yeoreodigm.server.dto.recommend.CoursesDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,15 +18,14 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class RecommendService {
 
-    private final WebClient webClient;
-
-    public List<List<Long>> getRecommendedCourses(Member member, LocalDate dayStart, LocalDate dayEnd, List<Long> places) {
+    public List<List<Long>> getRecommendedCourses(
+            Member member, LocalDate dayStart, LocalDate dayEnd, List<Long> placeList, List<String> regionList) {
 
         int day = Period.between(dayStart, dayEnd).getDays() + 1;
         StringBuilder include = new StringBuilder();
 
-        if (places.size() > 0) {
-            for (Long placeId : places) {
+        if (placeList.size() > 0) {
+            for (Long placeId : placeList) {
                 include.append(placeId).append(",");
             }
             include.delete(include.length() - 1, include.length());
@@ -34,14 +33,27 @@ public class RecommendService {
             include.append(0);
         }
 
-        
+        StringBuilder location = new StringBuilder();
+        for (String region : regionList) {
+            switch (region) {
+                case "제주" -> location.append("east,west,south,north");
+                case "제주 동부" -> location.append("east");
+                case "제주 서부" -> location.append("west");
+                case "제주 남부" -> location.append("south");
+                case "제주 북부" -> location.append("north");
+            }
+        }
+
+        WebClient webClient = WebClient.create(EnvConst.BASE_URL);
+
         return Objects.requireNonNull(webClient
                         .get()
                         .uri(uriBuilder -> uriBuilder
-                                .path(WebClientConst.COURSE_RECOMMEND_URI)
+                                .path(EnvConst.COURSE_RECOMMEND_URI)
                                 .queryParam("id", member.getId())
                                 .queryParam("day", day)
                                 .queryParam("include", include)
+                                .queryParam("location", location)
                                 .build())
                         .retrieve()
                         .bodyToMono(CoursesDto.class)

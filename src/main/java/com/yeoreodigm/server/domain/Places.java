@@ -22,9 +22,9 @@ public class Places {
 
     private String introduction;
 
-    private float latitude;
+    private double latitude;
 
-    private float longitude;
+    private double longitude;
 
     private String dial_num;
 

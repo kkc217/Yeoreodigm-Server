@@ -1,12 +1,9 @@
 package com.yeoreodigm.server.service;
 
-import com.yeoreodigm.server.domain.Course;
-import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.PlaceLike;
-import com.yeoreodigm.server.domain.Places;
-import com.yeoreodigm.server.dto.constraint.QueryConst;
+import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.repository.PlaceLikeRepository;
 import com.yeoreodigm.server.repository.PlacesRepository;
+import com.yeoreodigm.server.repository.RouteInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +18,10 @@ public class PlaceService {
     private final PlaceLikeRepository placeLikeRepository;
 
     private final PlacesRepository placesRepository;
+
+    private final RouteInfoRepository routeInfoRepository;
+
+    private final RouteInfoService routeInfoService;
 
     public List<Places> searchPlaceLike(Member member, int page, int limit) {
         return placesRepository.findByPlacesIdList(
@@ -45,6 +46,25 @@ public class PlaceService {
 
     public List<Places> searchPlacesByCourse(Course course) {
         return placesRepository.findByPlacesIdList(course.getPlaces());
+    }
+
+    @Transactional
+    public RouteInfo callRoute(Long start, Long goal) {
+        if (start > goal) {
+            Long tmp = start;
+            start = goal;
+            goal = tmp;
+        }
+
+        RouteInfo routeInfo = routeInfoRepository.findRouteInfoByPlaces(start, goal);
+
+        if (routeInfo != null) {
+            return routeInfo;
+        } else if (start.equals(goal)) {
+            return new RouteInfo(start, goal, 0, 0, 0);
+        } else {
+            return routeInfoService.updateRouteInfo(start, goal);
+        }
     }
 
 }

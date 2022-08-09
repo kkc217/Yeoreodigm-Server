@@ -47,7 +47,8 @@ public class TravelNoteService {
                 travelNote.getMember(),
                 travelNote.getDayStart(),
                 travelNote.getDayEnd(),
-                travelNote.getPlacesInput());
+                travelNote.getPlacesInput(),
+                travelNote.getRegion());
 
         for (int idx = 0; idx < recommendedCourseList.size(); idx++) {
             courseService.saveCourse(travelNote, idx + 1, recommendedCourseList.get(idx));
