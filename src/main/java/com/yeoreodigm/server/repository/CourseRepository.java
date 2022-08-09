@@ -47,6 +47,7 @@ public class CourseRepository {
         return queryFactory
                 .selectFrom(course)
                 .where(course.travelNote.id.eq(travelNoteId))
+                .orderBy(course.day.asc())
                 .fetch();
     }
 
