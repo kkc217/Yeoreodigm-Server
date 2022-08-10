@@ -1,7 +1,6 @@
 package com.yeoreodigm.server.dto.note;
 
 import com.yeoreodigm.server.domain.RouteInfo;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.text.DecimalFormat;
@@ -50,16 +49,6 @@ public class RouteInfoDto {
             }
             this.routeInfos.add(new RouteInfoData(distance, car, walk));
         }
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class RouteInfoData {
-        private String distance;
-
-        private String car;
-
-        private String walk;
     }
 
 }

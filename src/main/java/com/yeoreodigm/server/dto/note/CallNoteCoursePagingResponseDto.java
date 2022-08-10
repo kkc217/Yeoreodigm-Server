@@ -15,15 +15,32 @@ public class CallNoteCoursePagingResponseDto {
 
     private List<PlaceInfo> places = new ArrayList<>();
 
-    public CallNoteCoursePagingResponseDto(int countStart, int day, List<Places> placeList) {
+
+    public CallNoteCoursePagingResponseDto(int countStart, int day, List<Places> placeList, List<RouteInfoData> routeInfoDataList) {
         this.day = day;
 
         for (int index = 0; index < placeList.size(); index++) {
             Places place = placeList.get(index);
             if (index != placeList.size() - 1) {
-                this.places.add(new PlaceInfo(countStart + index, place.getId(), place.getTitle(), place.getImageUrl(), place.getAddress(), false));
+                this.places.add(
+                        new PlaceInfo(
+                                countStart + index,
+                                place.getId(),
+                                place.getTitle(),
+                                place.getImageUrl(),
+                                place.getAddress(),
+                                false,
+                                routeInfoDataList.get(index)));
             } else {
-                this.places.add(new PlaceInfo(countStart + index, place.getId(), place.getTitle(), place.getImageUrl(), place.getAddress(), true));
+                this.places.add(
+                        new PlaceInfo(
+                                countStart + index,
+                                place.getId(),
+                                place.getTitle(),
+                                place.getImageUrl(),
+                                place.getAddress(),
+                                true,
+                                null));
             }
         }
     }
@@ -43,6 +60,8 @@ public class CallNoteCoursePagingResponseDto {
         private String address;
 
         private boolean hasNext;
+
+        private RouteInfoData routeInfo;
 
     }
 
