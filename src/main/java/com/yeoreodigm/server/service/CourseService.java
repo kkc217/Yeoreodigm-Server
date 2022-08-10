@@ -71,15 +71,18 @@ public class CourseService {
     }
 
     @Transactional
-    public List<RouteInfo> callRoutes(Long travelNoteId) {
-        List<RouteInfo> result = new ArrayList<>();
+    public List<RouteInfoDto> callRoutes(Long travelNoteId) {
+        List<RouteInfoDto> result = new ArrayList<>();
 
         List<Course> courseList = searchCourse(travelNoteId);
 
         for (Course course : courseList) {
             List<Long> placeList = course.getPlaces();
             for (int i = 0; i < placeList.size() - 1; i++) {
-                result.add(placeService.callRoute(placeList.get(i), placeList.get(i + 1)));
+                result.add(
+                        new RouteInfoDto(
+                                placeService.callRoute(placeList.get(i), placeList.get(i + 1)),
+                                course.getDay()));
             }
         }
         return result;

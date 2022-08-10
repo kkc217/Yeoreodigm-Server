@@ -8,6 +8,8 @@ import java.text.DecimalFormat;
 @Data
 public class RouteInfoDto {
 
+    private int day;
+
     private Long start;
 
     private Long goal;
@@ -18,7 +20,8 @@ public class RouteInfoDto {
 
     private String walk;
 
-    public RouteInfoDto(RouteInfo routeInfo) {
+    public RouteInfoDto(RouteInfo routeInfo, int day) {
+        this.day = day;
         this.start = routeInfo.getStart();
         this.goal = routeInfo.getGoal();
 

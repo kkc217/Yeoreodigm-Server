@@ -196,9 +196,7 @@ public class TravelNoteApiController {
     @GetMapping("/course/route/{travelNoteId}")
     public Result<List<RouteInfoDto>> callRoutes(
             @PathVariable("travelNoteId") Long travelNoteId) {
-        List<RouteInfo> routeInfoList = courseService.callRoutes(travelNoteId);
-
-        return new Result<>(routeInfoList.stream().map(RouteInfoDto::new).toList());
+        return new Result<>(courseService.callRoutes(travelNoteId));
     }
 
 }
