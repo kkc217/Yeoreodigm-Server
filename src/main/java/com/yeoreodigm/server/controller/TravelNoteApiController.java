@@ -8,11 +8,9 @@ import com.yeoreodigm.server.dto.note.*;
 import com.yeoreodigm.server.dto.note.comment.CommentResponseDto;
 import com.yeoreodigm.server.dto.note.comment.CommentShortResponseDto;
 import com.yeoreodigm.server.dto.note.comment.CourseCommentRequestDto;
+import com.yeoreodigm.server.dto.search.SearchPlacesResponseDto;
 import com.yeoreodigm.server.exception.BadRequestException;
-import com.yeoreodigm.server.service.CourseCommentService;
-import com.yeoreodigm.server.service.CourseService;
-import com.yeoreodigm.server.service.PlaceService;
-import com.yeoreodigm.server.service.TravelNoteService;
+import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +30,8 @@ public class TravelNoteApiController {
     private final CourseService courseService;
 
     private final CourseCommentService commentService;
+
+    private final RecommendService recommendService;
 
     @GetMapping("/{travelNoteId}")
     public CallNoteInfoResponseDto callNoteInfo(
@@ -197,6 +197,13 @@ public class TravelNoteApiController {
         } else {
             courseService.addPlaceList(requestDto.getTravelNoteId(), requestDto.getDay(), requestDto.getPlaceIdList());
         }
+    }
+
+    @GetMapping("/place/recommend/{travelNoteId}")
+    public Result<List<SearchPlacesResponseDto>> resetPlaceRecommended(
+            @PathVariable("travelNoteId") Long travelNoteId) {
+        return new Result<>(recommendService.getRecommendedPlaces(travelNoteId)
+                        .stream().map(SearchPlacesResponseDto::new).toList());
     }
 
     @GetMapping("/course/route/{travelNoteId}")

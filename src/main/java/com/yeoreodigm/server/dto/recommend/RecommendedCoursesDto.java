@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CoursesDto {
+public class RecommendedCoursesDto {
 
     private List<List<Long>> courseList;
 
