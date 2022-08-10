@@ -70,13 +70,14 @@ public class RouteInfoService {
                         .get("summary");
 
                 int distance = Integer.parseInt(summary.get("distance").toString());
-                int duration = Integer.parseInt(summary.get("duration").toString());
+                int duration =
+                        Integer.parseInt(summary.get("duration").toString()) / RouteInfoConst.MILLISECOND_TO_MINUTE;
 
                 int walk;
                 if (distance > 40000) {
                     walk = -1;
                 } else {
-                    walk = distance * RouteInfoConst.WALKING_MINUTE_PER_KILOMETER;
+                    walk = (int) (((float) distance / 1000) * RouteInfoConst.WALKING_MINUTE_PER_KILOMETER);
                 }
 
                 return new RouteInfo(start, goal, distance, duration, walk);

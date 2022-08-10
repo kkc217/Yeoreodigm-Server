@@ -27,7 +27,7 @@ public class RouteInfoDto {
                 distance = decimalFormat.format(((float) distanceInt) / 1000) + "km 이동";
             }
 
-            int carInt = routeInfo.getCar() / 60000;
+            int carInt = routeInfo.getCar();
             String car;
             if ((carInt / 60) == 0) {
                 car = carInt + "분";
@@ -39,7 +39,7 @@ public class RouteInfoDto {
             if (routeInfo.getWalk() < 0) {
                 walk = "10시간 이상";
             } else {
-                int walkInt = routeInfo.getWalk() / 60000;
+                int walkInt = routeInfo.getWalk();
 
                 if ((walkInt / 60) == 0) {
                     walk = walkInt + "분";
