@@ -58,15 +58,21 @@ public class TravelNoteApiController {
             @PathVariable("travelNoteId") Long travelNoteId) {
 
         List<Course> courseList = courseService.searchCourse(travelNoteId);
+        List<RouteInfoDto> routeInfoList = courseService.callRoutes(travelNoteId);
 
         List<CallNoteCoursePagingResponseDto> response = new ArrayList<>();
         int indexStart = 0;
-        for (Course course : courseList) {
+        for (int i = 0; i < courseList.size(); i++) {
+            RouteInfoDto routeInfoDto = routeInfoList.get(i);
+
+            Course course = courseList.get(i);
             List<Places> placeList = placeService.searchPlacesByCourse(course);
+
             response.add(new CallNoteCoursePagingResponseDto(
-                            indexStart,
-                            course.getDay(),
-                            placeList));
+                    indexStart,
+                    course.getDay(),
+                    placeList,
+                    routeInfoDto.getRouteInfos()));
             indexStart += placeList.size();
         }
 
