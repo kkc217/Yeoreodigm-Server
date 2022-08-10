@@ -50,11 +50,15 @@ public class TravelNoteService {
                 travelNote.getPlacesInput(),
                 travelNote.getRegion());
 
-        for (int idx = 0; idx < recommendedCourseList.size(); idx++) {
-            courseService.saveCourse(travelNote, idx + 1, recommendedCourseList.get(idx));
-        }
+        if (recommendedCourseList != null) {
+            for (int idx = 0; idx < recommendedCourseList.size(); idx++) {
+                courseService.saveCourse(travelNote, idx + 1, recommendedCourseList.get(idx));
+            }
 
-        return travelNote.getId();
+            return travelNote.getId();
+        } else {
+            throw new BadRequestException("코스 생성 중 에러가 발생하였습니다.");
+        }
 
     }
 

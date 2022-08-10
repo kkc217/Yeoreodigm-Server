@@ -6,8 +6,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class EnvConst {
 
-    public static String BASE_URL;
+    public static String COURSE_RECOMMEND_URL;
     public static String COURSE_RECOMMEND_URI;
+    public static String PLACE_RECOMMEND_URL;
+    public static String PLACE_RECOMMEND_URI;
     public static String NAVER_API_URL;
     public static String NAVER_API_ID;
     public static String NAVER_API_KEY;
@@ -17,14 +19,24 @@ public class EnvConst {
 
     public static final String NAVER_API_KEY_NAME = "X-NCP-APIGW-API-KEY";
 
-    @Value("${webClient.base.url}")
-    public void setBaseUrl(String baseUrl) {
-        BASE_URL = baseUrl;
+    @Value("${webclient.course.recommend.url}")
+    public void setBaseUrl(String courseRecommendUrl) {
+        COURSE_RECOMMEND_URL = courseRecommendUrl;
     }
 
     @Value("${webclient.course.recommend.uri}")
     public void setCourseRecommendUri(String courseRecommendUri) {
         COURSE_RECOMMEND_URI = courseRecommendUri;
+    }
+
+    @Value("${webclient.place.recommend.url}")
+    public void setPlaceRecommendUrl(String placeRecommendUrl) {
+        PLACE_RECOMMEND_URL = placeRecommendUrl;
+    }
+
+    @Value("${webclient.place.recommend.uri}")
+    public void setPlaceRecommendUri(String placeRecommendUri) {
+        PLACE_RECOMMEND_URI = placeRecommendUri;
     }
 
     @Value("${webclient.naver.api.url}")
