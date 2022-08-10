@@ -77,14 +77,23 @@ public class CourseService {
         List<Course> courseList = searchCourse(travelNoteId);
 
         for (Course course : courseList) {
-            List<Long> placeList = course.getPlaces();
-            for (int i = 0; i < placeList.size() - 1; i++) {
-                result.add(
-                        new RouteInfoDto(
-                                placeService.callRoute(placeList.get(i), placeList.get(i + 1)),
-                                course.getDay()));
-            }
+            result.add(callRoutesByCourse(course));
         }
+
         return result;
     }
+
+    @Transactional
+    public RouteInfoDto callRoutesByCourse(Course course) {
+        List<RouteInfo> routeInfoList = new ArrayList<>();
+
+        List<Long> placeList = course.getPlaces();
+
+        for (int i = 0; i < placeList.size() - 1; i++) {
+            routeInfoList.add(placeService.callRoute(placeList.get(i), placeList.get(i + 1)));
+        }
+
+        return new RouteInfoDto(course.getDay(), routeInfoList);
+    }
+
 }
