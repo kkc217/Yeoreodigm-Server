@@ -1,9 +1,11 @@
 package com.yeoreodigm.server.service;
 
+import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.constraint.EnvConst;
+import com.yeoreodigm.server.dto.constraint.RecommendConst;
 import com.yeoreodigm.server.dto.recommend.RecommendedCoursesDto;
 import com.yeoreodigm.server.dto.recommend.RecommendedPlacesDto;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
@@ -77,8 +80,20 @@ public class RecommendService {
 
     }
 
-    public List<Places> getRecommendedPlaces(Long travelNoteId) {
-        TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
+    public List<Places> getRecommendedPlaces(TravelNote travelNote) {
+        List<Course> courseList = travelNote.getCourses();
+
+        StringBuilder placeString = new StringBuilder();
+        for (Course course : courseList) {
+            List<Long> places = course.getPlaces();
+            for (Long placeId : places) {
+                placeString.append(placeId).append(",");
+            }
+        }
+        if (placeString.length() == 0) {
+            placeString.append(",");
+        }
+        System.out.println(placeString);
 
         WebClient webClient = WebClient.create(EnvConst.PLACE_RECOMMEND_URL);
 
@@ -87,7 +102,8 @@ public class RecommendService {
                 .uri(uriBuilder -> uriBuilder
                         .path(EnvConst.PLACE_RECOMMEND_URI)
                         .queryParam("memberId", travelNote.getMember().getId())
-                        .queryParam("travelNoteId", travelNote.getId())
+                        .queryParam("placesInCourse", placeString.substring(0, placeString.length() - 1))
+                        .queryParam("numOfResult", RecommendConst.NOTE_PLACE_RECOMMEND)
                         .build())
                 .retrieve()
                 .bodyToMono(RecommendedPlacesDto.class)

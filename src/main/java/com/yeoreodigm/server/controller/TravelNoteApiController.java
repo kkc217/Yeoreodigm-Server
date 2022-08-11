@@ -43,7 +43,8 @@ public class TravelNoteApiController {
 
         if (noteAuthority == NoteAuthority.ROLE_OWNER) {
             //--------수정하기--------
-            List<Places> placesRecommended = placeService.searchPlaces("폭포", 1, 4);
+//            List<Places> placesRecommended = placeService.searchPlaces("폭포", 1, 4);
+            List<Places> placesRecommended = recommendService.getRecommendedPlaces(travelNote);
             //----------- -----------
             return new CallNoteInfoResponseDto(noteAuthority, travelNote, placesRecommended);
         } else if (noteAuthority == NoteAuthority.ROLE_COMPANION) {
@@ -202,7 +203,8 @@ public class TravelNoteApiController {
     @GetMapping("/place/recommend/{travelNoteId}")
     public Result<List<SearchPlacesResponseDto>> resetPlaceRecommended(
             @PathVariable("travelNoteId") Long travelNoteId) {
-        return new Result<>(recommendService.getRecommendedPlaces(travelNoteId)
+        TravelNote travelNote = travelNoteService.findTravelNote(travelNoteId);
+        return new Result<>(recommendService.getRecommendedPlaces(travelNote)
                         .stream().map(SearchPlacesResponseDto::new).toList());
     }
 
