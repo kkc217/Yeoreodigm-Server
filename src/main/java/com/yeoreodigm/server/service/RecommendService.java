@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -80,16 +81,25 @@ public class RecommendService {
 
     }
 
-    public List<Places> getRecommendedPlaces(TravelNote travelNote) {
+    public List<Places> getRecommendedPlacesByTravelNote(TravelNote travelNote, int limit) {
         List<Course> courseList = travelNote.getCourses();
+        List<Long> placeIdList = new ArrayList<>();
+        for (Course course : courseList) {
+            List<Long> coursePlaces = course.getPlaces();
+            placeIdList.addAll(coursePlaces);
+        }
+
+        return getRecommendedPlaces(travelNote.getMember().getId(), placeIdList, limit);
+    }
+
+    public List<Places> getRecommendedPlaces(Long memberId, List<Long> placeIdList, int limit) {
 
         StringBuilder placeString = new StringBuilder();
-        for (Course course : courseList) {
-            List<Long> places = course.getPlaces();
-            for (Long placeId : places) {
-                placeString.append(placeId).append(",");
-            }
+
+        for (Long placeId : placeIdList) {
+            placeString.append(placeId).append(",");
         }
+
         if (placeString.length() == 0) {
             placeString.append(",");
         }
@@ -100,9 +110,9 @@ public class RecommendService {
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path(EnvConst.PLACE_RECOMMEND_URI)
-                        .queryParam("memberId", travelNote.getMember().getId())
+                        .queryParam("memberId", memberId)
                         .queryParam("placesInCourse", placeString.substring(0, placeString.length() - 1))
-                        .queryParam("numOfResult", RecommendConst.NOTE_PLACE_RECOMMEND)
+                        .queryParam("numOfResult", limit)
                         .build())
                 .retrieve()
                 .bodyToMono(RecommendedPlacesDto.class)

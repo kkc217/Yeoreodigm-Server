@@ -3,6 +3,7 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.MemberResponseDto;
 import com.yeoreodigm.server.dto.Result;
+import com.yeoreodigm.server.dto.constraint.RecommendConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.note.*;
 import com.yeoreodigm.server.dto.note.comment.CommentResponseDto;
@@ -44,7 +45,8 @@ public class TravelNoteApiController {
         NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(member, travelNote);
 
         if (noteAuthority == NoteAuthority.ROLE_OWNER) {
-            List<Places> placesRecommended = recommendService.getRecommendedPlaces(travelNote);
+            List<Places> placesRecommended
+                    = recommendService.getRecommendedPlacesByTravelNote(travelNote, RecommendConst.NOTE_PLACE_RECOMMEND);
             return new CallNoteInfoResponseDto(noteAuthority, travelNote, placesRecommended);
         } else if (noteAuthority == NoteAuthority.ROLE_COMPANION) {
             return new CallNoteInfoResponseDto(noteAuthority, travelNote);
@@ -204,7 +206,7 @@ public class TravelNoteApiController {
     public Result<List<SearchPlacesResponseDto>> resetPlaceRecommended(
             @PathVariable("travelNoteId") Long travelNoteId) {
         TravelNote travelNote = travelNoteService.findTravelNote(travelNoteId);
-        return new Result<>(recommendService.getRecommendedPlaces(travelNote)
+        return new Result<>(recommendService.getRecommendedPlacesByTravelNote(travelNote, RecommendConst.NOTE_PLACE_RECOMMEND)
                         .stream().map(SearchPlacesResponseDto::new).toList());
     }
 
