@@ -28,7 +28,7 @@ public class RouteInfoRepository {
         em.flush();
     }
 
-    public void flush() {
+    public void flushAndClear() {
         em.flush();
     }
 

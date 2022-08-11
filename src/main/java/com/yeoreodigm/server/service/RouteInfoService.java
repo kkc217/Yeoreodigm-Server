@@ -28,7 +28,8 @@ public class RouteInfoService {
     @Transactional
     public RouteInfo updateRouteInfo(Long start, Long goal) {
         RouteInfo routeInfo = getRouteInfoFromApi(start, goal);
-        routeInfoRepository.saveAndFlush(routeInfo);
+        routeInfoRepository.save(routeInfo);
+        routeInfoRepository.flushAndClear();
         return routeInfo;
     }
 
