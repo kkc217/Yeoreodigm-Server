@@ -96,8 +96,10 @@ public class RecommendService {
 
         StringBuilder placeString = new StringBuilder();
 
-        for (Long placeId : placeIdList) {
-            placeString.append(placeId).append(",");
+        if (placeIdList != null) {
+            for (Long placeId : placeIdList) {
+                placeString.append(placeId).append(",");
+            }
         }
 
         if (placeString.length() == 0) {
