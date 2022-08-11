@@ -50,16 +50,13 @@ public class PlaceService {
 
     @Transactional
     public RouteInfo callRoute(Long start, Long goal) {
-        System.out.println(start + "/" + goal);
         if (start > goal) {
             Long tmp = start;
             start = goal;
             goal = tmp;
         }
-        System.out.println(start + "//" + goal);
 
         RouteInfo routeInfo = routeInfoRepository.findRouteInfoByPlaces(start, goal);
-        System.out.println(routeInfo);
         if (routeInfo != null) {
             return routeInfo;
         } else if (start.equals(goal)) {

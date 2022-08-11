@@ -93,7 +93,6 @@ public class RecommendService {
         if (placeString.length() == 0) {
             placeString.append(",");
         }
-        System.out.println(placeString);
 
         WebClient webClient = WebClient.create(EnvConst.PLACE_RECOMMEND_URL);
 
