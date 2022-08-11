@@ -1,16 +1,20 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
+import com.yeoreodigm.server.dto.mainpage.MainPageItem;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
+import com.yeoreodigm.server.repository.LogRepository;
 import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.TravelNoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
 
 @Service
 @Transactional(readOnly = true)
@@ -28,6 +32,12 @@ public class TravelNoteService {
     private final RecommendService recommendService;
 
     private final CourseService courseService;
+
+    private final LogRepository logRepository;
+
+    private final PlaceService placeService;
+
+    private final static int RANDOM_NOTE_NUMBER = 300;
 
     public TravelNote findTravelNote(Long travelNoteId) {
         TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
@@ -179,6 +189,50 @@ public class TravelNoteService {
                 .map(memberRepository::findById)
                 .toList();
 
+    }
+
+    public List<MainPageItem> getRecommendedNotes(int limit) {
+        List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(limit);
+
+        return getMainPageItemList(travelNoteList);
+    }
+
+    public List<MainPageItem> getRandomNotes(int limit) {
+        List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(RANDOM_NOTE_NUMBER);
+        int index = (int) (Math.random() * travelNoteList.size());
+
+        List<TravelNote> result = new ArrayList<>();
+
+        for (int i = 0; i < limit; i++) {
+            result.add(travelNoteList.get(index));
+            index += 1;
+            while (index >= travelNoteList.size()) {
+                index -= travelNoteList.size();
+            }
+        }
+
+        return getMainPageItemList(result);
+    }
+
+    public List<MainPageItem> getWeeklyNotes(int limit) {
+        List<TravelNote> travelNoteList = logRepository
+                .findMostNoteIdLimiting(limit)
+                .stream()
+                .map(travelNoteRepository::findById)
+                .toList();
+
+        return getMainPageItemList(travelNoteList);
+    }
+
+    private List<MainPageItem> getMainPageItemList(List<TravelNote> travelNoteList) {
+        List<String> randomImageUrlList = placeService.getRandomImageUrlList(travelNoteList.size());
+
+        List<MainPageItem> result = new ArrayList<>();
+        for (int i = 0; i < travelNoteList.size(); i++) {
+            result.add(new MainPageItem(travelNoteList.get(i), randomImageUrlList.get(i)));
+        }
+
+        return result;
     }
 
 }
