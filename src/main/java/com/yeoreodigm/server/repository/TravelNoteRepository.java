@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 
+import java.util.List;
+
 import static com.yeoreodigm.server.domain.QTravelNote.travelNote;
 
 @Repository
@@ -50,6 +52,14 @@ public class TravelNoteRepository {
         } catch (NonUniqueResultException e) {
             throw new BadRequestException("일치하는 메이킹 노트가 둘 이상입니다.");
         }
+    }
+
+    public List<TravelNote> findByPublicLimiting(int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.publicShare.eq(true))
+                .limit(limit)
+                .fetch();
     }
 
 }
