@@ -33,6 +33,8 @@ public class TravelNoteApiController {
 
     private final RecommendService recommendService;
 
+    private final MapMarkerService mapMarkerService;
+
     @GetMapping("/{travelNoteId}")
     public CallNoteInfoResponseDto callNoteInfo(
             @PathVariable("travelNoteId") Long travelNoteId,
@@ -42,10 +44,7 @@ public class TravelNoteApiController {
         NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(member, travelNote);
 
         if (noteAuthority == NoteAuthority.ROLE_OWNER) {
-            //--------수정하기--------
-//            List<Places> placesRecommended = placeService.searchPlaces("폭포", 1, 4);
             List<Places> placesRecommended = recommendService.getRecommendedPlaces(travelNote);
-            //----------- -----------
             return new CallNoteInfoResponseDto(noteAuthority, travelNote, placesRecommended);
         } else if (noteAuthority == NoteAuthority.ROLE_COMPANION) {
             return new CallNoteInfoResponseDto(noteAuthority, travelNote);
@@ -85,10 +84,11 @@ public class TravelNoteApiController {
             @PathVariable("travelNoteId") Long travelNoteId) {
 
         List<Course> courseList = courseService.searchCourse(travelNoteId);
+        List<String> markerColorList = mapMarkerService.getMarkerColorList(courseList.size());
 
         List<CallNoteCourseResponseDto> response = new ArrayList<>();
         for (Course course : courseList) {
-            response.add(new CallNoteCourseResponseDto(course.getDay(), placeService.searchPlacesByCourse(course)));
+            response.add(new CallNoteCourseResponseDto(course.getDay(), markerColorList.get(course.getDay() - 1), placeService.searchPlacesByCourse(course)));
         }
 
         return new Result<>(response);
