@@ -5,17 +5,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RouteInfo {
+public class RouteInfo implements Serializable {
 
-    @Id @GeneratedValue
-    private Long id;
-
+    @Id
     private Long start;
 
+    @Id
     private Long goal;
 
     private int distance;
