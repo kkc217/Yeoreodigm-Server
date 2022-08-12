@@ -104,6 +104,13 @@ public class TravelNoteApiController {
         travelNoteService.updateNoteCourse(travelNoteId, request);
     }
 
+    @GetMapping("/course/optimize/{travelNoteId}")
+    public void optimizeCourse(
+            @PathVariable("travelNoteId") Long travelNoteId) {
+        courseService.optimizeCourse(travelNoteId);
+    }
+
+
     @PostMapping("/title/change")
     public void changeNoteTitle(
             @RequestBody @Valid ChangeNoteTitleRequestDto requestDto) {

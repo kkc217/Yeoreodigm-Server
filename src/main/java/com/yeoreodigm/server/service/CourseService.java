@@ -3,12 +3,15 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.RouteInfo;
 import com.yeoreodigm.server.domain.TravelNote;
+import com.yeoreodigm.server.dto.constraint.EnvConst;
+import com.yeoreodigm.server.dto.note.OptimizedCourseDto;
 import com.yeoreodigm.server.dto.note.RouteInfoDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +97,58 @@ public class CourseService {
         }
 
         return new RouteInfoDto(course.getDay(), routeInfoList);
+    }
+
+    @Transactional
+    public void optimizeCourse(Long travelNoteId) {
+        List<Course> courseList = courseRepository.findByTravelNoteId(travelNoteId);
+
+        List<Long> placeIdList = new ArrayList<>();
+        for (Course course : courseList) {
+            List<Long> coursePlaces = course.getPlaces();
+            placeIdList.addAll(coursePlaces);
+        }
+
+        List<List<Long>> optimizedCourse = getOptimizedCourse(courseList.size(), placeIdList);
+
+        for (int i = 0; i < courseList.size(); i++) {
+            Course course = courseList.get(i);
+            course.changePlaces(optimizedCourse.get(i));
+            courseRepository.save(course);
+        }
+        courseRepository.flush();
+    }
+
+    public List<List<Long>> getOptimizedCourse(int totalDay, List<Long> placeIdList) {
+        StringBuilder placeList = new StringBuilder();
+
+        if (placeIdList.size() == 0) {
+            return new ArrayList<>();
+        }
+
+        for (Long placeId : placeIdList) {
+            placeList.append(placeId).append(",");
+        }
+
+        WebClient webClient = WebClient.create(EnvConst.COURSE_OPTIMIZE_URL);
+
+        OptimizedCourseDto optimizedCourseDto = webClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(EnvConst.COURSE_OPTIMIZE_URI)
+                        .queryParam("day", totalDay)
+                        .queryParam("placeList", placeList.substring(0, placeList.length() - 1))
+                        .build())
+                .retrieve()
+                .bodyToMono(OptimizedCourseDto.class)
+                .block();
+
+        if (optimizedCourseDto != null) {
+            return optimizedCourseDto.getResult();
+        } else {
+            throw new BadRequestException("경로 최적화에 실패하였습니다.");
+        }
+
     }
 
 }
