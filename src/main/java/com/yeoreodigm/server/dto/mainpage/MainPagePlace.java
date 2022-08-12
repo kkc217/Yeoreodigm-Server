@@ -7,22 +7,16 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class MainPageItem {
+public class MainPagePlace {
 
-    private Long id;
+    private Long placeId;
 
     private String title;
 
     private String imageUrl;
 
-    public MainPageItem(TravelNote travelNote, String imageUrl) {
-        this.id = travelNote.getId();
-        this.title = travelNote.getTitle();
-        this.imageUrl = imageUrl;
-    }
-
-    public MainPageItem(Places place) {
-        this.id = place.getId();
+    public MainPagePlace(Places place) {
+        this.placeId = place.getId();
         this.title = place.getTitle();
         this.imageUrl = place.getImageUrl();
     }

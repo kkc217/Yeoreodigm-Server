@@ -1,7 +1,7 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
-import com.yeoreodigm.server.dto.mainpage.MainPageItem;
+import com.yeoreodigm.server.dto.mainpage.MainPageTravelNote;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
 import com.yeoreodigm.server.repository.LogRepository;
@@ -191,13 +191,13 @@ public class TravelNoteService {
 
     }
 
-    public List<MainPageItem> getRecommendedNotes(int limit) {
+    public List<MainPageTravelNote> getRecommendedNotes(int limit) {
         List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(limit);
 
         return getMainPageItemList(travelNoteList);
     }
 
-    public List<MainPageItem> getRandomNotes(int limit) {
+    public List<MainPageTravelNote> getRandomNotes(int limit) {
         List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(RANDOM_NOTE_NUMBER);
         int index = (int) (Math.random() * travelNoteList.size());
 
@@ -214,7 +214,7 @@ public class TravelNoteService {
         return getMainPageItemList(result);
     }
 
-    public List<MainPageItem> getWeeklyNotes(int limit) {
+    public List<MainPageTravelNote> getWeeklyNotes(int limit) {
         List<TravelNote> travelNoteList = logRepository
                 .findMostNoteIdLimiting(limit)
                 .stream()
@@ -224,12 +224,12 @@ public class TravelNoteService {
         return getMainPageItemList(travelNoteList);
     }
 
-    private List<MainPageItem> getMainPageItemList(List<TravelNote> travelNoteList) {
+    private List<MainPageTravelNote> getMainPageItemList(List<TravelNote> travelNoteList) {
         List<String> randomImageUrlList = placeService.getRandomImageUrlList(travelNoteList.size());
 
-        List<MainPageItem> result = new ArrayList<>();
+        List<MainPageTravelNote> result = new ArrayList<>();
         for (int i = 0; i < travelNoteList.size(); i++) {
-            result.add(new MainPageItem(travelNoteList.get(i), randomImageUrlList.get(i)));
+            result.add(new MainPageTravelNote(travelNoteList.get(i), randomImageUrlList.get(i)));
         }
 
         return result;

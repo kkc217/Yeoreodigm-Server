@@ -8,18 +8,18 @@ import java.util.List;
 @Data
 public class MainPageInfoDto {
 
-    private List<MainPageItem> recommendedNotes;
+    private List<MainPageTravelNote> recommendedNotes;
 
-    private List<MainPageItem> recommendedPlaces;
+    private List<MainPagePlace> recommendedPlaces;
 
-    private List<MainPageItem> weeklyNotes;
+    private List<MainPageTravelNote> weeklyNotes;
 
     private List<CoordinateItemInfo> popularPlaces;
 
     public MainPageInfoDto(
-            List<MainPageItem> recommendedNotes,
-            List<MainPageItem> recommendedPlaces,
-            List<MainPageItem> weeklyNotes,
+            List<MainPageTravelNote> recommendedNotes,
+            List<MainPagePlace> recommendedPlaces,
+            List<MainPageTravelNote> weeklyNotes,
             List<Places> popularPlaces) {
         this.recommendedNotes = recommendedNotes;
         this.recommendedPlaces = recommendedPlaces;
@@ -31,7 +31,7 @@ public class MainPageInfoDto {
     @Data
     static class CoordinateItemInfo {
 
-        private Long id;
+        private Long placeId;
 
         private String title;
 
@@ -42,7 +42,7 @@ public class MainPageInfoDto {
         private Double longitude;
 
         public CoordinateItemInfo(Places place) {
-            this.id = place.getId();
+            this.placeId = place.getId();
             this.title = place.getTitle();
             this.imageUrl = place.getImageUrl();
             this.latitude = place.getLatitude();
