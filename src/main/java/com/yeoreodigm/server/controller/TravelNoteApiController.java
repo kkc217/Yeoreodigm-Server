@@ -51,7 +51,7 @@ public class TravelNoteApiController {
         } else if (noteAuthority == NoteAuthority.ROLE_COMPANION) {
             return new CallNoteInfoResponseDto(noteAuthority, travelNote);
         } else {
-            return new CallNoteInfoResponseDto(noteAuthority, travelNote);
+            throw new BadRequestException("여행 메이킹 노트에 접근 권한이 없습니다.");
         }
     }
 
