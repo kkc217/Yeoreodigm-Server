@@ -11,7 +11,6 @@ import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.CourseService;
 import com.yeoreodigm.server.service.PlaceService;
-import com.yeoreodigm.server.service.RecommendService;
 import com.yeoreodigm.server.service.TravelNoteService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +28,8 @@ public class NotePrepareApiController {
     private final PlaceService placeService;
 
     private final TravelNoteService travelNoteService;
+
+    private final CourseService courseService;
 
     @GetMapping("/like/{page}")
     public PageResult<List<SearchPlacesResponseDto>> searchPlacesLike(
@@ -68,6 +69,8 @@ public class NotePrepareApiController {
                     .build();
 
             Long travelNoteId = travelNoteService.submitNotePrepare(travelNote);
+
+            courseService.optimizeCourse(travelNoteId);
 
             return new SubmitPrepareResponseDto(travelNoteId);
         } else {
