@@ -10,6 +10,8 @@ public class EnvConst {
     public static String COURSE_RECOMMEND_URI;
     public static String PLACE_RECOMMEND_URL;
     public static String PLACE_RECOMMEND_URI;
+    public static String COURSE_OPTIMIZE_URL;
+    public static String COURSE_OPTIMIZE_URI;
     public static String NAVER_API_URL;
     public static String NAVER_API_ID;
     public static String NAVER_API_KEY;
@@ -38,6 +40,12 @@ public class EnvConst {
     public void setPlaceRecommendUri(String placeRecommendUri) {
         PLACE_RECOMMEND_URI = placeRecommendUri;
     }
+
+    @Value("${webclient.course.optimize.url}")
+    public void setCourseOptimizeUrl(String courseOptimizeUrl) { COURSE_OPTIMIZE_URL = courseOptimizeUrl; }
+
+    @Value("${webclient.course.optimize.uri}")
+    public void setCourseOptimizeUri(String courseOptimizeUri) { COURSE_OPTIMIZE_URI = courseOptimizeUri; }
 
     @Value("${webclient.naver.api.url}")
     public void setNaverApiUrl(String naverApiUrl) {
