@@ -101,9 +101,9 @@ public class TravelNoteService {
         int adult = 0;
         int child = 0;
         if (LocalDate.now().getYear() - birthYear > 18) {
-            adult = 1;
+            adult++;
         } else {
-            child = 1;
+            child++;
         }
 
         return TravelNote.builder()
@@ -355,18 +355,8 @@ public class TravelNoteService {
                 travelNote.getThumbnail());
     }
 
-    public List<TravelNoteAndLikeDto> getTempTravelNoteList(int limit, Member member) {
-        List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(limit);
-        List<LikeItemDto> likeItemDtoList = travelNoteList
-                .stream()
-                .map(travelNote -> travelNoteLikeService.getLikeInfo(travelNote.getId(), member.getId()))
-                .toList();
-
-        List<TravelNoteAndLikeDto> result = new ArrayList<>();
-        for (int i = 0; i < travelNoteList.size(); i++) {
-            result.add(new TravelNoteAndLikeDto(travelNoteList.get(i), likeItemDtoList.get(i)));
-        }
-        return result;
+    public List<TravelNote> getTempTravelNoteList(int limit, Member member) {
+        return travelNoteRepository.findByPublicLimiting(limit);
     }
 
 }

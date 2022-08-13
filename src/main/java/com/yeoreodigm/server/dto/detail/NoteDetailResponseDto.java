@@ -37,7 +37,7 @@ public class NoteDetailResponseDto {
             TravelNoteDetailInfo travelNoteInfo,
             LikeItemDto travelNoteLikeInfo,
             List<CourseCoordinateDto> coordinates,
-            List<TravelNoteAndLikeDto> recommendedNoteList,
+            List<TravelNote> recommendedNoteList,
             List<CommentItemDto> commentList) {
         this.title = travelNoteInfo.getTitle();
         this.period = travelNoteInfo.getPeriod();
@@ -66,19 +66,11 @@ public class NoteDetailResponseDto {
 
         private List<String> theme;
 
-        private boolean hasLiked;
-
-        private Long likeCount;
-
-        public RecommendedTravelNotes(TravelNoteAndLikeDto travelNoteAndLikeDto) {
-            TravelNote travelNote = travelNoteAndLikeDto.getTravelNote();
-            LikeItemDto likeItemDto = travelNoteAndLikeDto.getLikeItemDto();
+        public RecommendedTravelNotes(TravelNote travelNote) {
             this.travelNoteId = travelNote.getId();
             this.title = travelNote.getTitle();
             this.imageUrl = travelNote.getThumbnail();
             this.theme = travelNote.getTheme();
-            this.hasLiked = likeItemDto.isHasLiked();
-            this.likeCount = likeItemDto.getLikeCount();
         }
 
     }

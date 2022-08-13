@@ -64,7 +64,7 @@ public class DetailPageApiController {
                 placeService.searchPlacesByCourse(course))).collect(Collectors.toList());
 
         //여행 노트 추천 - AI API 구현시 수정 예정
-        List<TravelNoteAndLikeDto> recommendedNoteList = travelNoteService.getTempTravelNoteList(4, member);
+        List<TravelNote> recommendedNoteList = travelNoteService.getTempTravelNoteList(4, member);
 
         List<CommentItemDto> commentList = noteCommentService.getNoteCommentInfo(travelNoteId, member.getId());
 
