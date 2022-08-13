@@ -56,7 +56,7 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/course/{travelNoteId}")
-    public Result<List<CallNoteCoursePagingResponseDto>> callNoteCoursePaging(
+    public Result<List<CallNoteCoursePagingResponseDto>> callNoteCourse(
             @PathVariable("travelNoteId") Long travelNoteId) {
 
         List<Course> courseList = courseService.searchCourse(travelNoteId);
@@ -82,7 +82,7 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/course/coordinate/{travelNoteId}")
-    public Result<List<CourseCoordinateDto>> callNoteCourse(
+    public Result<List<CourseCoordinateDto>> callNoteCourseCoordinate(
             @PathVariable("travelNoteId") Long travelNoteId) {
 
         List<Course> courseList = courseService.searchCourse(travelNoteId);
