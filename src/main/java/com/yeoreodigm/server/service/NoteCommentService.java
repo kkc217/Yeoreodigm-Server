@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.service;
 
+import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.NoteComment;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
 import com.yeoreodigm.server.repository.NoteCommentRepository;
@@ -30,6 +31,12 @@ public class NoteCommentService {
         }
 
         return result;
+    }
+
+    @Transactional
+    public void addNoteComment(Member member, Long travelNoteId, String text) {
+        NoteComment noteComment = new NoteComment(travelNoteId, member, text);
+        noteCommentRepository.saveAndFlush(noteComment);
     }
 
 }

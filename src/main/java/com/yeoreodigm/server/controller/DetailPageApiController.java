@@ -9,10 +9,7 @@ import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
 import com.yeoreodigm.server.dto.constraint.DetailPageConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.detail.NoteDetailCourseResponseDto;
-import com.yeoreodigm.server.dto.detail.TravelNoteAndLikeDto;
-import com.yeoreodigm.server.dto.detail.TravelNoteDetailInfo;
-import com.yeoreodigm.server.dto.detail.NoteDetailResponseDto;
+import com.yeoreodigm.server.dto.detail.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.note.CourseCoordinateDto;
 import com.yeoreodigm.server.dto.note.RouteInfoDto;
@@ -21,6 +18,7 @@ import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,10 +91,20 @@ public class DetailPageApiController {
     }
 
     @GetMapping("/travelnote/comment/{travelNoteId}")
-    public Result<List<CommentItemDto>> callTravelNoteDetailComment(
+    public Result<List<CommentItemDto>> callTravelNoteComment(
             @PathVariable("travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new Result<>(noteCommentService.getNoteCommentInfo(travelNoteId, member.getId()));
+    }
+
+    @PostMapping("/travelnote/comment/add")
+    public CommentItemDto addTravelNoteComment(
+            @RequestBody @Valid AddNoteCommentRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (member == null) throw new BadRequestException("로그인이 필요한 기능입니다.");
+
+        noteCommentService.addNoteComment(member, requestDto.getTravelNoteId(), requestDto.getText());
+        return null;
     }
 
 }

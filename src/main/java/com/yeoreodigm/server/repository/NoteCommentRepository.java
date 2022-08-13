@@ -30,7 +30,7 @@ public class NoteCommentRepository {
     public List<NoteComment> findByTravelNoteID(Long travelNoteId) {
         return queryFactory
                 .selectFrom(noteComment)
-                .where(noteComment.travel_note_id.eq(travelNoteId))
+                .where(noteComment.travelNoteId.eq(travelNoteId))
                 .orderBy(noteComment.created.asc())
                 .fetch();
     }
