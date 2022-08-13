@@ -17,4 +17,6 @@ public class TravelNoteDetailInfo {
 
     private List<String> theme;
 
+    private String thumbnail;
+
 }

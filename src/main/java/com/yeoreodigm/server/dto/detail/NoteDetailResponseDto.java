@@ -21,6 +21,8 @@ public class NoteDetailResponseDto {
 
     private List<String> theme;
 
+    private String thumbnail;
+
     private boolean hasLiked;
 
     private Long likeCount;
@@ -41,6 +43,7 @@ public class NoteDetailResponseDto {
         this.period = travelNoteInfo.getPeriod();
         this.region = travelNoteInfo.getRegion();
         this.theme = travelNoteInfo.getTheme();
+        this.thumbnail = travelNoteInfo.getThumbnail();
 
         this.hasLiked = travelNoteLikeInfo.isHasLiked();
         this.likeCount = travelNoteLikeInfo.getLikeCount();

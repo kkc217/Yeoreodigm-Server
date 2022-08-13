@@ -1,7 +1,6 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
-import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.dto.constraint.TravelNoteConst;
 import com.yeoreodigm.server.dto.detail.TravelNoteAndLikeDto;
 import com.yeoreodigm.server.dto.detail.TravelNoteDetailInfo;
@@ -21,6 +20,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.yeoreodigm.server.dto.constraint.TravelNoteConst.*;
 
 
 @Service
@@ -60,12 +61,14 @@ public class TravelNoteService {
     public TravelNote createTravelNote(Member member, NewTravelNoteDto requestDto) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
 
+
         String title = member.getNickname() +
                 "님의 " +
-                TravelNoteConst.TITLE_LIST[(int) (Math.random() * TravelNoteConst.TITLE_LIST.length)] +
+                TITLE_LIST[(int) (Math.random() * TITLE_LIST.length)] +
                 " 제주여행";
 
         return TravelNote.builder()
+                .id(getRandomId())
                 .member(member)
                 .title(title)
                 .dayStart(requestDto.getDayStart())
@@ -76,9 +79,23 @@ public class TravelNoteService {
                 .region(requestDto.getRegion())
                 .theme(requestDto.getTheme())
                 .placesInput(requestDto.getPlaces())
-                .publicShare(TravelNoteConst.PUBLIC_SHARE_DEFAULT_VALUE)
+                .publicShare(PUBLIC_SHARE_DEFAULT_VALUE)
                 .thumbnail(placeService.getRandomImageUrl())
                 .build();
+    }
+
+    private long getRandomId() {
+        long id = Long.parseLong(Integer.toString((int) (Math.random() * (ID_SIZE_MAX - ID_SIZE_MIN) + ID_SIZE_MIN))
+                + (int) (Math.random() * (ID_SIZE_MAX - ID_SIZE_MIN) + ID_SIZE_MIN));
+
+        TravelNote travelNote = travelNoteRepository.findById(id);
+        while (travelNote != null) {
+            id = Long.parseLong(Integer.toString((int) (Math.random() * (ID_SIZE_MAX - ID_SIZE_MIN) + ID_SIZE_MIN))
+                    + (int) (Math.random() * (ID_SIZE_MAX - ID_SIZE_MIN) + ID_SIZE_MIN));
+
+            travelNote = travelNoteRepository.findById(id);
+        }
+        return id;
     }
 
     @Transactional
@@ -283,7 +300,8 @@ public class TravelNoteService {
                 travelNote.getTitle(),
                 period.toString(),
                 travelNote.getRegion(),
-                theme);
+                theme,
+                travelNote.getThumbnail());
     }
 
     public List<TravelNoteAndLikeDto> getTempTravelNoteList(int limit, Member member) {
