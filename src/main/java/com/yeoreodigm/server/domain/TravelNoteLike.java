@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.domain;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -7,7 +8,7 @@ import javax.persistence.*;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(indexes = @Index(name = "multiIndex1", columnList = "travelNoteId, memberId"))
 public class TravelNoteLike {
 
