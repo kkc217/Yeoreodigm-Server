@@ -19,9 +19,8 @@ public class NoteCommentLikeService {
     }
 
     public boolean checkHasLiked(Long noteCommentId, Long memberId) {
-        NoteCommentLike noteCommentLike
-                = noteCommentLikeRepository.findByNoteCommentIdAndMemberId(noteCommentId, memberId);
-        return noteCommentLike != null;
+        if (memberId == null) return false;
+        return noteCommentLikeRepository.findByNoteCommentIdAndMemberId(noteCommentId, memberId) != null;
     }
 
     public LikeItemDto getLikeInfo(Long noteCommentId, Long memberId) {
