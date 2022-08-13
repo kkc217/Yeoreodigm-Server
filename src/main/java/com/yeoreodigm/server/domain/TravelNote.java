@@ -23,7 +23,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TravelNote {
 
-    @Id @GeneratedValue
+    @Id
     @Column(name = "travel_note_id")
     private Long id;
 
@@ -67,7 +67,8 @@ public class TravelNote {
     private List<Course> courses = new ArrayList<>();
 
     @Builder
-    public TravelNote(Member member,
+    public TravelNote(Long id,
+                      Member member,
                       String title,
                       LocalDate dayStart,
                       LocalDate dayEnd,
@@ -79,6 +80,7 @@ public class TravelNote {
                       List<Long> placesInput,
                       boolean publicShare,
                       String thumbnail) {
+        this.id = id;
         this.member = member;
         this.title = title;
         this.dayStart = dayStart;
