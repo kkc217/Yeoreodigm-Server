@@ -43,10 +43,8 @@ public class TravelNoteLikeService {
                 TravelNoteLike newTravelNoteLike = new TravelNoteLike(travelNoteId, member.getId());
                 travelNoteLikeRepository.saveAndFlush(newTravelNoteLike);
             }
-        } else {
-            if (travelNoteLike != null) {
-                travelNoteLikeRepository.deleteById(travelNoteLike.getId());
-            }
+        } else if (travelNoteLike != null) {
+            travelNoteLikeRepository.deleteById(travelNoteLike.getId());
         }
     }
 

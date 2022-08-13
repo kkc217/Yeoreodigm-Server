@@ -41,4 +41,10 @@ public class NoteCommentLikeRepository {
                 .fetchOne();
     }
 
+    public void deleteById(Long noteCommentLikeId) {
+        queryFactory
+                .delete(noteCommentLike)
+                .where(noteCommentLike.id.eq(noteCommentLikeId))
+                .execute();
+    }
 }

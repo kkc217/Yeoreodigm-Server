@@ -36,6 +36,8 @@ public class DetailPageApiController {
 
     private final NoteCommentService noteCommentService;
 
+    private final NoteCommentLikeService noteCommentLikeService;
+
     private final MapMarkerService mapMarkerService;
 
     private final PlaceService placeService;
@@ -81,7 +83,7 @@ public class DetailPageApiController {
             @PathVariable("travelNoteId") Long travelNoteId,
             @PathVariable("page") int page) {
         List<Course> courseList = courseService.searchCoursePaging(
-               travelNoteId, page, DetailPageConst.NOTE_COURSE_PAGING_LIMIT);
+                travelNoteId, page, DetailPageConst.NOTE_COURSE_PAGING_LIMIT);
         List<RouteInfoDto> routeInfoList = courseService.callRoutesByCourseList(courseList);
 
         List<NoteDetailCourseResponseDto> response = new ArrayList<>();
@@ -116,6 +118,13 @@ public class DetailPageApiController {
             @RequestBody @Valid NoteCommentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         noteCommentService.deleteNoteComment(member, requestDto.getCommentId());
+    }
+
+    @PostMapping("/travelnote/comment/like")
+    public void changeTravelNoteCommentLike(
+            @RequestBody @Valid LikeRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        noteCommentLikeService.changeTravelNoteLike(member, requestDto.getCommentId(), requestDto.isLike());
     }
 
 }
