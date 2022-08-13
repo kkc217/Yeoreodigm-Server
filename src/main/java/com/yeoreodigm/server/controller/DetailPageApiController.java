@@ -13,6 +13,7 @@ import com.yeoreodigm.server.dto.detail.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.note.CourseCoordinateDto;
 import com.yeoreodigm.server.dto.note.RouteInfoDto;
+import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteResponseDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
@@ -125,6 +126,16 @@ public class DetailPageApiController {
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         noteCommentLikeService.changeTravelNoteLike(member, requestDto.getCommentId(), requestDto.isLike());
+    }
+
+    @PostMapping("/travelnote/make")
+    public NewTravelNoteResponseDto makeMyTravelNote(
+            @RequestBody @Valid TravelNoteRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        TravelNote travelNote = travelNoteService.createTravelNoteFromOther(requestDto.getTravelNoteId(), member);
+        Long travelNoteId = travelNoteService.submitNoteFromOther(requestDto.getTravelNoteId(), travelNote);
+
+        return new NewTravelNoteResponseDto(travelNoteId);
     }
 
 }

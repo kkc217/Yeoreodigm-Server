@@ -117,6 +117,6 @@ public class TravelNote {
 
     public void changeThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
-
     }
+
 }

@@ -4,8 +4,8 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
-import com.yeoreodigm.server.dto.noteprepare.SubmitPrepareResponseDto;
-import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteDto;
+import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteResponseDto;
+import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteRequestDto;
 import com.yeoreodigm.server.dto.search.SearchPlacesResponseDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -52,15 +52,15 @@ public class NotePrepareApiController {
     }
 
     @PutMapping("/submit")
-    public SubmitPrepareResponseDto submitPrepareResult(
-            @RequestBody @Valid NewTravelNoteDto requestDto,
+    public NewTravelNoteResponseDto submitPrepareResult(
+            @RequestBody @Valid NewTravelNoteRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         TravelNote travelNote = travelNoteService.createTravelNote(member, requestDto);
         Long travelNoteId = travelNoteService.submitNotePrepare(travelNote);
 
         courseService.optimizeCourse(travelNoteId);
 
-        return new SubmitPrepareResponseDto(travelNoteId);
+        return new NewTravelNoteResponseDto(travelNoteId);
     }
 
 }

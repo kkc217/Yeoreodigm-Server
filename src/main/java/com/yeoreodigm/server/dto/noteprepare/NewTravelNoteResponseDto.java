@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class SubmitPrepareResponseDto {
+public class NewTravelNoteResponseDto {
 
     private Long travelNoteId;
 

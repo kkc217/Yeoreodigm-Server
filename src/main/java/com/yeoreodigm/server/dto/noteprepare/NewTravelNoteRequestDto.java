@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
-public class NewTravelNoteDto {
+public class NewTravelNoteRequestDto {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dayStart;

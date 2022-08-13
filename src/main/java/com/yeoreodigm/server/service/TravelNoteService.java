@@ -1,12 +1,11 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
-import com.yeoreodigm.server.dto.constraint.TravelNoteConst;
 import com.yeoreodigm.server.dto.detail.TravelNoteAndLikeDto;
 import com.yeoreodigm.server.dto.detail.TravelNoteDetailInfo;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.mainpage.MainPageTravelNote;
-import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteDto;
+import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
 import com.yeoreodigm.server.repository.LogRepository;
@@ -16,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +58,8 @@ public class TravelNoteService {
         }
     }
 
-    public TravelNote createTravelNote(Member member, NewTravelNoteDto requestDto) {
+    public TravelNote createTravelNote(Member member, NewTravelNoteRequestDto requestDto) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
-
 
         String title = member.getNickname() +
                 "님의 " +
@@ -79,6 +78,45 @@ public class TravelNoteService {
                 .region(requestDto.getRegion())
                 .theme(requestDto.getTheme())
                 .placesInput(requestDto.getPlaces())
+                .publicShare(PUBLIC_SHARE_DEFAULT_VALUE)
+                .thumbnail(placeService.getRandomImageUrl())
+                .build();
+    }
+
+    public TravelNote createTravelNoteFromOther(Long originTravelNoteId, Member member) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        TravelNote originTravelNote = travelNoteRepository.findById(originTravelNoteId);
+
+        String title = member.getNickname() +
+                "님의 " +
+                TITLE_LIST[(int) (Math.random() * TITLE_LIST.length)] +
+                " 제주여행";
+
+        long between = ChronoUnit.DAYS.between(originTravelNote.getDayStart(), originTravelNote.getDayEnd());
+        LocalDate dayStart = LocalDate.now();
+        LocalDate dayEnd = dayStart.plusDays(between);
+
+        int birthYear = member.getBirth().getYear();
+        int adult = 0;
+        int child = 0;
+        if (LocalDate.now().getYear() - birthYear > 18) {
+            adult = 1;
+        } else {
+            child = 1;
+        }
+
+        return TravelNote.builder()
+                .id(getRandomId())
+                .member(member)
+                .title(title)
+                .dayStart(dayStart)
+                .dayEnd(dayEnd)
+                .adult(adult)
+                .child(child)
+                .region(originTravelNote.getRegion())
+                .theme(originTravelNote.getTheme())
+                .placesInput(new ArrayList<>())
                 .publicShare(PUBLIC_SHARE_DEFAULT_VALUE)
                 .thumbnail(placeService.getRandomImageUrl())
                 .build();
@@ -120,6 +158,19 @@ public class TravelNoteService {
             throw new BadRequestException("코스 생성 중 에러가 발생하였습니다.");
         }
 
+    }
+
+    @Transactional
+    public Long submitNoteFromOther(Long originTravelNoteId, TravelNote travelNote) {
+        travelNoteRepository.saveAndFlush(travelNote);
+
+        List<Course> courseList = courseService.searchCourse(originTravelNoteId);
+
+        for (Course course : courseList) {
+            courseService.saveCourse(travelNote, course.getDay(), course.getPlaces());
+        }
+
+        return travelNote.getId();
     }
 
     public NoteAuthority checkNoteAuthority(Member member, TravelNote travelNote) {
