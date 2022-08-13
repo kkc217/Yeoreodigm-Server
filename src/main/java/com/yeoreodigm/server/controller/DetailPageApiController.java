@@ -33,6 +33,8 @@ public class DetailPageApiController {
 
     private final TravelNoteLikeService travelNoteLikeService;
 
+    private final TravelNoteLogService travelNoteLogService;
+
     private final CourseService courseService;
 
     private final NoteCommentService noteCommentService;
@@ -67,6 +69,8 @@ public class DetailPageApiController {
         List<TravelNote> recommendedNoteList = travelNoteService.getTempTravelNoteList(4, member);
 
         List<CommentItemDto> commentList = noteCommentService.getNoteCommentInfo(travelNoteId, member.getId());
+
+        travelNoteLogService.updateTravelNoteLog(travelNoteId, member.getId());
 
         return new NoteDetailResponseDto(
                 travelNoteInfo, travelNoteLikeInfo, coordinateDtoList, recommendedNoteList, commentList);
