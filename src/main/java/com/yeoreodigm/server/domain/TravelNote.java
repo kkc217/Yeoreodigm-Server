@@ -58,6 +58,8 @@ public class TravelNote {
 
     private boolean publicShare;
 
+    private String thumbnail;
+
     @Type(type = "list-array")
     private List<Long> companion = new ArrayList<>();
 
@@ -65,7 +67,16 @@ public class TravelNote {
     private List<Course> courses = new ArrayList<>();
 
     @Builder
-    public TravelNote(Member member, LocalDate dayStart, LocalDate dayEnd, int adult, int child, int animal, List<String> region, List<String> theme, List<Long> placesInput) {
+    public TravelNote(Member member,
+                      LocalDate dayStart,
+                      LocalDate dayEnd,
+                      int adult,
+                      int child,
+                      int animal,
+                      List<String> region,
+                      List<String> theme,
+                      List<Long> placesInput,
+                      String thumbnail) {
         this.title = "Untitled";
         this.member = member;
         this.dayStart = dayStart;
@@ -83,6 +94,7 @@ public class TravelNote {
         this.createdTime = LocalDateTime.now();
         this.lastModifiedTime = LocalDateTime.now();
         this.publicShare = false;
+        this.thumbnail = thumbnail;
     }
 
     public void changeTitle(String title) {

@@ -66,6 +66,7 @@ public class NotePrepareApiController {
                     .region(requestDto.getRegion())
                     .theme(requestDto.getTheme())
                     .placesInput(requestDto.getPlaces())
+                    .thumbnail(placeService.getRandomImageUrl())
                     .build();
 
             Long travelNoteId = travelNoteService.submitNotePrepare(travelNote);

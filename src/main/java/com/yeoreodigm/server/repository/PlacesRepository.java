@@ -56,6 +56,15 @@ public class PlacesRepository {
                 .fetch();
     }
 
+    public String findOneImageUrl(int page) {
+        return queryFactory
+                .select(places.imageUrl)
+                .from(places)
+                .offset(page)
+                .limit(1)
+                .fetchOne();
+    }
+
     public List<Places> findPagingAndLimiting(int page, int limit) {
         return queryFactory
                 .selectFrom(places)
