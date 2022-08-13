@@ -5,6 +5,7 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.PageResult;
+import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
 import com.yeoreodigm.server.dto.constraint.DetailPageConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
@@ -89,6 +90,13 @@ public class DetailPageApiController {
                 travelNoteId, page, DetailPageConst.NOTE_COURSE_PAGING_LIMIT);
 
         return new PageResult<>(response, next);
+    }
+
+    @GetMapping("/travelnote/comment/{travelNoteId}")
+    public Result<List<CommentItemDto>> callTravelNoteDetailComment(
+            @PathVariable("travelNoteId") Long travelNoteId,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new Result<>(noteCommentService.getNoteCommentInfo(travelNoteId, member.getId()));
     }
 
 }
