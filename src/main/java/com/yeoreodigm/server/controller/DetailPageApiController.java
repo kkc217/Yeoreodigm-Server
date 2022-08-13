@@ -2,14 +2,19 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.TravelNote;
+import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
+import com.yeoreodigm.server.dto.constraint.DetailPageConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
+import com.yeoreodigm.server.dto.detail.NoteDetailCourseResponseDto;
 import com.yeoreodigm.server.dto.detail.TravelNoteAndLikeDto;
 import com.yeoreodigm.server.dto.detail.TravelNoteDetailInfo;
 import com.yeoreodigm.server.dto.detail.NoteDetailResponseDto;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.note.CourseCoordinateDto;
+import com.yeoreodigm.server.dto.note.RouteInfoDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,13 +56,10 @@ public class DetailPageApiController {
 
         List<Course> courseList = courseService.searchCourse(travelNoteId);
         List<String> markerColorList = mapMarkerService.getMarkerColorList(courseList.size());
-        List<CourseCoordinateDto> coordinateDtoList = new ArrayList<>();
-        for (Course course : courseList) {
-            coordinateDtoList.add(new CourseCoordinateDto(
-                    course.getDay(),
-                    markerColorList.get(course.getDay() - 1),
-                    placeService.searchPlacesByCourse(course)));
-        }
+        List<CourseCoordinateDto> coordinateDtoList = courseList.stream().map(course -> new CourseCoordinateDto(
+                course.getDay(),
+                markerColorList.get(course.getDay() - 1),
+                placeService.searchPlacesByCourse(course))).collect(Collectors.toList());
 
         //여행 노트 추천 - AI API 구현시 수정 예정
         List<TravelNoteAndLikeDto> recommendedNoteList = travelNoteService.getTempTravelNoteList(4, member);
@@ -65,6 +68,27 @@ public class DetailPageApiController {
 
         return new NoteDetailResponseDto(
                 travelNoteInfo, travelNoteLikeInfo, coordinateDtoList, recommendedNoteList, commentList);
+    }
+
+    @GetMapping("/travelnote/course/{travelNoteId}/{page}")
+    public PageResult<List<NoteDetailCourseResponseDto>> callTravelNoteDetailCourse(
+            @PathVariable("travelNoteId") Long travelNoteId,
+            @PathVariable("page") int page) {
+        List<Course> courseList = courseService.searchCoursePaging(
+               travelNoteId, page, DetailPageConst.NOTE_COURSE_PAGING_LIMIT);
+        List<RouteInfoDto> routeInfoList = courseService.callRoutesByCourseList(courseList);
+
+        List<NoteDetailCourseResponseDto> response = new ArrayList<>();
+        for (int i = 0; i < courseList.size(); i++) {
+            RouteInfoDto routeInfoDto = routeInfoList.get(i);
+            List<Places> placesList = placeService.searchPlacesByCourse(courseList.get(i));
+            response.add(new NoteDetailCourseResponseDto(routeInfoDto, placesList));
+        }
+
+        int next = courseService.checkNextCoursePage(
+                travelNoteId, page, DetailPageConst.NOTE_COURSE_PAGING_LIMIT);
+
+        return new PageResult<>(response, next);
     }
 
 }
