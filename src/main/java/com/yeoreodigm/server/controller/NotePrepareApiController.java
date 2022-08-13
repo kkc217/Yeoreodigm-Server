@@ -5,7 +5,7 @@ import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.noteprepare.SubmitPrepareResponseDto;
-import com.yeoreodigm.server.dto.noteprepare.SubmitPrepareRequestDto;
+import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteDto;
 import com.yeoreodigm.server.dto.search.SearchPlacesResponseDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -53,30 +53,14 @@ public class NotePrepareApiController {
 
     @PutMapping("/submit")
     public SubmitPrepareResponseDto submitPrepareResult(
-            @RequestBody @Valid SubmitPrepareRequestDto requestDto,
+            @RequestBody @Valid NewTravelNoteDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (member != null) {
-            TravelNote travelNote = TravelNote.builder()
-                    .member(member)
-                    .dayStart(requestDto.getDayStart())
-                    .dayEnd(requestDto.getDayEnd())
-                    .adult(requestDto.getAdult())
-                    .child(requestDto.getChild())
-                    .animal(requestDto.getAnimal())
-                    .region(requestDto.getRegion())
-                    .theme(requestDto.getTheme())
-                    .placesInput(requestDto.getPlaces())
-                    .thumbnail(placeService.getRandomImageUrl())
-                    .build();
+        TravelNote travelNote = travelNoteService.createTravelNote(member, requestDto);
+        Long travelNoteId = travelNoteService.submitNotePrepare(travelNote);
 
-            Long travelNoteId = travelNoteService.submitNotePrepare(travelNote);
+        courseService.optimizeCourse(travelNoteId);
 
-            courseService.optimizeCourse(travelNoteId);
-
-            return new SubmitPrepareResponseDto(travelNoteId);
-        } else {
-            throw new BadRequestException("세션이 만료되었습니다.");
-        }
+        return new SubmitPrepareResponseDto(travelNoteId);
     }
 
 }

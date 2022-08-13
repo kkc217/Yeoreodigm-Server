@@ -1,10 +1,13 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
+import com.yeoreodigm.server.dto.constraint.EmailConst;
+import com.yeoreodigm.server.dto.constraint.TravelNoteConst;
 import com.yeoreodigm.server.dto.detail.TravelNoteAndLikeDto;
 import com.yeoreodigm.server.dto.detail.TravelNoteDetailInfo;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.mainpage.MainPageTravelNote;
+import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
 import com.yeoreodigm.server.repository.LogRepository;
@@ -41,6 +44,8 @@ public class TravelNoteService {
 
     private final TravelNoteLikeService travelNoteLikeService;
 
+    private final PlaceService placeService;
+
     private final static int RANDOM_NOTE_NUMBER = 300;
 
     public TravelNote findTravelNote(Long travelNoteId) {
@@ -50,6 +55,30 @@ public class TravelNoteService {
         } else {
             throw new BadRequestException("일치하는 여행 메이킹 노트가 없습니다.");
         }
+    }
+
+    public TravelNote createTravelNote(Member member, NewTravelNoteDto requestDto) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        String title = member.getNickname() +
+                "님의 " +
+                TravelNoteConst.TITLE_LIST[(int) (Math.random() * TravelNoteConst.TITLE_LIST.length)] +
+                " 제주여행";
+
+        return TravelNote.builder()
+                .member(member)
+                .title(title)
+                .dayStart(requestDto.getDayStart())
+                .dayEnd(requestDto.getDayEnd())
+                .adult(requestDto.getAdult())
+                .child(requestDto.getChild())
+                .animal(requestDto.getAnimal())
+                .region(requestDto.getRegion())
+                .theme(requestDto.getTheme())
+                .placesInput(requestDto.getPlaces())
+                .publicShare(TravelNoteConst.PUBLIC_SHARE_DEFAULT_VALUE)
+                .thumbnail(placeService.getRandomImageUrl())
+                .build();
     }
 
     @Transactional
