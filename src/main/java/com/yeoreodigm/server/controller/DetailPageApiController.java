@@ -107,4 +107,11 @@ public class DetailPageApiController {
         return null;
     }
 
+    @PostMapping("/travelnote/comment/delete")
+    public void deleteTravelNoteComment(
+            @RequestBody @Valid DeleteNoteCommentRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        noteCommentService.deleteNoteComment(member, requestDto.getCommentId());
+    }
+
 }

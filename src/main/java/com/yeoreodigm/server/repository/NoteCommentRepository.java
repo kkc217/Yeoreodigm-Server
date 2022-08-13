@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.List;
 
+import static com.yeoreodigm.server.domain.QCourseComment.courseComment;
 import static com.yeoreodigm.server.domain.QNoteComment.noteComment;
 
 @Repository
@@ -27,6 +28,13 @@ public class NoteCommentRepository {
         em.flush();
     }
 
+    public NoteComment findById(Long noteCommentId) {
+        return queryFactory
+                .selectFrom(noteComment)
+                .where(noteComment.id.eq(noteCommentId))
+                .fetchOne();
+    }
+
     public List<NoteComment> findByTravelNoteID(Long travelNoteId) {
         return queryFactory
                 .selectFrom(noteComment)
@@ -35,4 +43,10 @@ public class NoteCommentRepository {
                 .fetch();
     }
 
+    public void deleteById(Long commentId) {
+        queryFactory
+                .delete(noteComment)
+                .where(noteComment.id.eq(commentId))
+                .execute();
+    }
 }
