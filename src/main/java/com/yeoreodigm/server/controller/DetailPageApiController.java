@@ -69,6 +69,13 @@ public class DetailPageApiController {
                 travelNoteInfo, travelNoteLikeInfo, coordinateDtoList, recommendedNoteList, commentList);
     }
 
+    @PostMapping("/travelnote/like")
+    public void changeTravelNoteLike(
+            @RequestBody @Valid LikeRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        travelNoteLikeService.changeTravelNoteLike(member, requestDto.getTravelNoteId(), requestDto.isLike());
+    }
+
     @GetMapping("/travelnote/course/{travelNoteId}/{page}")
     public PageResult<List<NoteDetailCourseResponseDto>> callTravelNoteDetailCourse(
             @PathVariable("travelNoteId") Long travelNoteId,
