@@ -41,4 +41,11 @@ public class TravelNoteLikeRepository {
                 .fetchOne();
     }
 
+    public void deleteById(Long travelNoteLikeId){
+        queryFactory
+                .delete(travelNoteLike)
+                .where(travelNoteLike.id.eq(travelNoteLikeId))
+                .execute();
+    }
+
 }
