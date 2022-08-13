@@ -99,14 +99,14 @@ public class DetailPageApiController {
 
     @PostMapping("/travelnote/comment/add")
     public CommentItemDto addTravelNoteComment(
-            @RequestBody @Valid AddNoteCommentRequestDto requestDto,
+            @RequestBody @Valid NoteCommentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return noteCommentService.addNoteComment(member, requestDto.getTravelNoteId(), requestDto.getText());
     }
 
     @PostMapping("/travelnote/comment/delete")
     public void deleteTravelNoteComment(
-            @RequestBody @Valid DeleteNoteCommentRequestDto requestDto,
+            @RequestBody @Valid NoteCommentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         noteCommentService.deleteNoteComment(member, requestDto.getCommentId());
     }
