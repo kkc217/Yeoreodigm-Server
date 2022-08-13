@@ -101,10 +101,7 @@ public class DetailPageApiController {
     public CommentItemDto addTravelNoteComment(
             @RequestBody @Valid AddNoteCommentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (member == null) throw new BadRequestException("로그인이 필요한 기능입니다.");
-
-        noteCommentService.addNoteComment(member, requestDto.getTravelNoteId(), requestDto.getText());
-        return null;
+        return noteCommentService.addNoteComment(member, requestDto.getTravelNoteId(), requestDto.getText());
     }
 
     @PostMapping("/travelnote/comment/delete")

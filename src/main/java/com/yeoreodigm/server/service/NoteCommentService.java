@@ -35,9 +35,13 @@ public class NoteCommentService {
     }
 
     @Transactional
-    public void addNoteComment(Member member, Long travelNoteId, String text) {
+    public CommentItemDto addNoteComment(Member member, Long travelNoteId, String text) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
         NoteComment noteComment = new NoteComment(travelNoteId, member, text);
         noteCommentRepository.saveAndFlush(noteComment);
+
+        return new CommentItemDto(noteComment);
     }
 
     @Transactional
@@ -47,7 +51,7 @@ public class NoteCommentService {
 
         if (noteComment == null) throw new BadRequestException("댓글 삭제를 실패하였습니다.");
         if (!member.getId().equals(noteComment.getMember().getId()))
-            throw new BadRequestException("댓글을 삭제할 수 없습니다.2");
+            throw new BadRequestException("댓글을 삭제할 수 없습니다.");
 
         noteCommentRepository.deleteById(commentId);
     }
