@@ -1,6 +1,9 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
+import com.yeoreodigm.server.dto.detail.TravelNoteAndLikeDto;
+import com.yeoreodigm.server.dto.detail.TravelNoteDetailInfo;
+import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.mainpage.MainPageTravelNote;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
@@ -11,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +39,7 @@ public class TravelNoteService {
 
     private final LogRepository logRepository;
 
-    private final PlaceService placeService;
+    private final TravelNoteLikeService travelNoteLikeService;
 
     private final static int RANDOM_NOTE_NUMBER = 300;
 
@@ -70,10 +74,6 @@ public class TravelNoteService {
             throw new BadRequestException("코스 생성 중 에러가 발생하였습니다.");
         }
 
-    }
-
-    public TravelNote callNote(Long travelNoteId) {
-        return findTravelNote(travelNoteId);
     }
 
     public NoteAuthority checkNoteAuthority(Member member, TravelNote travelNote) {
@@ -225,13 +225,49 @@ public class TravelNoteService {
     }
 
     private List<MainPageTravelNote> getMainPageItemList(List<TravelNote> travelNoteList) {
-        List<String> randomImageUrlList = placeService.getRandomImageUrlList(travelNoteList.size());
+        return travelNoteList.stream().map(MainPageTravelNote::new).toList();
+    }
 
-        List<MainPageTravelNote> result = new ArrayList<>();
-        for (int i = 0; i < travelNoteList.size(); i++) {
-            result.add(new MainPageTravelNote(travelNoteList.get(i), randomImageUrlList.get(i)));
+    public TravelNoteDetailInfo getTravelNoteInfo(TravelNote travelNote) {
+        long between = ChronoUnit.DAYS.between(travelNote.getDayStart(), travelNote.getDayEnd());
+
+        StringBuilder period = new StringBuilder();
+        if (between == 0) {
+            period.append("당일치기");
+        } else if (between >= 13 && between <= 15) {
+            period.append("보름살기 (").append(between).append("박 ").append(between + 1).append("일)");
+        } else if (between >= 27 && between <= 32) {
+            period.append("한달살기 (").append(between).append("박 ").append(between + 1).append("일)");
+        } else {
+            period.append(between).append("박 ").append(between + 1).append("일");
         }
 
+        List<String> theme = new ArrayList<>();
+        if (travelNote.getChild() > 0) {
+            theme.add("아이와 함께");
+        } else if (travelNote.getAnimal() > 0) {
+            theme.add("반려동물과 함께");
+        }
+        theme.addAll(travelNote.getTheme());
+
+        return new TravelNoteDetailInfo(
+                travelNote.getTitle(),
+                period.toString(),
+                travelNote.getRegion(),
+                theme);
+    }
+
+    public List<TravelNoteAndLikeDto> getTempTravelNoteList(int limit, Member member) {
+        List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(limit);
+        List<LikeItemDto> likeItemDtoList = travelNoteList
+                .stream()
+                .map(travelNote -> travelNoteLikeService.getLikeInfo(travelNote.getId(), member.getId()))
+                .toList();
+
+        List<TravelNoteAndLikeDto> result = new ArrayList<>();
+        for (int i = 0; i < travelNoteList.size(); i++) {
+            result.add(new TravelNoteAndLikeDto(travelNoteList.get(i), likeItemDtoList.get(i)));
+        }
         return result;
     }
 

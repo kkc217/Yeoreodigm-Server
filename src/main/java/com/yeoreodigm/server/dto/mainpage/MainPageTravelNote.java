@@ -14,10 +14,10 @@ public class MainPageTravelNote {
 
     private String imageUrl;
 
-    public MainPageTravelNote(TravelNote travelNote, String imageUrl) {
+    public MainPageTravelNote(TravelNote travelNote) {
         this.travelNoteId = travelNote.getId();
         this.title = travelNote.getTitle();
-        this.imageUrl = imageUrl;
+        this.imageUrl = travelNote.getThumbnail();
     }
 
 }

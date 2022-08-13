@@ -48,14 +48,6 @@ public class PlacesRepository {
                 .fetch();
     }
 
-    public List<String> findImageUrlListLimiting(int limit) {
-        return queryFactory
-                .select(places.imageUrl)
-                .from(places)
-                .limit(limit)
-                .fetch();
-    }
-
     public String findOneImageUrl(int page) {
         return queryFactory
                 .select(places.imageUrl)

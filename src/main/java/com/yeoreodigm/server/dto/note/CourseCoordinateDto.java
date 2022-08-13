@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class CallNoteCourseResponseDto {
+public class CourseCoordinateDto {
 
     private int day;
 
@@ -17,7 +17,7 @@ public class CallNoteCourseResponseDto {
 
     private List<Coordinate> places = new ArrayList<>();
 
-    public CallNoteCourseResponseDto(int day, String markerColor, List<Places> placeList) {
+    public CourseCoordinateDto(int day, String markerColor, List<Places> placeList) {
         this.day = day;
         this.markerColor = markerColor;
         for (Places place : placeList) {
