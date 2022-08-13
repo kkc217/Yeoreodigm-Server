@@ -41,7 +41,7 @@ public class TravelNoteApiController {
             @PathVariable("travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
 
-        TravelNote travelNote = travelNoteService.callNote(travelNoteId);
+        TravelNote travelNote = travelNoteService.findTravelNote(travelNoteId);
         NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(member, travelNote);
 
         if (noteAuthority == NoteAuthority.ROLE_OWNER) {
@@ -82,15 +82,18 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/course/coordinate/{travelNoteId}")
-    public Result<List<CallNoteCourseResponseDto>> callNoteCourse(
+    public Result<List<CourseCoordinateDto>> callNoteCourse(
             @PathVariable("travelNoteId") Long travelNoteId) {
 
         List<Course> courseList = courseService.searchCourse(travelNoteId);
         List<String> markerColorList = mapMarkerService.getMarkerColorList(courseList.size());
 
-        List<CallNoteCourseResponseDto> response = new ArrayList<>();
+        List<CourseCoordinateDto> response = new ArrayList<>();
         for (Course course : courseList) {
-            response.add(new CallNoteCourseResponseDto(course.getDay(), markerColorList.get(course.getDay() - 1), placeService.searchPlacesByCourse(course)));
+            response.add(new CourseCoordinateDto(
+                    course.getDay(),
+                    markerColorList.get(course.getDay() - 1),
+                    placeService.searchPlacesByCourse(course)));
         }
 
         return new Result<>(response);

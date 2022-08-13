@@ -114,4 +114,9 @@ public class TravelNote {
     public void changeCompanion(List<Long> companion) {
         this.companion = companion;
     }
+
+    public void changeThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+
+    }
 }

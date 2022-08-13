@@ -93,22 +93,4 @@ public class PlaceService {
         return placesRepository.findOneImageUrl((int) (Math.random() * 1000));
     }
 
-    public List<String> getRandomImageUrlList(int count) {
-        List<String> imageUrlList = placesRepository.findImageUrlListLimiting(RANDOM_IMAGE_NUMBER);
-        int index = (int) (Math.random() * imageUrlList.size());
-        int gap = (int) (Math.random() * RANDOM_GAP);
-
-        List<String> result = new ArrayList<>();
-
-        for (int i = 0; i < count; i++) {
-            result.add(imageUrlList.get(index));
-            index += gap;
-            while (index >= imageUrlList.size()) {
-                index -= imageUrlList.size();
-            }
-        }
-
-        return result;
-    }
-
 }

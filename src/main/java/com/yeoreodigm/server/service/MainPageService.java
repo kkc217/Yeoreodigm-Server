@@ -44,7 +44,7 @@ public class MainPageService {
         List<MainPageTravelNote> recommendedNotes = travelNoteService.getRandomNotes(NUMBER_OF_RECOMMENDED_NOTES);
 
         List<MainPagePlace> recommendedPlaces = placeService
-                .getRandomPlaces( NUMBER_OF_RECOMMENDED_PLACES)
+                .getRandomPlaces(NUMBER_OF_RECOMMENDED_PLACES)
                 .stream()
                 .map(MainPagePlace::new)
                 .toList();
