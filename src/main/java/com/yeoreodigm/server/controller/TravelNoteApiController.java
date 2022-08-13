@@ -56,13 +56,13 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/course/{travelNoteId}")
-    public Result<List<CallNoteCoursePagingResponseDto>> callNoteCoursePaging(
+    public Result<List<CallNoteCourseResponseDto>> callNoteCourse(
             @PathVariable("travelNoteId") Long travelNoteId) {
 
         List<Course> courseList = courseService.searchCourse(travelNoteId);
         List<RouteInfoDto> routeInfoList = courseService.callRoutes(travelNoteId);
 
-        List<CallNoteCoursePagingResponseDto> response = new ArrayList<>();
+        List<CallNoteCourseResponseDto> response = new ArrayList<>();
         int indexStart = 0;
         for (int i = 0; i < courseList.size(); i++) {
             RouteInfoDto routeInfoDto = routeInfoList.get(i);
@@ -70,7 +70,7 @@ public class TravelNoteApiController {
             Course course = courseList.get(i);
             List<Places> placeList = placeService.searchPlacesByCourse(course);
 
-            response.add(new CallNoteCoursePagingResponseDto(
+            response.add(new CallNoteCourseResponseDto(
                     indexStart,
                     course.getDay(),
                     placeList,
@@ -82,7 +82,7 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/course/coordinate/{travelNoteId}")
-    public Result<List<CourseCoordinateDto>> callNoteCourse(
+    public Result<List<CourseCoordinateDto>> callNoteCourseCoordinate(
             @PathVariable("travelNoteId") Long travelNoteId) {
 
         List<Course> courseList = courseService.searchCourse(travelNoteId);

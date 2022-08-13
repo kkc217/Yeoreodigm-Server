@@ -87,6 +87,17 @@ public class CourseService {
     }
 
     @Transactional
+    public List<RouteInfoDto> callRoutesByCourseList(List<Course> courseList) {
+        List<RouteInfoDto> result = new ArrayList<>();
+
+        for (Course course : courseList) {
+            result.add(callRoutesByCourse(course));
+        }
+
+        return result;
+    }
+
+    @Transactional
     public RouteInfoDto callRoutesByCourse(Course course) {
         List<RouteInfo> routeInfoList = new ArrayList<>();
 
