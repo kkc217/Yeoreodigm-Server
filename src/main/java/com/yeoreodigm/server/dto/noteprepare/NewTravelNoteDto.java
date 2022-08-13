@@ -1,15 +1,13 @@
 package com.yeoreodigm.server.dto.noteprepare;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.util.List;
 
 @Data
-public class SubmitPrepareRequestDto {
+public class NewTravelNoteDto {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dayStart;

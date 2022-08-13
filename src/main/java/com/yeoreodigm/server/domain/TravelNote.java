@@ -54,7 +54,7 @@ public class TravelNote {
 
     private LocalDateTime createdTime;
 
-    private LocalDateTime lastModifiedTime;
+    private LocalDateTime modifiedTime;
 
     private boolean publicShare;
 
@@ -68,6 +68,7 @@ public class TravelNote {
 
     @Builder
     public TravelNote(Member member,
+                      String title,
                       LocalDate dayStart,
                       LocalDate dayEnd,
                       int adult,
@@ -76,24 +77,21 @@ public class TravelNote {
                       List<String> region,
                       List<String> theme,
                       List<Long> placesInput,
+                      boolean publicShare,
                       String thumbnail) {
-        this.title = "Untitled";
         this.member = member;
+        this.title = title;
         this.dayStart = dayStart;
         this.dayEnd = dayEnd;
         this.adult = adult;
         this.child = child;
         this.animal = animal;
         this.region = region;
-        if (theme != null) {
-            this.theme = theme;
-        }
-        if (placesInput != null) {
-            this.placesInput = placesInput;
-        }
+        this.theme = theme;
+        this.placesInput = placesInput;
         this.createdTime = LocalDateTime.now();
-        this.lastModifiedTime = LocalDateTime.now();
-        this.publicShare = false;
+        this.modifiedTime = this.createdTime;
+        this.publicShare = publicShare;
         this.thumbnail = thumbnail;
     }
 
