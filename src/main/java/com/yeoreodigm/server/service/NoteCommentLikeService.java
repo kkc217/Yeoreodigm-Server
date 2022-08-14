@@ -20,14 +20,14 @@ public class NoteCommentLikeService {
         return noteCommentLikeRepository.countByNoteCommentId(noteCommentId);
     }
 
-    public boolean checkHasLiked(Long noteCommentId, Long memberId) {
-        if (memberId == null) return false;
-        return noteCommentLikeRepository.findByNoteCommentIdAndMemberId(noteCommentId, memberId) != null;
+    public boolean checkHasLiked(Long noteCommentId, Member member) {
+        if (member == null) return false;
+        return noteCommentLikeRepository.findByNoteCommentIdAndMemberId(noteCommentId, member.getId()) != null;
     }
 
-    public LikeItemDto getLikeInfo(Long noteCommentId, Long memberId) {
+    public LikeItemDto getLikeInfo(Long noteCommentId, Member member) {
         return new LikeItemDto(
-                checkHasLiked(noteCommentId, memberId),
+                checkHasLiked(noteCommentId, member),
                 countCommentLike(noteCommentId));
     }
 

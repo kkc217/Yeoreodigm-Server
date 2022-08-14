@@ -68,9 +68,10 @@ public class DetailPageApiController {
         //여행 노트 추천 - AI API 구현시 수정 예정
         List<TravelNote> recommendedNoteList = travelNoteService.getTempTravelNoteList(4, member);
 
-        List<CommentItemDto> commentList = noteCommentService.getNoteCommentInfo(travelNoteId, member.getId());
+        List<CommentItemDto> commentList = noteCommentService.getNoteCommentInfo(travelNoteId, member);
 
-        travelNoteLogService.updateTravelNoteLog(travelNoteId, member.getId());
+        if (member != null)
+            travelNoteLogService.updateTravelNoteLog(travelNoteId, member);
 
         return new NoteDetailResponseDto(
                 travelNoteInfo, travelNoteLikeInfo, coordinateDtoList, recommendedNoteList, commentList);
@@ -108,7 +109,7 @@ public class DetailPageApiController {
     public Result<List<CommentItemDto>> callTravelNoteComment(
             @PathVariable("travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return new Result<>(noteCommentService.getNoteCommentInfo(travelNoteId, member.getId()));
+        return new Result<>(noteCommentService.getNoteCommentInfo(travelNoteId, member));
     }
 
     @PostMapping("/travelnote/comment/add")

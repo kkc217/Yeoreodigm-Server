@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.service;
 
+import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.TravelNoteLog;
 import com.yeoreodigm.server.repository.TravelNoteLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,14 +15,14 @@ public class TravelNoteLogService {
     private final TravelNoteLogRepository travelNoteLogRepository;
 
     @Transactional
-    public void updateTravelNoteLog(Long travelNoteId, Long memberId) {
-        TravelNoteLog travelNoteLog = travelNoteLogRepository.findByTravelNoteIdAndMemberId(travelNoteId, memberId);
+    public void updateTravelNoteLog(Long travelNoteId, Member member) {
+        TravelNoteLog travelNoteLog = travelNoteLogRepository.findByTravelNoteIdAndMemberId(travelNoteId, member.getId());
 
         if (travelNoteLog != null) {
             travelNoteLog.updateVisitTime();
             travelNoteLogRepository.saveAndFlush(travelNoteLog);
         } else {
-            TravelNoteLog newTravelNoteLog = new TravelNoteLog(travelNoteId, memberId);
+            TravelNoteLog newTravelNoteLog = new TravelNoteLog(travelNoteId, member.getId());
             travelNoteLogRepository.saveAndFlush(newTravelNoteLog);
         }
     }

@@ -21,14 +21,14 @@ public class NoteCommentService {
 
     private final NoteCommentLikeService noteCommentLikeService;
 
-    public List<CommentItemDto> getNoteCommentInfo(Long travelNoteId, Long memberId) {
+    public List<CommentItemDto> getNoteCommentInfo(Long travelNoteId, Member member) {
         List<NoteComment> noteCommentList = noteCommentRepository.findByTravelNoteID(travelNoteId);
 
         List<CommentItemDto> result = new ArrayList<>();
 
         for (NoteComment noteComment : noteCommentList) {
             result.add(new CommentItemDto(
-                    noteComment, noteCommentLikeService.getLikeInfo(noteComment.getId(), memberId)));
+                    noteComment, noteCommentLikeService.getLikeInfo(noteComment.getId(), member)));
         }
 
         return result;

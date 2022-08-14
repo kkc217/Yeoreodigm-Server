@@ -15,7 +15,7 @@ public class CommentItemDto {
 
     private Long memberId;
 
-    private String nickName;
+    private String nickname;
 
     private String profileImageUrl;
 
@@ -34,7 +34,7 @@ public class CommentItemDto {
         Member member = noteComment.getMember();
         this.commentId = noteComment.getId();
         this.memberId = member.getId();
-        this.nickName = member.getNickname();
+        this.nickname = member.getNickname();
         this.profileImageUrl = member.getProfileImage();
         this.text = noteComment.getText();
         this.hasModified = noteComment.getCreated() != noteComment.getModified();
@@ -47,7 +47,7 @@ public class CommentItemDto {
         Member member = noteComment.getMember();
         this.commentId = noteComment.getId();
         this.memberId = member.getId();
-        this.nickName = member.getNickname();
+        this.nickname = member.getNickname();
         this.profileImageUrl = member.getProfileImage();
         this.text = noteComment.getText();
         this.hasModified = noteComment.getCreated() != noteComment.getModified();

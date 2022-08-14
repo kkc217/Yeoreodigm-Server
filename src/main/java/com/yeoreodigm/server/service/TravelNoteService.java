@@ -356,6 +356,10 @@ public class TravelNoteService {
     }
 
     public List<TravelNote> getTempTravelNoteList(int limit, Member member) {
+        if (member != null) {
+        } else {
+
+        }
         return travelNoteRepository.findByPublicLimiting(limit);
     }
 
