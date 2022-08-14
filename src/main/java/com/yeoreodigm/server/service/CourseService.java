@@ -38,6 +38,10 @@ public class CourseService {
         }
     }
 
+    public Course getCourseByTravelNoteAndDay(TravelNote travelNote, int day) {
+        return courseRepository.findByTravelNoteIdAndDay(travelNote.getId(), day);
+    }
+
     public List<Course> getCoursesByTravelNote(TravelNote travelNote) {
         return courseRepository.findCoursesByTravelNoteId(travelNote.getId());
     }
@@ -80,6 +84,8 @@ public class CourseService {
 
     @Transactional
     public RouteInfoDto getRouteInfoByCourse(Course course) {
+        if (course == null) throw new BadRequestException("일치하는 일차 정보가 없습니다.");
+
         List<RouteInfo> routeInfoList = new ArrayList<>();
 
         List<Long> placeList = course.getPlaces();
@@ -92,7 +98,7 @@ public class CourseService {
     }
 
     @Transactional
-    public List<RouteInfoDto> getRouteInfoByTravelNote(TravelNote travelNote) {
+    public List<RouteInfoDto> getRouteInfosByTravelNote(TravelNote travelNote) {
         List<RouteInfoDto> result = new ArrayList<>();
 
         List<Course> courseList = getCoursesByTravelNote(travelNote);
@@ -105,7 +111,7 @@ public class CourseService {
     }
 
     @Transactional
-    public List<RouteInfoDto> getRouteInfoByCourseList(List<Course> courseList) {
+    public List<RouteInfoDto> getRouteInfosByCourseList(List<Course> courseList) {
         List<RouteInfoDto> result = new ArrayList<>();
 
         for (Course course : courseList) {

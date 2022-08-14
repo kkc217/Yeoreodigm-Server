@@ -80,27 +80,19 @@ public class DetailPageApiController {
         travelNoteLikeService.changeTravelNoteLike(member, requestDto.getTravelNoteId(), requestDto.isLike());
     }
 
-    @GetMapping("/travelnote/course/{travelNoteId}/{page}")
-    public PageResult<List<NoteDetailCourseResponseDto>> callTravelNoteDetailCourse(
+    @GetMapping("/travelnote/course/{travelNoteId}/{day}")
+    public PageResult<NoteDetailCourseResponseDto> callTravelNoteDetailCourse(
             @PathVariable("travelNoteId") Long travelNoteId,
-            @PathVariable("page") int page) {
+            @PathVariable("day") int day) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
-        List<Course> courseList = courseService.getCoursesByTravelNotePaging(
-                travelNote, page, DetailPageConst.NOTE_COURSE_PAGING_LIMIT);
-        List<RouteInfoDto> routeInfoList = courseService.getRouteInfoByCourseList(courseList);
-
-        List<NoteDetailCourseResponseDto> response = new ArrayList<>();
-        for (int i = 0; i < courseList.size(); i++) {
-            RouteInfoDto routeInfoDto = routeInfoList.get(i);
-            List<Places> placesList = placeService.getPlacesByCourse(courseList.get(i));
-            response.add(new NoteDetailCourseResponseDto(routeInfoDto, placesList));
-        }
+        Course course = courseService.getCourseByTravelNoteAndDay(travelNote, day);
+        RouteInfoDto routeInfo = courseService.getRouteInfoByCourse(course);
 
         int next = courseService.checkNextCoursePage(
-                travelNote, page, DetailPageConst.NOTE_COURSE_PAGING_LIMIT);
+                travelNote, day, 1);
 
-        return new PageResult<>(response, next);
+        return new PageResult<>(new NoteDetailCourseResponseDto(routeInfo, placeService.getPlacesByCourse(course)), next);
     }
 
     @GetMapping("/travelnote/comment/{travelNoteId}")

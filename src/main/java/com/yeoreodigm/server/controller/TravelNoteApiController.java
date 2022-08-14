@@ -61,7 +61,7 @@ public class TravelNoteApiController {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
         List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
-        List<RouteInfoDto> routeInfoList = courseService.getRouteInfoByTravelNote(travelNote);
+        List<RouteInfoDto> routeInfoList = courseService.getRouteInfosByTravelNote(travelNote);
 
         List<TravelMakingNoteCourseResponseDto> response = new ArrayList<>();
         int indexStart = 0;
@@ -118,7 +118,7 @@ public class TravelNoteApiController {
     public Result<List<RouteInfoDto>> callRoutes(
             @PathVariable("travelNoteId") Long travelNoteId) {
         return new Result<>(
-                courseService.getRouteInfoByTravelNote(travelNoteService.getTravelNoteById(travelNoteId)));
+                courseService.getRouteInfosByTravelNote(travelNoteService.getTravelNoteById(travelNoteId)));
     }
 
     @PostMapping("/title/change")
