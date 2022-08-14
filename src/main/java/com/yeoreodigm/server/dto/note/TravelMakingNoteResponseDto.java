@@ -14,7 +14,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class CallNoteInfoResponseDto {
+public class TravelMakingNoteResponseDto {
 
     private NoteAuthority noteAuthority;
 
@@ -40,7 +40,7 @@ public class CallNoteInfoResponseDto {
 
     private List<PlacesRecommended> placesRecommended = new ArrayList<>();
 
-    public CallNoteInfoResponseDto(NoteAuthority noteAuthority, TravelNote travelNote, List<Places> placesList) {
+    public TravelMakingNoteResponseDto(NoteAuthority noteAuthority, TravelNote travelNote, List<Places> placesList) {
         this.noteAuthority = noteAuthority;
         this.title = travelNote.getTitle();
         this.dayStart = travelNote.getDayStart();
@@ -57,7 +57,7 @@ public class CallNoteInfoResponseDto {
         }
     }
 
-    public CallNoteInfoResponseDto(NoteAuthority noteAuthority, TravelNote travelNote) {
+    public TravelMakingNoteResponseDto(NoteAuthority noteAuthority, TravelNote travelNote) {
         this.noteAuthority = noteAuthority;
         this.title = travelNote.getTitle();
         this.dayStart = travelNote.getDayStart();

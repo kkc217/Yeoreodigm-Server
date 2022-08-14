@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class AddRecommendRequestDto {
+public class RecommendPlaceRequestDto {
 
     private Long travelNoteId;
 

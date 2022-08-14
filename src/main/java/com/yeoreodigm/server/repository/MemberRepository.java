@@ -24,9 +24,12 @@ public class MemberRepository {
     }
 
     public void saveAndFlush(Member member) {
-        em.persist(member);
+        save(member);
         em.flush();
-        em.clear();
+    }
+
+    public void merge(Member member) {
+        em.merge(member);
     }
 
     public Member findById(Long memberId) {

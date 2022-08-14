@@ -43,8 +43,8 @@ public class SurveyResult {
         this.progress = newProgress;
     }
 
-    public void addResult(Long newResult) {
-        this.result.add(newResult);
+    public void changeResult(List<Long> result) {
+        this.result = result;
     }
 
 }

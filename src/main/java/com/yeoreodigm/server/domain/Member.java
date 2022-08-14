@@ -54,10 +54,10 @@ public class Member implements Serializable {
         this.region = region;
         this.optional = optional;
 
-        this.authority = Authority.ROLE_NOT_PERMITTED;
         this.joinDate = LocalDateTime.now();
         this.introduction = "소개를 입력해주세요.";
         this.profileImage = "defaultImage";
+        this.authority = Authority.ROLE_NOT_PERMITTED;
     }
 
     public void changePassword(String password) {

@@ -4,7 +4,7 @@ import com.yeoreodigm.server.domain.Places;
 import lombok.Data;
 
 @Data
-public class SearchPlacesResponseDto {
+public class PlaceResponseDto {
 
     private Long placeId;
 
@@ -14,7 +14,7 @@ public class SearchPlacesResponseDto {
 
     private String imageUrl;
 
-    public SearchPlacesResponseDto(Places places) {
+    public PlaceResponseDto(Places places) {
         this.placeId = places.getId();
         this.title = places.getTitle();
         this.address = places.getAddress();

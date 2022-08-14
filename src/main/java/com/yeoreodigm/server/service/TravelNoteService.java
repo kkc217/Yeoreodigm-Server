@@ -1,9 +1,7 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
-import com.yeoreodigm.server.dto.detail.TravelNoteAndLikeDto;
 import com.yeoreodigm.server.dto.detail.TravelNoteDetailInfo;
-import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.mainpage.MainPageTravelNote;
 import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -19,7 +17,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.TravelNoteConst.*;
 
@@ -49,12 +46,12 @@ public class TravelNoteService {
 
     private final static int RANDOM_NOTE_NUMBER = 300;
 
-    public TravelNote findTravelNote(Long travelNoteId) {
+    public TravelNote getTravelNoteById(Long travelNoteId) {
         TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
         if (travelNote != null) {
             return travelNote;
         } else {
-            throw new BadRequestException("일치하는 여행 메이킹 노트가 없습니다.");
+            throw new BadRequestException("일치하는 여행 노트가 없습니다.");
         }
     }
 
@@ -83,10 +80,8 @@ public class TravelNoteService {
                 .build();
     }
 
-    public TravelNote createTravelNoteFromOther(Long originTravelNoteId, Member member) {
+    public TravelNote createTravelNoteFromOther(TravelNote originTravelNote, Member member) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
-
-        TravelNote originTravelNote = travelNoteRepository.findById(originTravelNoteId);
 
         String title = member.getNickname() +
                 "님의 " +
@@ -138,58 +133,47 @@ public class TravelNoteService {
 
     @Transactional
     public Long submitNotePrepare(TravelNote travelNote) {
-
         travelNoteRepository.saveAndFlush(travelNote);
 
-        List<List<Long>> recommendedCourseList = recommendService.getRecommendedCourses(
-                travelNote.getMember(),
-                travelNote.getDayStart(),
-                travelNote.getDayEnd(),
-                travelNote.getPlacesInput(),
-                travelNote.getRegion());
+        List<List<Long>> recommendedCourseList = recommendService.getRecommendedCourses(travelNote);
 
         if (recommendedCourseList != null) {
-            for (int idx = 0; idx < recommendedCourseList.size(); idx++) {
-                courseService.saveCourse(travelNote, idx + 1, recommendedCourseList.get(idx));
-            }
+            courseService.saveNewCoursesByRecommend(travelNote, recommendedCourseList);
 
             return travelNote.getId();
         } else {
             throw new BadRequestException("코스 생성 중 에러가 발생하였습니다.");
         }
-
     }
 
     @Transactional
-    public Long submitNoteFromOther(Long originTravelNoteId, TravelNote travelNote) {
+    public Long submitFromOtherNote(TravelNote originTravelNote, TravelNote travelNote) {
         travelNoteRepository.saveAndFlush(travelNote);
 
-        List<Course> courseList = courseService.searchCourse(originTravelNoteId);
+        List<Course> courseList = courseService.getCoursesByTravelNote(originTravelNote);
 
         for (Course course : courseList) {
-            courseService.saveCourse(travelNote, course.getDay(), course.getPlaces());
+            courseService.saveNewCourse(travelNote, course.getDay(), course.getPlaces());
         }
 
         return travelNote.getId();
     }
 
     public NoteAuthority checkNoteAuthority(Member member, TravelNote travelNote) {
-        if (member == null) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        Long memberId = member.getId();
+        if (memberId.equals(travelNote.getMember().getId())) {
+            return NoteAuthority.ROLE_OWNER;
+        } else if (travelNote.getCompanion().contains(memberId)) {
+            return NoteAuthority.ROLE_COMPANION;
+        } else {
             return NoteAuthority.ROLE_VISITOR;
         }
-
-        if (Objects.equals(travelNote.getMember().getId(), member.getId())) {
-            return NoteAuthority.ROLE_OWNER;
-        } else {
-            return NoteAuthority.ROLE_COMPANION;
-        }
-        //동행자 추가하면 ROLE_COMPANION 확인하도록 수정
     }
 
     @Transactional
-    public void updateNoteCourse(Long travelNoteId, List<List<Long>> courseListNew) {
-        TravelNote travelNote = findTravelNote(travelNoteId);
-
+    public void updateCourse(TravelNote travelNote, List<List<Long>> courseListNew) {
         List<Course> courseListOld = travelNote.getCourses();
 
         for (Course courseOld : courseListOld) {
@@ -210,82 +194,77 @@ public class TravelNoteService {
     }
 
     @Transactional
-    public void changeTitle(Long travelNoteId, String newTitle) {
+    public void changeTitle(TravelNote travelNote, String newTitle) {
         if (newTitle.length() > 30) {
             throw new BadRequestException("여행 메이킹 노트의 이름은 30자 이하만 가능합니다.");
         }
 
-        TravelNote travelNote = findTravelNote(travelNoteId);
         travelNote.changeTitle(newTitle);
-
         travelNoteRepository.saveAndFlush(travelNote);
     }
 
     @Transactional
-    public void changeComposition(Long travelNoteId, int adult, int child, int animal) {
-        if (adult < 0 || child < 0 || animal < 0) {
+    public void changeComposition(TravelNote travelNote, int adult, int child, int animal) {
+        if (adult < 0 || child < 0 || animal < 0 || (adult == 0 && child == 0)) {
             throw new BadRequestException("여행 인원을 확인해주시기 바랍니다.");
         }
 
-        TravelNote travelNote = findTravelNote(travelNoteId);
         travelNote.changeComposition(adult, child, animal);
         travelNoteRepository.saveAndFlush(travelNote);
     }
 
     @Transactional
-    public void changePublicShare(Long travelNoteId, boolean publicShare) {
-        TravelNote travelNote = findTravelNote(travelNoteId);
+    public void changePublicShare(TravelNote travelNote, boolean publicShare) {
         travelNote.changePublicShare(publicShare);
         travelNoteRepository.saveAndFlush(travelNote);
     }
 
     @Transactional
-    public Member addNoteCompanion(Long travelNoteId, String content) {
+    public Member addNoteCompanion(TravelNote travelNote, Member member, String content) {
+        if (member == null || !member.getId().equals(travelNote.getMember().getId())) {
+            throw new BadRequestException("여행 메이킹 노트 소유자만 동행자를 추가할 수 있습니다.");
+        }
 
-        Member member = memberService.searchMember(content);
-        TravelNote travelNote = findTravelNote(travelNoteId);
-        if (member == null) {
+        Member newCompanion = memberService.searchMember(content);
+        if (newCompanion == null) {
             throw new BadRequestException("일치하는 사용자가 없습니다.");
         }
 
-        if (travelNote.getMember().getId().equals(member.getId())) {
+        if (newCompanion.getId().equals(travelNote.getMember().getId())) {
             throw new BadRequestException("여행 메이킹 노트의 소유자입니다.");
         }
 
-        List<Long> companion = travelNote.getCompanion();
-        if (companion.contains(member.getId())) {
+        List<Long> companionList = travelNote.getCompanion();
+        if (companionList.contains(newCompanion.getId())) {
             throw new BadRequestException("이미 추가된 사용자입니다.");
         } else {
-            companion.add(member.getId());
-            travelNote.changeCompanion(companion);
+            companionList.add(newCompanion.getId());
+            travelNote.changeCompanion(companionList);
             travelNoteRepository.saveAndFlush(travelNote);
-            return member;
+            return newCompanion;
         }
 
     }
 
     @Transactional
-    public void deleteCompanion(Long travelNoteId, Long memberId) {
+    public void deleteCompanion(TravelNote travelNote, Member member, Long companionId) {
+        if (member == null || !member.getId().equals(travelNote.getMember().getId())) {
+            throw new BadRequestException("여행 메이킹 노트 소유자만 동행자를 추가할 수 있습니다.");
+        }
 
-        TravelNote travelNote = findTravelNote(travelNoteId);
         List<Long> companion = travelNote.getCompanion();
 
-        companion.remove(memberId);
+        companion.remove(companionId);
         travelNote.changeCompanion(companion);
         travelNoteRepository.saveAndFlush(travelNote);
-
     }
 
-    public List<Member> findCompanion(Long travelNoteId) {
-
-        TravelNote travelNote = findTravelNote(travelNoteId);
-
+    public List<Member> getCompanionMember(TravelNote travelNote) {
         return travelNote
                 .getCompanion()
                 .stream()
                 .map(memberRepository::findById)
                 .toList();
-
     }
 
     public List<MainPageTravelNote> getRecommendedNotes(int limit) {
@@ -325,7 +304,33 @@ public class TravelNoteService {
         return travelNoteList.stream().map(MainPageTravelNote::new).toList();
     }
 
-    public TravelNoteDetailInfo getTravelNoteInfo(TravelNote travelNote) {
+    public TravelNoteDetailInfo getTravelNoteDetailInfo(TravelNote travelNote) {
+        if (!travelNote.isPublicShare()) throw new BadRequestException("이 여행 메이킹 노트는 볼 수 없습니다.");
+
+        StringBuilder period = getPeriod(travelNote);
+
+        List<String> theme = getThemeFromComposition(travelNote);
+        theme.addAll(travelNote.getTheme());
+
+        return new TravelNoteDetailInfo(
+                travelNote.getTitle(),
+                period.toString(),
+                travelNote.getRegion(),
+                theme,
+                travelNote.getThumbnail());
+    }
+
+    private List<String> getThemeFromComposition(TravelNote travelNote) {
+        List<String> theme = new ArrayList<>();
+        if (travelNote.getChild() > 0) {
+            theme.add("아이와 함께");
+        } else if (travelNote.getAnimal() > 0) {
+            theme.add("반려동물과 함께");
+        }
+        return theme;
+    }
+
+    private StringBuilder getPeriod(TravelNote travelNote) {
         long between = ChronoUnit.DAYS.between(travelNote.getDayStart(), travelNote.getDayEnd());
 
         StringBuilder period = new StringBuilder();
@@ -338,21 +343,7 @@ public class TravelNoteService {
         } else {
             period.append(between).append("박 ").append(between + 1).append("일");
         }
-
-        List<String> theme = new ArrayList<>();
-        if (travelNote.getChild() > 0) {
-            theme.add("아이와 함께");
-        } else if (travelNote.getAnimal() > 0) {
-            theme.add("반려동물과 함께");
-        }
-        theme.addAll(travelNote.getTheme());
-
-        return new TravelNoteDetailInfo(
-                travelNote.getTitle(),
-                period.toString(),
-                travelNote.getRegion(),
-                theme,
-                travelNote.getThumbnail());
+        return period;
     }
 
     public List<TravelNote> getTempTravelNoteList(int limit, Member member) {

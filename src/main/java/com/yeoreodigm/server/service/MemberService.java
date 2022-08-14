@@ -3,6 +3,7 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
+import com.yeoreodigm.server.dto.MemberRequestDto;
 import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.MemberRepository;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -27,18 +29,25 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void join(Member member) {
+    public void join(MemberRequestDto memberRequestDto) {
         //중복 검사
-        validateDuplicateEmail(member.getEmail());
-        validateDuplicateNickname(member.getNickname());
+        checkDuplicateEmail(memberRequestDto.getEmail());
+        checkDuplicateNickname(memberRequestDto.getNickname());
 
         //비밀번호 암호화
-        member.changePassword(encodePassword(member.getPassword()));
+        String password = encodePassword(memberRequestDto.getPassword());
 
-        if (member.getNickname().equals("admin")) {
-            //관리자 권한 부여
-            member.changeAuthority(Authority.ROLE_ADMIN);
-        }
+        LocalDate birth = LocalDate.of(memberRequestDto.getYear(), memberRequestDto.getMonth(), memberRequestDto.getDay());
+
+        Member member = new Member(
+                memberRequestDto.getEmail(),
+                password,
+                memberRequestDto.getNickname(),
+                birth,
+                memberRequestDto.getGender(),
+                memberRequestDto.getRegion(),
+                memberRequestDto.isOptional()
+        );
 
         memberRepository.saveAndFlush(member);
 
@@ -54,14 +63,14 @@ public class MemberService {
         throw new BadRequestException("이메일 또는 비밀번호를 잘못 입력했습니다.");
     }
 
-    public void validateDuplicateEmail(String email) {
+    public void checkDuplicateEmail(String email) {
         Member findMembers = memberRepository.findByEmail(email);
         if (findMembers != null) {
             throw new BadRequestException("이미 등록된 이메일입니다.");
         }
     }
 
-    public void validateDuplicateNickname(String nickname) {
+    public void checkDuplicateNickname(String nickname) {
         Member findMember = memberRepository.findByNickname(nickname);
         if (findMember != null) {
             throw new BadRequestException("이미 등록된 닉네임입니다.");
@@ -113,13 +122,9 @@ public class MemberService {
     }
 
     public Member searchMember(String content) {
-
-        if (Pattern.matches(EmailConst.EMAIL_PATTERN, content)) {
-            return memberRepository.findByEmail(content);
-        } else {
-            return memberRepository.findByNickname(content);
-        }
-
+        return Pattern.matches(EmailConst.EMAIL_PATTERN, content) ?
+                memberRepository.findByEmail(content) :
+                memberRepository.findByNickname(content);
     }
 
 }

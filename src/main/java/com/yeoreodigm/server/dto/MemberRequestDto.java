@@ -9,7 +9,7 @@ import javax.validation.constraints.NotEmpty;
 
 @Data
 @ApiModel(value = "회원 가입 요청")
-public class JoinMemberRequestDto {
+public class MemberRequestDto {
 
         @ApiModelProperty(example = "abc@google.com")
         @NotEmpty

@@ -5,7 +5,6 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.constraint.EnvConst;
-import com.yeoreodigm.server.dto.constraint.RecommendConst;
 import com.yeoreodigm.server.dto.recommend.RecommendedCoursesDto;
 import com.yeoreodigm.server.dto.recommend.RecommendedPlacesDto;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -20,8 +19,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,14 +29,14 @@ public class RecommendService {
 
     private final TravelNoteRepository travelNoteRepository;
 
-    public List<List<Long>> getRecommendedCourses(
-            Member member, LocalDate dayStart, LocalDate dayEnd, List<Long> placeList, List<String> regionList) {
+    public List<List<Long>> getRecommendedCourses(TravelNote travelNote) {
 
-        int day = Period.between(dayStart, dayEnd).getDays() + 1;
+        int day = Period.between(travelNote.getDayStart(), travelNote.getDayEnd()).getDays() + 1;
         StringBuilder include = new StringBuilder();
 
-        if (placeList.size() > 0) {
-            for (Long placeId : placeList) {
+        List<Long> placeInput = travelNote.getPlacesInput();
+        if (placeInput.size() > 0) {
+            for (Long placeId : placeInput) {
                 include.append(placeId).append(",");
             }
             include.delete(include.length() - 1, include.length());
@@ -48,7 +45,7 @@ public class RecommendService {
         }
 
         StringBuilder location = new StringBuilder();
-        for (String region : regionList) {
+        for (String region : travelNote.getRegion()) {
             switch (region) {
                 case "제주" -> location.append("east,west,south,north,");
                 case "제주 동부" -> location.append("east,");
@@ -64,7 +61,7 @@ public class RecommendService {
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path(EnvConst.COURSE_RECOMMEND_URI)
-                        .queryParam("id", member.getId())
+                        .queryParam("id", travelNote.getMember().getId())
                         .queryParam("day", day)
                         .queryParam("include", include)
                         .queryParam("location", location.substring(0, location.length() - 1))
@@ -89,17 +86,14 @@ public class RecommendService {
             placeIdList.addAll(coursePlaces);
         }
 
-        return getRecommendedPlaces(travelNote.getMember().getId(), placeIdList, limit);
+        return getRecommendedPlaces(travelNote.getMember(), placeIdList, limit);
     }
 
-    public List<Places> getRecommendedPlaces(Long memberId, List<Long> placeIdList, int limit) {
-
+    public List<Places> getRecommendedPlaces(Member member, List<Long> placeIdList, int limit) {
         StringBuilder placeString = new StringBuilder();
 
-        if (placeIdList != null) {
-            for (Long placeId : placeIdList) {
-                placeString.append(placeId).append(",");
-            }
+        for (Long placeId : placeIdList) {
+            placeString.append(placeId).append(",");
         }
 
         if (placeString.length() == 0) {
@@ -112,7 +106,7 @@ public class RecommendService {
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path(EnvConst.PLACE_RECOMMEND_URI)
-                        .queryParam("memberId", memberId)
+                        .queryParam("memberId", member.getId())
                         .queryParam("placesInCourse", placeString.substring(0, placeString.length() - 1))
                         .queryParam("numOfResult", limit)
                         .build())
@@ -121,7 +115,7 @@ public class RecommendService {
                 .block();
 
         if (recommendedPlacesDto != null) {
-            return recommendedPlacesDto.getPlaceList().stream().map(placesRepository::findByPlacesId).toList();
+            return recommendedPlacesDto.getPlaceList().stream().map(placesRepository::findByPlaceId).toList();
         } else {
             throw new BadRequestException("추천 여행지를 불러오는데 실패하였습니다.");
         }

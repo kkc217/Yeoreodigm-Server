@@ -21,9 +21,9 @@ public class MainPageApiController {
     public MainPageInfoDto callMainPage(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         if (member != null) {
-            return mainPageService.callMainPageMember(member);
+            return mainPageService.getMainPageInfoByMember(member);
         } else {
-            return mainPageService.callMainPageVisitor();
+            return mainPageService.getMainPageInfoGeneral();
         }
     }
 

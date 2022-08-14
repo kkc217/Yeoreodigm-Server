@@ -27,7 +27,7 @@ public class CourseCommentRepository {
     }
 
     public void saveAndFlush(CourseComment courseComment) {
-        em.persist(courseComment);
+        save(courseComment);
         em.flush();
     }
 
@@ -42,7 +42,7 @@ public class CourseCommentRepository {
         }
     }
 
-    public List<CourseComment> findByCourse(Course course) {
+    public List<CourseComment> findCourseCommentsByCourse(Course course) {
         return queryFactory
                 .selectFrom(courseComment)
                 .where(courseComment.course.eq(course))
@@ -50,10 +50,10 @@ public class CourseCommentRepository {
                 .fetch();
     }
 
-    public void deleteByCourseComment(CourseComment target) {
+    public void deleteByCourseCommentId(Long courseCommentId) {
         queryFactory
                 .delete(courseComment)
-                .where(courseComment.eq(target))
+                .where(courseComment.id.eq(courseCommentId))
                 .execute();
     }
 

@@ -25,7 +25,7 @@ public class CourseRepository {
     }
 
     public void saveAndFlush(Course course) {
-        em.persist(course);
+        save(course);
         em.flush();
     }
 
@@ -33,7 +33,7 @@ public class CourseRepository {
         em.flush();
     }
 
-    public List<Course> findByTravelNoteIdPaging(Long travelNoteId, int page, int limit) {
+    public List<Course> findCoursesByTravelNoteIdPaging(Long travelNoteId, int page, int limit) {
         return queryFactory
                 .selectFrom(course)
                 .where(course.travelNote.id.eq(travelNoteId))
@@ -43,7 +43,7 @@ public class CourseRepository {
                 .fetch();
     }
 
-    public List<Course> findByTravelNoteId(Long travelNoteId) {
+    public List<Course> findCoursesByTravelNoteId(Long travelNoteId) {
         return queryFactory
                 .selectFrom(course)
                 .where(course.travelNote.id.eq(travelNoteId))

@@ -3,6 +3,7 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.CourseComment;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseCommentRepository;
 import com.yeoreodigm.server.repository.CourseRepository;
@@ -23,45 +24,48 @@ public class CourseCommentService {
 
     private final CourseRepository courseRepository;
 
-    @Transactional
-    public CourseComment saveCourseComment(Long travelNoteId, int day, Member member, String text) {
-
-        Course course = courseRepository.findByTravelNoteIdAndDay(travelNoteId, day);
-        if (!course.getTravelNote().getCompanion().contains(member.getId())
-                && !course.getTravelNote().getMember().getId().equals(member.getId())) {
-            throw new BadRequestException("이 여행 메이킹 노트에 댓글을 작성할 수 있는 권한이 없습니다.");
-        }
-
-        CourseComment courseComment = new CourseComment(course, member, text);
-        courseCommentRepository.saveAndFlush(courseComment);
-
-        return courseComment;
-
-    }
-
-    public List<CourseComment> searchCourseCommentByNoteAndDay(Long travelNoteId, int day) {
-        Course course = courseRepository.findByTravelNoteIdAndDay(travelNoteId, day);
+    public List<CourseComment> getCourseCommentsByTravelNoteAndDay(TravelNote travelNote, int day) {
+        Course course = courseRepository.findByTravelNoteIdAndDay(travelNote.getId(), day);
         if (course != null) {
-            return Objects.requireNonNullElseGet(courseCommentRepository.findByCourse(course), ArrayList::new);
+            return Objects.requireNonNullElseGet(
+                    courseCommentRepository.findCourseCommentsByCourse(course), ArrayList::new);
         } else {
             throw new BadRequestException("일치하는 일차 정보가 없습니다.");
         }
     }
 
     @Transactional
-    public void deleteCourseComment(Long commentId, Member member) {
+    public CourseComment addCourseComment(TravelNote travelNote, Member member, int day, String text) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        Course course = courseRepository.findByTravelNoteIdAndDay(travelNote.getId(), day);
+        if (course == null) {
+            throw new BadRequestException("일치하는 일차 정보가 없습니다.");
+        } else if (!Objects.equals(member.getId(), course.getTravelNote().getMember().getId())
+                && !course.getTravelNote().getCompanion().contains(member.getId())) {
+            throw new BadRequestException("댓글을 작성할 수 있는 권한이 없습니다.");
+        }
+
+        CourseComment courseComment = new CourseComment(course, member, text);
+        courseCommentRepository.saveAndFlush(courseComment);
+
+        return courseComment;
+    }
+
+    @Transactional
+    public void deleteCourseComment(Member member, Long commentId) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
 
         CourseComment courseComment = courseCommentRepository.findById(commentId);
 
         if (courseComment != null) {
-            if (!courseComment.getCourse().getTravelNote().getMember().getId().equals(member.getId())
-                    && !courseComment.getMember().getId().equals(member.getId())) {
+            if (!Objects.equals(member.getId(), courseComment.getCourse().getTravelNote().getMember().getId())
+                    && !Objects.equals(member.getId(), courseComment.getMember().getId())) {
                 throw new BadRequestException("댓글을 삭제할 수 있는 권한이 없습니다.");
             }
 
-            courseCommentRepository.deleteByCourseComment(courseComment);
+            courseCommentRepository.deleteByCourseCommentId(courseComment.getId());
         }
-
     }
 
 }

@@ -14,8 +14,8 @@ public class MapMarkerService {
 
     private final MapMarkerRepository mapMarkerRepository;
 
-    public List<String> getMarkerColorList(int totalDay) {
-        return mapMarkerRepository.getMarkerListByDay(totalDay);
+    public List<String> getMarkerColors(int totalDay) {
+        return mapMarkerRepository.findMarkerColorsByTotalDay(totalDay);
     }
 
 }

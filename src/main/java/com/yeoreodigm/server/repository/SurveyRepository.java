@@ -26,12 +26,11 @@ public class SurveyRepository {
     }
 
     public void saveAndFlush(SurveyResult surveyResult) {
-        em.persist(surveyResult);
+        save(surveyResult);
         em.flush();
-        em.clear();
     }
 
-    public List<SurveyItem> findItemsByGroup(int progress) {
+    public List<SurveyItem> findSurveyItemsByProgress(int progress) {
         return queryFactory
                 .selectFrom(surveyItem)
                 .where(surveyItem.progress.eq(progress))

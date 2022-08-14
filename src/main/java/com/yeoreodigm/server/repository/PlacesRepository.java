@@ -20,7 +20,7 @@ public class PlacesRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public Places findByPlacesId(Long placeId) {
+    public Places findByPlaceId(Long placeId) {
         try {
             return queryFactory
                     .selectFrom(places)
@@ -31,14 +31,7 @@ public class PlacesRepository {
         }
     }
 
-    public List<Places> findByPlacesIdList(List<Long> placeIdList) {
-        return placeIdList
-                .stream()
-                .map(this::findByPlacesId)
-                .toList();
-    }
-
-    public List<Places> findByTitlePaging(String keyword, int page, int limit) {
+    public List<Places> findPlacesByKeywordPaging(String keyword, int page, int limit) {
         return queryFactory
                 .selectFrom(places)
                 .where(places.title.contains(keyword))

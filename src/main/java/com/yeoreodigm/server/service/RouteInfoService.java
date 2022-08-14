@@ -34,8 +34,8 @@ public class RouteInfoService {
     }
 
     private RouteInfo getRouteInfoFromApi(Long start, Long goal) {
-        Places startPlace = placesRepository.findByPlacesId(start);
-        Places goalPlace = placesRepository.findByPlacesId(goal);
+        Places startPlace = placesRepository.findByPlaceId(start);
+        Places goalPlace = placesRepository.findByPlaceId(goal);
 
         String startCoordinate = startPlace.getLongitude() + "," + startPlace.getLatitude();
         String goalCoordinate = goalPlace.getLongitude() + "," + goalPlace.getLatitude();

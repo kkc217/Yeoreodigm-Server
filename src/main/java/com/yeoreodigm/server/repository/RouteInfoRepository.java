@@ -24,7 +24,7 @@ public class RouteInfoRepository {
     }
 
     public void saveAndFlush(RouteInfo routeInfo) {
-        em.persist(routeInfo);
+        save(routeInfo);
         em.flush();
     }
 
@@ -32,7 +32,7 @@ public class RouteInfoRepository {
         em.flush();
     }
 
-    public RouteInfo findRouteInfoByPlaces(Long start, Long goal) {
+    public RouteInfo findRouteInfoByPlaceIds(Long start, Long goal) {
         try {
             return queryFactory
                     .selectFrom(routeInfo)

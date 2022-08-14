@@ -15,6 +15,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.mail.internet.MimeMessage;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -31,10 +32,10 @@ public class EmailService {
 
     public String sendConfirmMail(String email) {
         Member member = memberRepository.findByEmail(email);
-        String confirmCode = genRandomCode();
 
         if (member != null) {
             Context context = new Context();
+            String confirmCode = genRandomCode();
             context.setVariable("confirmCode", confirmCode);
 
             String text = templateEngine.process("confirmCodeMail", context);
@@ -49,7 +50,7 @@ public class EmailService {
 
     @Transactional
     public void checkConfirmMail(ConfirmMemberDto confirmMemberDto, String confirmCode) {
-        if (confirmCode.equals(confirmMemberDto.getConfirmCode())) {
+        if (Objects.equals(confirmCode, confirmMemberDto.getConfirmCode())) {
             memberService.updateMemberAuthority(confirmMemberDto.getEmail(), Authority.ROLE_SURVEY);
         } else {
             throw new BadRequestException("인증 코드가 일치하지 않습니다.");
@@ -57,16 +58,13 @@ public class EmailService {
     }
 
     @Transactional
-    public void sendResetMail(String email) {
-        String newPassword = memberService.resetPassword(email);
-
+    public void sendResetMail(String email, String newPassword) {
         Context context = new Context();
         context.setVariable("newPassword", newPassword);
 
         String text = templateEngine.process("resetPasswordMail", context);
 
         sendMail(email, EmailConst.RESET_SUBJECT, text, EmailConst.HTML);
-
     }
 
     public void sendMail(String toAddress, String subject, String text, boolean isHtml) {

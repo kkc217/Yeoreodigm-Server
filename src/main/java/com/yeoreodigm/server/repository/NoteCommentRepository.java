@@ -24,7 +24,7 @@ public class NoteCommentRepository {
     }
 
     public void saveAndFlush(NoteComment noteComment) {
-        em.persist(noteComment);
+        save(noteComment);
         em.flush();
     }
 

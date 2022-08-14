@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import java.time.LocalDate;
 
 @Tag(name = "auth", description = "인증에 관한 API")
 @RestController
@@ -40,20 +39,8 @@ public class MemberApiController {
             @ApiResponse(code = 400, message = "(중복시) 이미 등록된 이메일입니다.|이미 등록된 닉네임입니다.")
     })
     @PostMapping("/join")
-    public void joinMember(@RequestBody @Valid JoinMemberRequestDto requestDto) {
-        LocalDate birth = LocalDate.of(requestDto.getYear(), requestDto.getMonth(), requestDto.getDay());
-
-        Member member = new Member(
-                requestDto.getEmail(),
-                requestDto.getPassword(),
-                requestDto.getNickname(),
-                birth,
-                requestDto.getGender(),
-                requestDto.getRegion(),
-                requestDto.isOptional()
-        );
-
-        memberService.join(member);
+    public void joinMember(@RequestBody @Valid MemberRequestDto requestDto) {
+        memberService.join(requestDto);
     }
 
     @ApiOperation(value = "로그인")
@@ -110,7 +97,8 @@ public class MemberApiController {
             @ApiResponse(code = 200, message = "(성공)")
     })
     @PostMapping("/logout")
-    public void logout(HttpServletRequest httpServletRequest) {
+    public void logout(
+            HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession(false);
 
         if (session != null) {
@@ -126,7 +114,7 @@ public class MemberApiController {
     })
     @PostMapping("/check/email")
     public void checkEmail(@RequestBody @Valid EmailRequestDto requestDto) {
-        memberService.validateDuplicateEmail(requestDto.getEmail());
+        memberService.checkDuplicateEmail(requestDto.getEmail());
     }
 
     @ApiOperation(value = "닉네임 중복 확인")
@@ -137,7 +125,7 @@ public class MemberApiController {
     })
     @PostMapping("/check/nickname")
     public void checkNickname(@RequestBody @Valid CheckNicknameRequestDto requestDto) {
-        memberService.validateDuplicateNickname(requestDto.getNickname());
+        memberService.checkDuplicateNickname(requestDto.getNickname());
     }
 
     @ApiOperation(value = "이메일 인증 코드 전송")
@@ -183,7 +171,8 @@ public class MemberApiController {
     })
     @PostMapping("/password/reset")
     public void passwordReset(@RequestBody @Valid EmailRequestDto requestDto) {
-        emailService.sendResetMail(requestDto.getEmail());
+        emailService.sendResetMail(
+                requestDto.getEmail(), memberService.resetPassword(requestDto.getEmail()));
     }
 
 }

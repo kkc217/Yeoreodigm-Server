@@ -6,6 +6,7 @@ import com.yeoreodigm.server.domain.SurveyItem;
 import com.yeoreodigm.server.domain.SurveyResult;
 import com.yeoreodigm.server.dto.constraint.SurveyConst;
 import com.yeoreodigm.server.dto.surveypage.SurveyItemDto;
+import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,33 +25,37 @@ public class SurveyService {
     
     private final MemberRepository memberRepository;
 
-    public List<SurveyItemDto> getSurveyInfo(int progress) {
-        List<SurveyItem> surveyItems = surveyRepository.findItemsByGroup(progress);
+    public List<SurveyItemDto> getSurveyItemsByProgress(int progress) {
 
-        List<SurveyItemDto> result = new ArrayList<>();
-        for (SurveyItem item : surveyItems) {
-            result.add(new SurveyItemDto(item));
-        }
-
-        return result;
+        return surveyRepository
+                .findSurveyItemsByProgress(progress)
+                .stream()
+                .map(SurveyItemDto::new)
+                .toList();
     }
 
     @Transactional
     public void submitSurveyResult(Member member, Long contentId, int progress) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
         SurveyResult surveyResult = surveyRepository.findSurveyResultByMember(member);
         surveyResult.changeProgress(progress + 1);
-        surveyResult.addResult(contentId);
 
-        if (progress == SurveyConst.MAX_SURVEY) {
-            Member loginMember = memberRepository.findByEmail(member.getEmail());
-            loginMember.changeAuthority(Authority.ROLE_USER);
-            memberRepository.save(loginMember);
+        List<Long> resultList = surveyResult.getResult();
+        resultList.add(contentId);
+        surveyResult.changeResult(resultList);
+
+        if (SurveyConst.MAX_SURVEY == progress) {
+            member.changeAuthority(Authority.ROLE_USER);
+            memberRepository.merge(member);
         }
 
         surveyRepository.saveAndFlush(surveyResult);
     }
 
     public int getProgress(Member member) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
         return surveyRepository.findSurveyResultByMember(member).getProgress();
     }
 

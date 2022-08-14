@@ -9,14 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class CallNoteCourseResponseDto {
+public class TravelMakingNoteCourseResponseDto {
 
     private int day;
 
     private List<PlaceInfo> places = new ArrayList<>();
 
 
-    public CallNoteCourseResponseDto(int countStart, int day, List<Places> placeList, List<RouteInfoData> routeInfoDataList) {
+    public TravelMakingNoteCourseResponseDto(int countStart, int day, List<Places> placeList, List<RouteInfoData> routeInfoDataList) {
         this.day = day;
 
         for (int index = 0; index < placeList.size(); index++) {

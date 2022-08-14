@@ -2,7 +2,7 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.PageResult;
-import com.yeoreodigm.server.dto.search.SearchPlacesResponseDto;
+import com.yeoreodigm.server.dto.search.PlaceResponseDto;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.MemberResponseDto;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -23,17 +23,17 @@ public class SearchApiController {
     private final MemberService memberService;
 
     @GetMapping("/place/{content}/{page}")
-    public PageResult<List<SearchPlacesResponseDto>> searchPlaces(
+    public PageResult<List<PlaceResponseDto>> searchPlaces(
             @PathVariable("content") String content,
             @PathVariable("page") int page) {
-        List<SearchPlacesResponseDto> responseDtoList =
+        List<PlaceResponseDto> responseDtoList =
                 placeService
-                        .searchPlaces(content, page, QueryConst.PAGING_LIMIT_PUBLIC)
+                        .searchPlaces(content, page, QueryConst.SEARCH_PAGING_LIMit)
                         .stream()
-                        .map(SearchPlacesResponseDto::new)
+                        .map(PlaceResponseDto::new)
                         .toList();
 
-        int next = placeService.checkNextSearchPage(content, page, QueryConst.PAGING_LIMIT_PUBLIC);
+        int next = placeService.checkNextSearchPage(content, page, QueryConst.SEARCH_PAGING_LIMit);
 
         return new PageResult<>(responseDtoList, next);
     }
@@ -41,14 +41,12 @@ public class SearchApiController {
     @GetMapping("/member/{content}")
     public MemberResponseDto searchMember(
             @PathVariable("content") String content) {
-
         Member member = memberService.searchMember(content);
         if (member != null) {
             return new MemberResponseDto(member);
         } else {
             throw new BadRequestException("일치하는 사용자가 없습니다.");
         }
-
     }
 
 }

@@ -24,9 +24,8 @@ public class PlaceLikeRepository {
     }
 
     public void saveAndFlush(PlaceLike placeLike) {
-        em.persist(placeLike);
+        save(placeLike);
         em.flush();
-        em.clear();
     }
 
     public List<PlaceLike> findByMember(Member member) {

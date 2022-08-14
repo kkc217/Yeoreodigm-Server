@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.domain.TravelNoteLike;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -16,19 +17,19 @@ public class TravelNoteLikeService {
 
     private final TravelNoteLikeRepository travelNoteLikeRepository;
 
-    public Long countTravelNoteLike(Long travelNoteId) {
-        return travelNoteLikeRepository.countByTravelNoteId(travelNoteId);
+    public Long countTravelNoteLike(TravelNote travelNote) {
+        return travelNoteLikeRepository.countByTravelNoteId(travelNote.getId());
     }
 
-    public boolean checkHasLiked(Long travelNoteId, Long memberId) {
-        if (memberId == null) return false;
-        return travelNoteLikeRepository.findByTravelNoteIdAndMemberId(travelNoteId, memberId) != null;
+    public boolean checkHasLiked(TravelNote travelNote, Member member) {
+        if (member == null) return false;
+        return travelNoteLikeRepository.findByTravelNoteIdAndMemberId(travelNote.getId(), member.getId()) != null;
     }
 
-    public LikeItemDto getLikeInfo(Long travelNoteId, Long memberId) {
+    public LikeItemDto getLikeInfo(TravelNote travelNote, Member member) {
         return new LikeItemDto(
-                checkHasLiked(travelNoteId, memberId),
-                countTravelNoteLike(travelNoteId));
+                checkHasLiked(travelNote, member),
+                countTravelNoteLike(travelNote));
     }
 
     @Transactional

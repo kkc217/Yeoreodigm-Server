@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.yeoreodigm.server.dto.constraint.MainPageConst.*;
@@ -24,12 +25,12 @@ public class MainPageService {
 
     private final PlaceService placeService;
 
-    public MainPageInfoDto callMainPageMember(Member member) {
+    public MainPageInfoDto getMainPageInfoByMember(Member member) {
         // 노트 추천 API 구현시 수정 예정
         List<MainPageTravelNote> recommendedNotes = travelNoteService.getRecommendedNotes(NUMBER_OF_RECOMMENDED_NOTES);
 
         List<MainPagePlace> recommendedPlaces = recommendService
-                .getRecommendedPlaces(member.getId(), null, NUMBER_OF_RECOMMENDED_PLACES)
+                .getRecommendedPlaces(member, new ArrayList<>(), NUMBER_OF_RECOMMENDED_PLACES)
                 .stream()
                 .map(MainPagePlace::new)
                 .toList();
@@ -40,7 +41,7 @@ public class MainPageService {
         return new MainPageInfoDto(recommendedNotes, recommendedPlaces, weeklyNotes, popularPlaces);
     }
 
-    public MainPageInfoDto callMainPageVisitor() {
+    public MainPageInfoDto getMainPageInfoGeneral() {
         List<MainPageTravelNote> recommendedNotes = travelNoteService.getRandomNotes(NUMBER_OF_RECOMMENDED_NOTES);
 
         List<MainPagePlace> recommendedPlaces = placeService

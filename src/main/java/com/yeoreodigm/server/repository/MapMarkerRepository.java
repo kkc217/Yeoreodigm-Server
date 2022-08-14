@@ -3,7 +3,6 @@ package com.yeoreodigm.server.repository;
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoreodigm.server.domain.MapMarker;
-import com.yeoreodigm.server.domain.QMapMarker;
 import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -21,16 +20,16 @@ public class MapMarkerRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public List<String> getMarkerListByDay(int totalDay) {
-        List<MapMarker> result = queryFactory
-                .selectFrom(mapMarker)
+    public List<String> findMarkerColorsByTotalDay(int totalDay) {
+        return queryFactory
+                .select(mapMarker.color)
+                .from(mapMarker)
                 .where(mapMarker.day.loe(totalDay))
                 .fetch();
-        return result.stream().map(MapMarker::getColor).toList();
     }
 
 
-    public String getMarkerByDay(int day) {
+    public String findMarkerColorByDay(int day) {
         try {
             MapMarker result = queryFactory
                     .selectFrom(mapMarker)

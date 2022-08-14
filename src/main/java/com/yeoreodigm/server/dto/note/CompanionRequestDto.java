@@ -3,7 +3,7 @@ package com.yeoreodigm.server.dto.note;
 import lombok.Data;
 
 @Data
-public class ChangeCompanionRequestDto {
+public class CompanionRequestDto {
 
     private Long travelNoteId;
 

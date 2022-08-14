@@ -28,7 +28,7 @@ public class TravelNoteRepository {
     }
 
     public void saveAndFlush(TravelNote travelNote) {
-        em.persist(travelNote);
+        save(travelNote);
         em.flush();
     }
 

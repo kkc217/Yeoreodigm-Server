@@ -10,8 +10,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ConfirmMemberDto implements Serializable {
 
-    private static final long serialVersionUID = -6348456621487522974L;
-
     private String email;
     private String confirmCode;
 

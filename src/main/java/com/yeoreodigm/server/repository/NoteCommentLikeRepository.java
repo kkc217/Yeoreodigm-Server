@@ -22,7 +22,7 @@ public class NoteCommentLikeRepository {
     }
 
     public void saveAndFlush(NoteCommentLike noteCommentLike) {
-        em.persist(noteCommentLike);
+        save(noteCommentLike);
         em.flush();
     }
 

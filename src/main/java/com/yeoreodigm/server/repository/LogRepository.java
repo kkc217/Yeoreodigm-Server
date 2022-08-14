@@ -27,7 +27,7 @@ public class LogRepository {
     }
 
     public void saveAndFlushPlacesLog(PlacesLog placesLog) {
-        em.persist(placesLog);
+        savePlacesLog(placesLog);
         em.flush();
     }
 
@@ -36,7 +36,7 @@ public class LogRepository {
     }
 
     public void saveAndFlushNoteLog(TravelNoteLog travelNoteLog) {
-        em.persist(travelNoteLog);
+        saveNoteLog(travelNoteLog);
         em.flush();
     }
 
