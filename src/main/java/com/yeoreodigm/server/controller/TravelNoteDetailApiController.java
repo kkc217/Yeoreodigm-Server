@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/detail")
-public class DetailPageApiController {
+@RequestMapping("/api/detail/travelnote")
+public class TravelNoteDetailApiController {
 
     private final TravelNoteService travelNoteService;
 
@@ -44,7 +44,7 @@ public class DetailPageApiController {
 
     private final RecommendService recommendService;
 
-    @GetMapping("/travelnote/{travelNoteId}")
+    @GetMapping("/{travelNoteId}")
     public NoteDetailResponseDto callTravelNoteDetail(
             @PathVariable("travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
@@ -75,14 +75,14 @@ public class DetailPageApiController {
                 travelNoteInfo, travelNoteLikeInfo, coordinateDtoList, recommendedNoteList, commentList);
     }
 
-    @PostMapping("/travelnote/like")
+    @PostMapping("/like")
     public void changeTravelNoteLike(
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         travelNoteLikeService.changeTravelNoteLike(member, requestDto.getTravelNoteId(), requestDto.isLike());
     }
 
-    @GetMapping("/travelnote/course/{travelNoteId}/{day}")
+    @GetMapping("/course/{travelNoteId}/{day}")
     public PageResult<NoteDetailCourseResponseDto> callTravelNoteDetailCourse(
             @PathVariable("travelNoteId") Long travelNoteId,
             @PathVariable("day") int day) {
@@ -97,7 +97,7 @@ public class DetailPageApiController {
         return new PageResult<>(new NoteDetailCourseResponseDto(routeInfo, placeService.getPlacesByCourse(course)), next);
     }
 
-    @GetMapping("/travelnote/comment/{travelNoteId}")
+    @GetMapping("/comment/{travelNoteId}")
     public Result<List<CommentItemDto>> callTravelNoteComment(
             @PathVariable("travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
@@ -105,7 +105,7 @@ public class DetailPageApiController {
                 travelNoteService.getTravelNoteById(travelNoteId), member));
     }
 
-    @PostMapping("/travelnote/comment/add")
+    @PostMapping("/comment/add")
     public CommentItemDto addTravelNoteComment(
             @RequestBody @Valid NoteCommentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
@@ -115,21 +115,21 @@ public class DetailPageApiController {
                 requestDto.getText());
     }
 
-    @PostMapping("/travelnote/comment/delete")
+    @PostMapping("/comment/delete")
     public void deleteTravelNoteComment(
             @RequestBody @Valid NoteCommentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         noteCommentService.deleteNoteComment(member, requestDto.getCommentId());
     }
 
-    @PostMapping("/travelnote/comment/like")
+    @PostMapping("/comment/like")
     public void changeTravelNoteCommentLike(
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         noteCommentLikeService.changeTravelNoteLike(member, requestDto.getCommentId(), requestDto.isLike());
     }
 
-    @PostMapping("/travelnote/make")
+    @PostMapping("/make")
     public TravelNoteResponseDto makeMyTravelNote(
             @RequestBody @Valid TravelNoteRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
