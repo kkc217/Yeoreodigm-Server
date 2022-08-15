@@ -6,6 +6,7 @@ import com.yeoreodigm.server.domain.Member;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 public class CommentResponseDto {
@@ -33,7 +34,7 @@ public class CommentResponseDto {
         this.memberId = member.getId();
         this.profileImageUrl = member.getProfileImage();
         this.nickname = member.getNickname();
-        this.hasModified = !comment.getCreated().isEqual(comment.getModified());
+        this.hasModified = !Objects.equals(comment.getCreated(), comment.getModified());
         this.dateTime = comment.getModified();
     }
 
