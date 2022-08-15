@@ -8,7 +8,7 @@ import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
 import com.yeoreodigm.server.dto.constraint.DetailPageConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.detail.*;
+import com.yeoreodigm.server.dto.detail.travelnote.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.note.CourseCoordinateDto;
 import com.yeoreodigm.server.dto.note.RouteInfoDto;

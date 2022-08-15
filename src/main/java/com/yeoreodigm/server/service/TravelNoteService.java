@@ -1,7 +1,7 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
-import com.yeoreodigm.server.dto.detail.TravelNoteDetailInfo;
+import com.yeoreodigm.server.dto.detail.travelnote.TravelNoteDetailInfo;
 import com.yeoreodigm.server.dto.mainpage.MainPageTravelNote;
 import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;

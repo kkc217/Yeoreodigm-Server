@@ -1,13 +1,11 @@
-package com.yeoreodigm.server.dto.detail;
+package com.yeoreodigm.server.dto.detail.travelnote;
 
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.note.CourseCoordinateDto;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data

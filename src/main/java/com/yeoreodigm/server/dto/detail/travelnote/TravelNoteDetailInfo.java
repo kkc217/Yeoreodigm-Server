@@ -1,4 +1,4 @@
-package com.yeoreodigm.server.dto.detail;
+package com.yeoreodigm.server.dto.detail.travelnote;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

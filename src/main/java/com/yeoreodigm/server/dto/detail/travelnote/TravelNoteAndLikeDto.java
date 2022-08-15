@@ -1,4 +1,4 @@
-package com.yeoreodigm.server.dto.detail;
+package com.yeoreodigm.server.dto.detail.travelnote;
 
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
