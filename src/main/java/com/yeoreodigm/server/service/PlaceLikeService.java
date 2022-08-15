@@ -47,4 +47,20 @@ public class PlaceLikeService {
                 countPlaceLike(place));
     }
 
+    @Transactional
+    public void changePlaceLike(Member member, Long placeId, boolean like) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        PlaceLike placeLike = placeLikeRepository.findByPlaceIdAndMemberId(placeId, member.getId());
+
+        if (like) {
+            if (placeLike == null) {
+                PlaceLike newPlaceLike = new PlaceLike(placeId, member.getId());
+                placeLikeRepository.saveAndFlush(newPlaceLike);
+            }
+        } else if (placeLike != null) {
+            placeLikeRepository.deleteById(placeLike.getId());
+        }
+    }
+
 }

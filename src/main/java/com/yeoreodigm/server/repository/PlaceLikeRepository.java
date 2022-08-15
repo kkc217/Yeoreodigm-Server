@@ -31,14 +31,14 @@ public class PlaceLikeRepository {
     public List<PlaceLike> findByMember(Member member) {
         return queryFactory
                 .selectFrom(placeLike)
-                .where(placeLike.member.eq(member))
+                .where(placeLike.memberId.eq(member.getId()))
                 .fetch();
     }
 
     public List<PlaceLike> findByMemberPaging(Member member, int page, int limit) {
         return queryFactory
                 .selectFrom(placeLike)
-                .where(placeLike.member.eq(member))
+                .where(placeLike.memberId.eq(member.getId()))
                 .offset(page)
                 .limit(limit)
                 .fetch();
@@ -48,14 +48,22 @@ public class PlaceLikeRepository {
         return queryFactory
                 .select(placeLike.count())
                 .from(placeLike)
-                .where(placeLike.places.id.eq(placeId))
+                .where(placeLike.placeId.eq(placeId))
                 .fetchOne();
     }
 
     public PlaceLike findByPlaceIdAndMemberId(Long placeId, Long memberId) {
         return queryFactory
                 .selectFrom(placeLike)
-                .where(placeLike.places.id.eq(placeId), placeLike.member.id.eq(memberId))
+                .where(placeLike.placeId.eq(placeId), placeLike.memberId.eq(memberId))
                 .fetchOne();
     }
+
+    public void deleteById(Long placeLikeId) {
+        queryFactory
+                .delete(placeLike)
+                .where(placeLike.id.eq(placeLikeId))
+                .execute();
+    }
+
 }
