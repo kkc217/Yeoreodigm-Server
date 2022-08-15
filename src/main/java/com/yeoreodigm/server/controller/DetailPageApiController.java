@@ -2,7 +2,6 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
@@ -19,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,15 +32,17 @@ public class DetailPageApiController {
 
     private final TravelNoteLogService travelNoteLogService;
 
-    private final CourseService courseService;
-
     private final NoteCommentService noteCommentService;
 
     private final NoteCommentLikeService noteCommentLikeService;
 
+    private final CourseService courseService;
+
     private final MapMarkerService mapMarkerService;
 
     private final PlaceService placeService;
+
+    private final RecommendService recommendService;
 
     @GetMapping("/travelnote/{travelNoteId}")
     public NoteDetailResponseDto callTravelNoteDetail(
@@ -61,8 +61,8 @@ public class DetailPageApiController {
                 markerColorList.get(course.getDay() - 1),
                 placeService.getPlacesByCourse(course))).collect(Collectors.toList());
 
-        //여행 노트 추천 - AI API 구현시 수정 예정
-        List<TravelNote> recommendedNoteList = travelNoteService.getTempTravelNoteList(4, member);
+        List<TravelNote> recommendedNoteList = recommendService.getSimilarTravelNote(
+                travelNote, DetailPageConst.NUMBER_OF_SIMILAR_TRAVEL_NOTE);
 
         List<CommentItemDto> commentList = noteCommentService.getNoteCommentInfo(travelNote, member);
 
