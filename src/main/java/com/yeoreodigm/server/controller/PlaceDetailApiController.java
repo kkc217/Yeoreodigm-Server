@@ -5,6 +5,7 @@ import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
+import com.yeoreodigm.server.dto.detail.place.PlaceCommentRequestDto;
 import com.yeoreodigm.server.dto.detail.place.PlaceDetailResponseDto;
 import com.yeoreodigm.server.dto.detail.place.PlaceLikeRequestDto;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
@@ -54,6 +55,16 @@ public class PlaceDetailApiController {
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new Result<>(
                 placeCommentService.getPlaceCommentItems(placeService.getPlaceById(placeId), member));
+    }
+
+    @PostMapping("/comment")
+    public void addPlaceComment(
+            @RequestBody @Valid PlaceCommentRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        placeCommentService.addPlaceComment(
+                member,
+                placeService.getPlaceById(requestDto.getPlaceId()),
+                requestDto.getText());
     }
 
 }

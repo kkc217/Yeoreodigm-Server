@@ -8,6 +8,7 @@ import com.yeoreodigm.server.dto.like.LikeItemDto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 public class CommentItemDto {
@@ -38,7 +39,7 @@ public class CommentItemDto {
         this.nickname = member.getNickname();
         this.profileImageUrl = member.getProfileImage();
         this.text = noteComment.getText();
-        this.hasModified = noteComment.getCreated() != noteComment.getModified();
+        this.hasModified = !Objects.equals(noteComment.getCreated(), noteComment.getModified());
         this.dateTime = noteComment.getModified();
         this.hasLiked = false;
         this.likeCount = 0L;
@@ -51,7 +52,7 @@ public class CommentItemDto {
         this.nickname = member.getNickname();
         this.profileImageUrl = member.getProfileImage();
         this.text = noteComment.getText();
-        this.hasModified = noteComment.getCreated() != noteComment.getModified();
+        this.hasModified = !Objects.equals(noteComment.getCreated(), noteComment.getModified());
         this.dateTime = noteComment.getModified();
         this.hasLiked = likeItemDto.isHasLiked();
         this.likeCount = likeItemDto.getLikeCount();
@@ -64,7 +65,7 @@ public class CommentItemDto {
         this.nickname = member.getNickname();
         this.profileImageUrl = member.getProfileImage();
         this.text = placeComment.getText();
-        this.hasModified = placeComment.getCreated() != placeComment.getModified();
+        this.hasModified = !Objects.equals(placeComment.getCreated(), placeComment.getModified());
         this.dateTime = placeComment.getModified();
         this.hasLiked = likeItemDto.isHasLiked();
         this.likeCount = likeItemDto.getLikeCount();
