@@ -23,6 +23,8 @@ public class NoteCommentService {
     private final NoteCommentLikeService noteCommentLikeService;
 
     public List<CommentItemDto> getNoteCommentInfo(TravelNote travelNote, Member member) {
+        System.out.println("getNoteCommentInfo: ");
+        System.out.println(member == null);
         List<NoteComment> noteCommentList = noteCommentRepository.findByTravelNoteID(travelNote.getId());
 
         List<CommentItemDto> result = new ArrayList<>();

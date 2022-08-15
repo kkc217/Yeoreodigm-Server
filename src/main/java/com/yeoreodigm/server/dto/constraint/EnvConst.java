@@ -14,6 +14,8 @@ public class EnvConst {
     public static String COURSE_OPTIMIZE_URI;
     public static String NOTE_SIMILAR_URL;
     public static String NOTE_SIMILAR_URI;
+    public static String NOTE_RECOMMEND_URL;
+    public static String NOTE_RECOMMEND_URI;
     public static String NAVER_API_URL;
     public static String NAVER_API_ID;
     public static String NAVER_API_KEY;
@@ -54,6 +56,12 @@ public class EnvConst {
 
     @Value("${webclient.note.similar.uri}")
     public void setNoteSimilarUri(String noteSimilarUri) { NOTE_SIMILAR_URI = noteSimilarUri; }
+
+    @Value("${webclient.note.recommend.url}")
+    public void setNoteRecommendUrl(String noteRecommendUrl) { NOTE_RECOMMEND_URL = noteRecommendUrl; }
+
+    @Value("${webclient.note.recommend.uri}")
+    public void setNoteRecommendUri(String noteRecommendUri) { NOTE_RECOMMEND_URI = noteRecommendUri; }
 
     @Value("${webclient.naver.api.url}")
     public void setNaverApiUrl(String naverApiUrl) {

@@ -61,13 +61,15 @@ public class DetailPageApiController {
                 markerColorList.get(course.getDay() - 1),
                 placeService.getPlacesByCourse(course))).collect(Collectors.toList());
 
-        List<TravelNote> recommendedNoteList = recommendService.getSimilarTravelNote(
-                travelNote, DetailPageConst.NUMBER_OF_SIMILAR_TRAVEL_NOTE);
+        List<TravelNote> recommendedNoteList = recommendService.getSimilarTravelNotes(
+                travelNote, DetailPageConst.NUMBER_OF_SIMILAR_TRAVEL_NOTE, member);
+        if (recommendedNoteList == null) {
+            recommendedNoteList = travelNoteService.getRandomNotes(DetailPageConst.NUMBER_OF_SIMILAR_TRAVEL_NOTE);
+        }
 
         List<CommentItemDto> commentList = noteCommentService.getNoteCommentInfo(travelNote, member);
 
-        if (member != null)
-            travelNoteLogService.updateTravelNoteLog(travelNote, member);
+        travelNoteLogService.updateTravelNoteLog(travelNote, member);
 
         return new NoteDetailResponseDto(
                 travelNoteInfo, travelNoteLikeInfo, coordinateDtoList, recommendedNoteList, commentList);

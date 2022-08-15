@@ -17,14 +17,21 @@ public class TravelNoteLogService {
 
     @Transactional
     public void updateTravelNoteLog(TravelNote travelNote, Member member) {
-        TravelNoteLog travelNoteLog = travelNoteLogRepository.findByTravelNoteIdAndMemberId(travelNote.getId(), member.getId());
+        System.out.println("updateTravelNoteLog");
+        System.out.println(member == null);
+        if (member == null) return;
+
+        TravelNoteLog travelNoteLog
+                = travelNoteLogRepository.findByTravelNoteIdAndMemberId(travelNote.getId(), member.getId());
 
         if (travelNoteLog != null) {
             travelNoteLog.updateVisitTime();
-            travelNoteLogRepository.saveAndFlush(travelNoteLog);
+            travelNoteLogRepository.save(travelNoteLog);
+            travelNoteLogRepository.flushAndClear();
         } else {
             TravelNoteLog newTravelNoteLog = new TravelNoteLog(travelNote.getId(), member.getId());
-            travelNoteLogRepository.saveAndFlush(newTravelNoteLog);
+            travelNoteLogRepository.save(newTravelNoteLog);
+            travelNoteLogRepository.flushAndClear();
         }
     }
 

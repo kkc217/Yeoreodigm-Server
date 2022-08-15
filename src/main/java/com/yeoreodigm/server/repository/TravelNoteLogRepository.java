@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.domain.TravelNoteLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -24,6 +25,11 @@ public class TravelNoteLogRepository {
     public void saveAndFlush(TravelNoteLog travelNoteLog) {
         save(travelNoteLog);
         em.flush();
+    }
+
+    public void flushAndClear() {
+        em.flush();
+        em.clear();
     }
 
     public TravelNoteLog findByTravelNoteIdAndMemberId(Long travelNoteId, Long memberId) {

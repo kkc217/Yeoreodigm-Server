@@ -7,7 +7,7 @@ import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.constraint.EnvConst;
 import com.yeoreodigm.server.dto.recommend.RecommendedCoursesDto;
 import com.yeoreodigm.server.dto.recommend.RecommendedPlacesDto;
-import com.yeoreodigm.server.dto.recommend.SimilarTravelNoteDto;
+import com.yeoreodigm.server.dto.recommend.RecommendedTravelNoteDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.PlacesRepository;
 import com.yeoreodigm.server.repository.TravelNoteRepository;
@@ -15,11 +15,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
-import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -58,7 +60,7 @@ public class RecommendService {
 
         WebClient webClient = WebClient.create(EnvConst.COURSE_RECOMMEND_URL);
 
-        RecommendedCoursesDto recommendedCoursesDto = webClient
+        Mono<RecommendedCoursesDto> apiResult = webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path(EnvConst.COURSE_RECOMMEND_URI)
@@ -68,12 +70,11 @@ public class RecommendService {
                         .queryParam("location", location.substring(0, location.length() - 1))
                         .build())
                 .retrieve()
-                .bodyToMono(RecommendedCoursesDto.class)
-                .block();
+                .bodyToMono(RecommendedCoursesDto.class);
 
-        if (recommendedCoursesDto != null) {
-            return recommendedCoursesDto.getCourseList();
-        } else {
+        try {
+            return Objects.requireNonNull(apiResult.block()).getCourseList();
+        } catch (WebClientResponseException | NullPointerException e) {
             throw new BadRequestException("추천 코스를 불러오는데 실패하였습니다.");
         }
 
@@ -103,7 +104,7 @@ public class RecommendService {
 
         WebClient webClient = WebClient.create(EnvConst.PLACE_RECOMMEND_URL);
 
-        RecommendedPlacesDto recommendedPlacesDto = webClient
+        Mono<RecommendedPlacesDto> apiResult = webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path(EnvConst.PLACE_RECOMMEND_URI)
@@ -112,23 +113,22 @@ public class RecommendService {
                         .queryParam("numOfResult", limit)
                         .build())
                 .retrieve()
-                .bodyToMono(RecommendedPlacesDto.class)
-                .block();
+                .bodyToMono(RecommendedPlacesDto.class);
 
-        if (recommendedPlacesDto != null) {
-            return recommendedPlacesDto.getPlaceList()
+        try {
+            return Objects.requireNonNull(apiResult.block()).getPlaceList()
                     .stream()
                     .map(placesRepository::findByPlaceId)
                     .toList();
-        } else {
+        } catch (WebClientResponseException | NullPointerException e) {
             throw new BadRequestException("추천 여행지를 불러오는데 실패하였습니다.");
         }
     }
 
-    public List<TravelNote> getSimilarTravelNote(TravelNote travelNote, int limit) {
+    public List<TravelNote> getSimilarTravelNotes(TravelNote travelNote, int limit, Member member) {
         WebClient webClient = WebClient.create(EnvConst.NOTE_SIMILAR_URL);
 
-        SimilarTravelNoteDto similarTravelNoteDto = webClient
+        Mono<RecommendedTravelNoteDto> apiResult = webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path(EnvConst.NOTE_SIMILAR_URI)
@@ -136,15 +136,40 @@ public class RecommendService {
                         .queryParam("numOfResult", limit)
                         .build())
                 .retrieve()
-                .bodyToMono(SimilarTravelNoteDto.class)
-                .block();
+                .bodyToMono(RecommendedTravelNoteDto.class);
 
-        if (similarTravelNoteDto != null) {
-            return similarTravelNoteDto.getNoteList()
+        try {
+            return Objects.requireNonNull(apiResult.block()).getNoteList()
                     .stream()
                     .map(travelNoteRepository::findById)
                     .toList();
-        } else {
+        } catch (WebClientResponseException | NullPointerException e) {
+            return getRecommendedNotes(travelNote, limit, member);
+        }
+
+    }
+
+    public List<TravelNote> getRecommendedNotes(TravelNote travelNote, int limit, Member member) {
+        if (member == null) return null;
+
+        WebClient webClient = WebClient.create(EnvConst.NOTE_RECOMMEND_URL);
+
+        Mono<RecommendedTravelNoteDto> apiResult = webClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(EnvConst.NOTE_RECOMMEND_URI)
+                        .queryParam("memberId", member.getId())
+                        .queryParam("numOfResult", limit)
+                        .build())
+                .retrieve()
+                .bodyToMono(RecommendedTravelNoteDto.class);
+
+        try {
+            return Objects.requireNonNull(apiResult.block()).getNoteList()
+                    .stream()
+                    .map(travelNoteRepository::findById)
+                    .toList();
+        } catch (WebClientResponseException | NullPointerException e) {
             throw new BadRequestException("유사한 여행 노트를 불러오는데 실패하였습니다.");
         }
     }

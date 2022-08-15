@@ -12,9 +12,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -153,7 +156,7 @@ public class CourseService {
 
         WebClient webClient = WebClient.create(EnvConst.COURSE_OPTIMIZE_URL);
 
-        OptimizedCourseDto optimizedCourseDto = webClient
+        Mono<OptimizedCourseDto> apiResult = webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path(EnvConst.COURSE_OPTIMIZE_URI)
@@ -161,12 +164,11 @@ public class CourseService {
                         .queryParam("placeList", placeIdString.substring(0, placeIdString.length() - 1))
                         .build())
                 .retrieve()
-                .bodyToMono(OptimizedCourseDto.class)
-                .block();
+                .bodyToMono(OptimizedCourseDto.class);
 
-        if (optimizedCourseDto != null) {
-            return optimizedCourseDto.getResult();
-        } else {
+        try {
+            return Objects.requireNonNull(apiResult.block()).getResult();
+        } catch (WebClientResponseException | NullPointerException e) {
             throw new BadRequestException("경로 최적화에 실패하였습니다.");
         }
 

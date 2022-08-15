@@ -267,13 +267,17 @@ public class TravelNoteService {
                 .toList();
     }
 
-    public List<MainPageTravelNote> getRecommendedNotes(int limit) {
+    public List<MainPageTravelNote> getRecommendedNotesMainPage(int limit) {
         List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(limit);
 
-        return getMainPageItemList(travelNoteList);
+        return getMainPageItemListMainPage(travelNoteList);
     }
 
-    public List<MainPageTravelNote> getRandomNotes(int limit) {
+    public List<MainPageTravelNote> getRandomNotesMainPage(int limit) {
+        return getMainPageItemListMainPage(getRandomNotes(limit));
+    }
+
+    public List<TravelNote> getRandomNotes(int limit) {
         List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(RANDOM_NOTE_NUMBER);
         int index = (int) (Math.random() * travelNoteList.size());
 
@@ -286,21 +290,20 @@ public class TravelNoteService {
                 index -= travelNoteList.size();
             }
         }
-
-        return getMainPageItemList(result);
+        return result;
     }
 
-    public List<MainPageTravelNote> getWeeklyNotes(int limit) {
+    public List<MainPageTravelNote> getWeeklyNotesMainPage(int limit) {
         List<TravelNote> travelNoteList = logRepository
                 .findMostNoteIdLimiting(limit)
                 .stream()
                 .map(travelNoteRepository::findById)
                 .toList();
 
-        return getMainPageItemList(travelNoteList);
+        return getMainPageItemListMainPage(travelNoteList);
     }
 
-    private List<MainPageTravelNote> getMainPageItemList(List<TravelNote> travelNoteList) {
+    private List<MainPageTravelNote> getMainPageItemListMainPage(List<TravelNote> travelNoteList) {
         return travelNoteList.stream().map(MainPageTravelNote::new).toList();
     }
 

@@ -27,7 +27,7 @@ public class MainPageService {
 
     public MainPageInfoDto getMainPageInfoByMember(Member member) {
         // 노트 추천 API 구현시 수정 예정
-        List<MainPageTravelNote> recommendedNotes = travelNoteService.getRecommendedNotes(NUMBER_OF_RECOMMENDED_NOTES);
+        List<MainPageTravelNote> recommendedNotes = travelNoteService.getRecommendedNotesMainPage(NUMBER_OF_RECOMMENDED_NOTES);
 
         List<MainPagePlace> recommendedPlaces = recommendService
                 .getRecommendedPlaces(member, new ArrayList<>(), NUMBER_OF_RECOMMENDED_PLACES)
@@ -35,14 +35,14 @@ public class MainPageService {
                 .map(MainPagePlace::new)
                 .toList();
 
-        List<MainPageTravelNote> weeklyNotes = travelNoteService.getWeeklyNotes(NUMBER_OF_WEEKLY_NOTES);
+        List<MainPageTravelNote> weeklyNotes = travelNoteService.getWeeklyNotesMainPage(NUMBER_OF_WEEKLY_NOTES);
 
         List<Places> popularPlaces = placeService.getPopularPlaces(NUMBER_OF_POPULAR_PLACES);
         return new MainPageInfoDto(recommendedNotes, recommendedPlaces, weeklyNotes, popularPlaces);
     }
 
     public MainPageInfoDto getMainPageInfoGeneral() {
-        List<MainPageTravelNote> recommendedNotes = travelNoteService.getRandomNotes(NUMBER_OF_RECOMMENDED_NOTES);
+        List<MainPageTravelNote> recommendedNotes = travelNoteService.getRandomNotesMainPage(NUMBER_OF_RECOMMENDED_NOTES);
 
         List<MainPagePlace> recommendedPlaces = placeService
                 .getRandomPlaces(NUMBER_OF_RECOMMENDED_PLACES)
@@ -50,7 +50,7 @@ public class MainPageService {
                 .map(MainPagePlace::new)
                 .toList();
 
-        List<MainPageTravelNote> weeklyNotes = travelNoteService.getWeeklyNotes(NUMBER_OF_WEEKLY_NOTES);
+        List<MainPageTravelNote> weeklyNotes = travelNoteService.getWeeklyNotesMainPage(NUMBER_OF_WEEKLY_NOTES);
 
         List<Places> popularPlaces = placeService.getPopularPlaces(NUMBER_OF_POPULAR_PLACES);
         return new MainPageInfoDto(recommendedNotes, recommendedPlaces, weeklyNotes, popularPlaces);
