@@ -39,7 +39,7 @@ public class PlaceCommentLikeService {
                 = placeCommentLikeRepository.findByPlaceCommentIdAndMemberId(placeCommentId, member.getId());
 
         if (like) {
-            if (placeCommentId == null) {
+            if (placeCommentLike == null) {
                 PlaceCommentLike newPlaceCommentLike = new PlaceCommentLike(placeCommentId, member.getId());
                 placeCommentLikeRepository.saveAndFlush(newPlaceCommentLike);
             }
