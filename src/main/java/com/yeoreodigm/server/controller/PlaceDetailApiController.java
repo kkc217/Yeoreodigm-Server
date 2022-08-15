@@ -1,14 +1,15 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
+import com.yeoreodigm.server.dto.detail.place.PlaceCommentLikeRequestDto;
 import com.yeoreodigm.server.dto.detail.place.PlaceCommentRequestDto;
 import com.yeoreodigm.server.dto.detail.place.PlaceDetailResponseDto;
 import com.yeoreodigm.server.dto.detail.place.PlaceLikeRequestDto;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.service.PlaceCommentLikeService;
 import com.yeoreodigm.server.service.PlaceCommentService;
 import com.yeoreodigm.server.service.PlaceLikeService;
 import com.yeoreodigm.server.service.PlaceService;
@@ -28,6 +29,8 @@ public class PlaceDetailApiController {
     private final PlaceLikeService placeLikeService;
 
     private final PlaceCommentService placeCommentService;
+
+    private final PlaceCommentLikeService placeCommentLikeService;
 
     @GetMapping("/{placeId}")
     public PlaceDetailResponseDto callPlaceDetail(
@@ -72,6 +75,13 @@ public class PlaceDetailApiController {
             @RequestBody @Valid PlaceCommentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         placeCommentService.deletePlaceComment(member, requestDto.getCommentId());
+    }
+
+    @PatchMapping("/comment/like")
+    public void changePlaceCommentLike(
+            @RequestBody @Valid PlaceCommentLikeRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        placeCommentLikeService.changeLike(member, requestDto.getCommentId(), requestDto.isLike());
     }
 
 }
