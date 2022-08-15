@@ -7,6 +7,7 @@ import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.constraint.EnvConst;
 import com.yeoreodigm.server.dto.recommend.RecommendedCoursesDto;
 import com.yeoreodigm.server.dto.recommend.RecommendedPlacesDto;
+import com.yeoreodigm.server.dto.recommend.SimilarTravelNoteDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.PlacesRepository;
 import com.yeoreodigm.server.repository.TravelNoteRepository;
@@ -115,9 +116,36 @@ public class RecommendService {
                 .block();
 
         if (recommendedPlacesDto != null) {
-            return recommendedPlacesDto.getPlaceList().stream().map(placesRepository::findByPlaceId).toList();
+            return recommendedPlacesDto.getPlaceList()
+                    .stream()
+                    .map(placesRepository::findByPlaceId)
+                    .toList();
         } else {
             throw new BadRequestException("추천 여행지를 불러오는데 실패하였습니다.");
+        }
+    }
+
+    public List<TravelNote> getSimilarTravelNote(TravelNote travelNote, int limit) {
+        WebClient webClient = WebClient.create(EnvConst.NOTE_SIMILAR_URL);
+
+        SimilarTravelNoteDto similarTravelNoteDto = webClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(EnvConst.NOTE_SIMILAR_URI)
+                        .queryParam("travelNoteId", travelNote.getId())
+                        .queryParam("numOfResult", limit)
+                        .build())
+                .retrieve()
+                .bodyToMono(SimilarTravelNoteDto.class)
+                .block();
+
+        if (similarTravelNoteDto != null) {
+            return similarTravelNoteDto.getNoteList()
+                    .stream()
+                    .map(travelNoteRepository::findById)
+                    .toList();
+        } else {
+            throw new BadRequestException("유사한 여행 노트를 불러오는데 실패하였습니다.");
         }
     }
 
