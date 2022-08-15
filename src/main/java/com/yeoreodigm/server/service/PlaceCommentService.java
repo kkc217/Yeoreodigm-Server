@@ -3,12 +3,16 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.PlaceComment;
 import com.yeoreodigm.server.domain.Places;
+import com.yeoreodigm.server.dto.comment.CommentItemDto;
+import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.PlaceCommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -17,6 +21,8 @@ import java.util.Objects;
 public class PlaceCommentService {
 
     private final PlaceCommentRepository placeCommentRepository;
+
+    private final PlaceCommentLikeService placeCommentLikeService;
 
     @Transactional
     public void addPlaceComment(Member member, Places place, String text) {
@@ -36,6 +42,18 @@ public class PlaceCommentService {
             throw new BadRequestException("댓글을 삭제할 수 없습니다.");
 
         placeCommentRepository.deleteById(placeCommentId);
+    }
+
+    public List<CommentItemDto> getPlaceCommentItems(Places place, Member member) {
+        List<PlaceComment> placeCommentList = placeCommentRepository.findPlaceCommentsByPlaceId(place.getId());
+
+        List<CommentItemDto> result = new ArrayList<>();
+        for (PlaceComment placeComment : placeCommentList) {
+            result.add(new CommentItemDto(
+                    placeComment, placeCommentLikeService.getLikeInfo(placeComment.getId(), member)));
+        }
+
+        return result;
     }
 
 }
