@@ -3,6 +3,7 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
 import com.yeoreodigm.server.dto.mainpage.MainPagePlace;
+import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.LogRepository;
 import com.yeoreodigm.server.repository.PlacesRepository;
 import com.yeoreodigm.server.repository.RouteInfoRepository;
@@ -33,7 +34,13 @@ public class PlaceService {
     private final static int RANDOM_PAGING = 1000;
 
     public Places getPlaceById(Long placeId) {
-        return placesRepository.findByPlaceId(placeId);
+        Places place = placesRepository.findByPlaceId(placeId);
+
+        if (place != null) {
+            return place;
+        } else {
+            throw new BadRequestException("일치하는 여행지가 없습니다.");
+        }
     }
 
     public List<Places> getPlacesByCourse(Course course) {
