@@ -67,4 +67,11 @@ public class PlaceDetailApiController {
                 requestDto.getText());
     }
 
+    @DeleteMapping("/comment")
+    public void deletePlaceComment(
+            @RequestBody @Valid PlaceCommentRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        placeCommentService.deletePlaceComment(member, requestDto.getCommentId());
+    }
+
 }
