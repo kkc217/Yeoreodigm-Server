@@ -27,8 +27,6 @@ public class TravelNoteLikeService {
     }
 
     public LikeItemDto getLikeInfo(TravelNote travelNote, Member member) {
-        System.out.println("getLikeInfo");
-        System.out.println(member==null);
         return new LikeItemDto(
                 checkHasLiked(travelNote, member),
                 countTravelNoteLike(travelNote));

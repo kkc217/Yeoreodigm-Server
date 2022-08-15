@@ -144,12 +144,12 @@ public class RecommendService {
                     .map(travelNoteRepository::findById)
                     .toList();
         } catch (WebClientResponseException | NullPointerException e) {
-            return getRecommendedNotes(travelNote, limit, member);
+            return getRecommendedNotes(limit, member);
         }
 
     }
 
-    public List<TravelNote> getRecommendedNotes(TravelNote travelNote, int limit, Member member) {
+    public List<TravelNote> getRecommendedNotes(int limit, Member member) {
         if (member == null) return null;
 
         WebClient webClient = WebClient.create(EnvConst.NOTE_RECOMMEND_URL);

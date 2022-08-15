@@ -19,38 +19,33 @@ import static com.yeoreodigm.server.dto.constraint.MainPageConst.*;
 @RequiredArgsConstructor
 public class MainPageService {
 
-    private final RecommendService recommendService;
-
     private final TravelNoteService travelNoteService;
 
     private final PlaceService placeService;
 
     public MainPageInfoDto getMainPageInfoByMember(Member member) {
-        // 노트 추천 API 구현시 수정 예정
-        List<MainPageTravelNote> recommendedNotes = travelNoteService.getRecommendedNotesMainPage(NUMBER_OF_RECOMMENDED_NOTES);
+        List<MainPageTravelNote> recommendedNotes
+                = travelNoteService.getRecommendedNotesMainPage(NUMBER_OF_RECOMMENDED_NOTES, member);
 
-        List<MainPagePlace> recommendedPlaces = recommendService
-                .getRecommendedPlaces(member, new ArrayList<>(), NUMBER_OF_RECOMMENDED_PLACES)
-                .stream()
-                .map(MainPagePlace::new)
-                .toList();
+        List<MainPagePlace> recommendedPlaces
+                = placeService.getRecommendedPlacesMainPage(NUMBER_OF_RECOMMENDED_PLACES, member);
 
-        List<MainPageTravelNote> weeklyNotes = travelNoteService.getWeeklyNotesMainPage(NUMBER_OF_WEEKLY_NOTES);
+        List<MainPageTravelNote> weeklyNotes
+                = travelNoteService.getWeeklyNotesMainPage(NUMBER_OF_WEEKLY_NOTES, member);
 
         List<Places> popularPlaces = placeService.getPopularPlaces(NUMBER_OF_POPULAR_PLACES);
         return new MainPageInfoDto(recommendedNotes, recommendedPlaces, weeklyNotes, popularPlaces);
     }
 
     public MainPageInfoDto getMainPageInfoGeneral() {
-        List<MainPageTravelNote> recommendedNotes = travelNoteService.getRandomNotesMainPage(NUMBER_OF_RECOMMENDED_NOTES);
+        List<MainPageTravelNote> recommendedNotes
+                = travelNoteService.getRandomNotesMainPage(NUMBER_OF_RECOMMENDED_NOTES, null);
 
-        List<MainPagePlace> recommendedPlaces = placeService
-                .getRandomPlaces(NUMBER_OF_RECOMMENDED_PLACES)
-                .stream()
-                .map(MainPagePlace::new)
-                .toList();
+        List<MainPagePlace> recommendedPlaces
+                = placeService.getRandomPlacesMainPage(NUMBER_OF_RECOMMENDED_PLACES, null);
 
-        List<MainPageTravelNote> weeklyNotes = travelNoteService.getWeeklyNotesMainPage(NUMBER_OF_WEEKLY_NOTES);
+        List<MainPageTravelNote> weeklyNotes
+                = travelNoteService.getWeeklyNotesMainPage(NUMBER_OF_WEEKLY_NOTES, null);
 
         List<Places> popularPlaces = placeService.getPopularPlaces(NUMBER_OF_POPULAR_PLACES);
         return new MainPageInfoDto(recommendedNotes, recommendedPlaces, weeklyNotes, popularPlaces);

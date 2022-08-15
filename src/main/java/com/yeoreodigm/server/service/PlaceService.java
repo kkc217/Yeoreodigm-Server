@@ -1,6 +1,8 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
+import com.yeoreodigm.server.dto.constraint.MainPageConst;
+import com.yeoreodigm.server.dto.mainpage.MainPagePlace;
 import com.yeoreodigm.server.repository.LogRepository;
 import com.yeoreodigm.server.repository.PlacesRepository;
 import com.yeoreodigm.server.repository.RouteInfoRepository;
@@ -8,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,11 +20,15 @@ public class PlaceService {
 
     private final PlacesRepository placesRepository;
 
+    private final PlaceLikeService placeLikeService;
+
     private final RouteInfoRepository routeInfoRepository;
 
     private final RouteInfoService routeInfoService;
 
     private final LogRepository logRepository;
+
+    private final RecommendService recommendService;
 
     private final static int RANDOM_PAGING = 1000;
 
@@ -81,8 +88,29 @@ public class PlaceService {
         return placesRepository.findPagingAndLimiting(page, limit);
     }
 
+    public List<MainPagePlace> getRandomPlacesMainPage(int limit, Member member) {
+        List<Places> placeList = getRandomPlaces(limit);
+
+        return getMainPageItemList(placeList, member);
+    }
+
     public String getRandomImageUrl() {
         return placesRepository.findOneImageUrl((int) (Math.random() * 1000));
+    }
+
+    public List<MainPagePlace> getRecommendedPlacesMainPage(int limit, Member member) {
+        List<Places> placeList = recommendService.getRecommendedPlaces(member, new ArrayList<>(), limit);
+
+        return getMainPageItemList(placeList, member);
+    }
+
+    private List<MainPagePlace> getMainPageItemList(List<Places> placeList, Member member) {
+        List<MainPagePlace> result = new ArrayList<>();
+        for (Places place : placeList) {
+            result.add(new MainPagePlace(place, placeLikeService.getLikeInfo(place, member)));
+        }
+
+        return result;
     }
 
 }

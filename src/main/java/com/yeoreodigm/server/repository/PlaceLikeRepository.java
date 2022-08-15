@@ -44,4 +44,18 @@ public class PlaceLikeRepository {
                 .fetch();
     }
 
+    public Long countByPlaceId(Long placeId) {
+        return queryFactory
+                .select(placeLike.count())
+                .from(placeLike)
+                .where(placeLike.places.id.eq(placeId))
+                .fetchOne();
+    }
+
+    public PlaceLike findByPlaceIdAndMemberId(Long placeId, Long memberId) {
+        return queryFactory
+                .selectFrom(placeLike)
+                .where(placeLike.places.id.eq(placeId), placeLike.member.id.eq(memberId))
+                .fetchOne();
+    }
 }

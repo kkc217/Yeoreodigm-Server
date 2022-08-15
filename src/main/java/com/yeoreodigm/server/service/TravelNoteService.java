@@ -267,14 +267,13 @@ public class TravelNoteService {
                 .toList();
     }
 
-    public List<MainPageTravelNote> getRecommendedNotesMainPage(int limit) {
-        List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(limit);
-
-        return getMainPageItemListMainPage(travelNoteList);
+    public List<MainPageTravelNote> getRecommendedNotesMainPage(int limit, Member member) {
+        List<TravelNote> travelNoteList = recommendService.getRecommendedNotes(limit, member);
+        return getMainPageItemList(travelNoteList, member);
     }
 
-    public List<MainPageTravelNote> getRandomNotesMainPage(int limit) {
-        return getMainPageItemListMainPage(getRandomNotes(limit));
+    public List<MainPageTravelNote> getRandomNotesMainPage(int limit, Member member) {
+        return getMainPageItemList(getRandomNotes(limit), member);
     }
 
     public List<TravelNote> getRandomNotes(int limit) {
@@ -293,18 +292,22 @@ public class TravelNoteService {
         return result;
     }
 
-    public List<MainPageTravelNote> getWeeklyNotesMainPage(int limit) {
+    public List<MainPageTravelNote> getWeeklyNotesMainPage(int limit, Member member) {
         List<TravelNote> travelNoteList = logRepository
                 .findMostNoteIdLimiting(limit)
                 .stream()
                 .map(travelNoteRepository::findById)
                 .toList();
 
-        return getMainPageItemListMainPage(travelNoteList);
+        return getMainPageItemList(travelNoteList, member);
     }
 
-    private List<MainPageTravelNote> getMainPageItemListMainPage(List<TravelNote> travelNoteList) {
-        return travelNoteList.stream().map(MainPageTravelNote::new).toList();
+    private List<MainPageTravelNote> getMainPageItemList(List<TravelNote> travelNoteList, Member member) {
+        List<MainPageTravelNote> result = new ArrayList<>();
+        for (TravelNote travelNote : travelNoteList) {
+            result.add(new MainPageTravelNote(travelNote, travelNoteLikeService.getLikeInfo(travelNote, member)));
+        }
+        return result;
     }
 
     public TravelNoteDetailInfo getTravelNoteDetailInfo(TravelNote travelNote) {
