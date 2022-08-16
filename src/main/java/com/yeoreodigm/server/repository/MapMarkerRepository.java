@@ -25,6 +25,7 @@ public class MapMarkerRepository {
                 .select(mapMarker.color)
                 .from(mapMarker)
                 .where(mapMarker.day.loe(totalDay))
+                .orderBy(mapMarker.day.asc())
                 .fetch();
     }
 
