@@ -70,11 +70,11 @@ public class PlaceDetailApiController {
                 requestDto.getText());
     }
 
-    @DeleteMapping("/comment")
+    @DeleteMapping("/comment/{commentId}")
     public void deletePlaceComment(
-            @RequestBody @Valid PlaceCommentRequestDto requestDto,
+            @PathVariable(name = "commentId") Long commentId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        placeCommentService.deletePlaceComment(member, requestDto.getCommentId());
+        placeCommentService.deletePlaceComment(member, commentId);
     }
 
     @PatchMapping("/comment/like")
