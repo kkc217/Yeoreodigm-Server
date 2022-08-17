@@ -37,6 +37,7 @@ public class PlaceCommentService {
         if (member == null) throw new BadRequestException("댓글을 삭제할 수 없습니다.");
 
         PlaceComment placeComment = placeCommentRepository.findById(placeCommentId);
+        if (placeComment == null) return;
 
         if (!Objects.equals(member.getId(), placeComment.getMember().getId()))
             throw new BadRequestException("댓글을 삭제할 수 없습니다.");

@@ -52,7 +52,7 @@ public class TravelNoteDetailApiController {
 
         TravelNoteDetailInfo travelNoteInfo = travelNoteService.getTravelNoteDetailInfo(travelNote);
 
-        LikeItemDto travelNoteLikeInfo = travelNoteLikeService.getLikeInfo(travelNote, member);
+//        LikeItemDto travelNoteLikeInfo = travelNoteLikeService.getLikeInfo(travelNote, member);
 
         List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
         List<String> markerColorList = mapMarkerService.getMarkerColors(courseList.size());
@@ -72,7 +72,7 @@ public class TravelNoteDetailApiController {
         travelNoteLogService.updateTravelNoteLog(travelNote, member);
 
         return new NoteDetailResponseDto(
-                travelNoteInfo, travelNoteLikeInfo, coordinateDtoList, recommendedNoteList, commentList);
+                travelNoteInfo, coordinateDtoList, recommendedNoteList, commentList);
     }
 
     @PostMapping("/like")

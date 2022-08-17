@@ -21,10 +21,6 @@ public class NoteDetailResponseDto {
 
     private String thumbnail;
 
-    private boolean hasLiked;
-
-    private Long likeCount;
-
     private List<CourseCoordinateDto> coordinates;
 
     private List<RecommendedTravelNotes> recommendedTravelNotes;
@@ -33,7 +29,6 @@ public class NoteDetailResponseDto {
 
     public NoteDetailResponseDto(
             TravelNoteDetailInfo travelNoteInfo,
-            LikeItemDto travelNoteLikeInfo,
             List<CourseCoordinateDto> coordinates,
             List<TravelNote> recommendedNoteList,
             List<CommentItemDto> commentList) {
@@ -42,9 +37,6 @@ public class NoteDetailResponseDto {
         this.region = travelNoteInfo.getRegion();
         this.theme = travelNoteInfo.getTheme();
         this.thumbnail = travelNoteInfo.getThumbnail();
-
-        this.hasLiked = travelNoteLikeInfo.isHasLiked();
-        this.likeCount = travelNoteLikeInfo.getLikeCount();
 
         this.coordinates = coordinates;
 
