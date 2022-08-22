@@ -17,8 +17,6 @@ public class TravelNoteLogService {
 
     @Transactional
     public void updateTravelNoteLog(TravelNote travelNote, Member member) {
-        System.out.println("updateTravelNoteLog");
-        System.out.println(member == null);
         if (member == null) return;
 
         TravelNoteLog travelNoteLog
