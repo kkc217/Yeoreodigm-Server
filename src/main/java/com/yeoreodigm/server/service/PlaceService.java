@@ -53,7 +53,7 @@ public class PlaceService {
     public List<Places> getPlacesByPlaceLikes(List<PlaceLike> placeLikeList) {
         return placeLikeList
                 .stream()
-                .map(placeLike -> this.getPlaceById(placeLike.getId()))
+                .map(placeLike -> this.getPlaceById(placeLike.getPlaceId()))
                 .toList();
     }
 
