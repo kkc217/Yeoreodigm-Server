@@ -38,13 +38,6 @@ public class PlaceDetailApiController {
         return new PlaceDetailResponseDto(placeService.getPlaceById(placeId));
     }
 
-    @PatchMapping("/like")
-    public void changePlaceLike(
-            @RequestBody @Valid PlaceLikeRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        placeLikeService.changePlaceLike(member, requestDto.getPlaceId(), requestDto.isLike());
-    }
-
     @GetMapping("/comment/{placeId}")
     public Result<List<CommentItemDto>> callPlaceComment(
             @PathVariable("placeId") Long placeId,

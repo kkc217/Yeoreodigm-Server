@@ -6,6 +6,7 @@ import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
+import com.yeoreodigm.server.dto.detail.place.PlaceLikeRequestDto;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.place.PlaceResponseDto;
 import com.yeoreodigm.server.service.PlaceLikeService;
@@ -13,6 +14,8 @@ import com.yeoreodigm.server.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -43,6 +46,14 @@ public class PlaceApiController {
             @PathVariable("placeId") Long placeId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return placeLikeService.getLikeInfo(placeService.getPlaceById(placeId), member);
+    }
+
+    @PatchMapping("/like/{placeId}")
+    public void changePlaceLike(
+            @PathVariable("placeId") Long placeId,
+            @RequestBody HashMap<String, Boolean> request,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        placeLikeService.changePlaceLike(member, placeId, request.get("like"));
     }
 
 }
