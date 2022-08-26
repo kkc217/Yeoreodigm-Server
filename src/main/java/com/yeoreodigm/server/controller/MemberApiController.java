@@ -74,16 +74,10 @@ public class MemberApiController {
         }
     }
 
-    @ApiOperation(value = "로그아웃")
-    @Tag(name = "auth")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "(성공)")
-    })
     @PostMapping("/logout")
     public void logout(
             HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession(false);
-
         if (session != null) {
             session.invalidate();
         }
