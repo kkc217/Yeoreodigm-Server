@@ -220,7 +220,7 @@ public class TravelNoteService {
     }
 
     @Transactional
-    public Member addNoteCompanion(TravelNote travelNote, Member member, String content) {
+    public void addNoteCompanion(TravelNote travelNote, Member member, String content) {
         if (member == null || !member.getId().equals(travelNote.getMember().getId())) {
             throw new BadRequestException("여행 메이킹 노트 소유자만 동행자를 추가할 수 있습니다.");
         }
@@ -241,9 +241,7 @@ public class TravelNoteService {
             companionList.add(newCompanion.getId());
             travelNote.changeCompanion(companionList);
             travelNoteRepository.saveAndFlush(travelNote);
-            return newCompanion;
         }
-
     }
 
     @Transactional

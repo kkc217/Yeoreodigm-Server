@@ -94,12 +94,11 @@ public class TravelNoteApiController {
     }
 
     @PatchMapping("/companion")
-    public MemberResponseDto addTravelMakingNoteCompanion(
+    public void addTravelMakingNoteCompanion(
             @RequestBody @Valid ContentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        Member companion = travelNoteService.addNoteCompanion(
+        travelNoteService.addNoteCompanion(
                 travelNoteService.getTravelNoteById(requestDto.getId()), member, requestDto.getContent());
-        return new MemberResponseDto(companion);
     }
 
     @DeleteMapping("/companion/{travelNoteId}/{memberId}")
