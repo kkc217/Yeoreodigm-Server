@@ -94,10 +94,11 @@ public class MemberApiController {
         memberService.checkDuplicateNickname(request.get("nickname"));
     }
 
-    @PostMapping("/auth/{email}")
+    @PostMapping("/auth")
     public void submitAuth(
-            @PathVariable("email") String email,
+            @RequestBody HashMap<String, String> request,
             HttpServletRequest httpServletRequest) {
+        String email = request.get("email");
         String confirmCode = emailService.sendConfirmMail(email);
 
         MemberAuthDto memberAuthDto = new MemberAuthDto(email, confirmCode);
