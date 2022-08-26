@@ -32,6 +32,16 @@ public class MemberService {
 
     private final EmailService emailService;
 
+    public Member getMemberByEmail(String email) {
+        Member member = memberRepository.findByEmail(email);
+
+        if (member != null) {
+            return member;
+        } else {
+            throw new BadRequestException("일치하는 회원 정보가 없습니다.");
+        }
+    }
+
     @Transactional
     public void join(MemberJoinRequestDto memberJoinRequestDto) {
         //중복 검사
@@ -87,39 +97,22 @@ public class MemberService {
             throw new BadRequestException("인증 코드가 일치하지 않습니다.");
         }
 
-        Member member = memberRepository.findByEmail(memberAuthDto.getEmail());
-        if (member != null) {
-            member.changeAuthority(Authority.ROLE_SURVEY);
-            memberRepository.saveAndFlush(member);
-        } else {
-            throw new BadRequestException("일치하는 이메일 정보가 없습니다.");
-        }
+        Member member = getMemberByEmail(memberAuthDto.getEmail());
+
+        member.changeAuthority(Authority.ROLE_SURVEY);
+        memberRepository.saveAndFlush(member);
     }
 
     @Transactional
     public void resetPassword(String email) {
-        Member member = memberRepository.findByEmail(email);
+        Member member = getMemberByEmail(email);
 
-        if (member != null) {
-            String newPassword = genPassword();
+        String newPassword = genPassword();
 
-            member.changePassword(encodePassword(newPassword));
-            memberRepository.saveAndFlush(member);
+        member.changePassword(encodePassword(newPassword));
+        memberRepository.saveAndFlush(member);
 
-            emailService.sendResetMail(email, newPassword);
-        } else {
-            throw new BadRequestException("등록된 회원 정보가 없습니다.");
-        }
-    }
-
-    public Member checkMemberByEmail(String email) {
-        Member member = memberRepository.findByEmail(email);
-
-        if (member != null) {
-            return member;
-        } else {
-            throw new BadRequestException("등록된 이메일 정보가 없습니다.");
-        }
+        emailService.sendResetMail(email, newPassword);
     }
 
     private String genPassword() {

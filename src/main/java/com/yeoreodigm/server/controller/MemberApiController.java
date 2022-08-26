@@ -44,15 +44,17 @@ public class MemberApiController {
         //회원 유무, 비밀번호 일치 확인
         Member member = memberService.login(requestDto.getEmail(), requestDto.getPassword());
 
+        LoginResponseDto responseDto = new LoginResponseDto(member);
+
+        if (member.getAuthority() == Authority.ROLE_NOT_PERMITTED) {
+            return responseDto;
+        } else if (member.getAuthority() == Authority.ROLE_SURVEY) {
+            responseDto.setSurveyIndex(surveyService.getProgress(member));
+        }
+
         //세션에 회원 정보 저장
         HttpSession session = httpServletRequest.getSession(true);
         session.setAttribute(SessionConst.LOGIN_MEMBER, member);
-
-        LoginResponseDto responseDto = new LoginResponseDto(member);
-
-        if (member.getAuthority() == Authority.ROLE_SURVEY) {
-            responseDto.setSurveyIndex(surveyService.getProgress(member));
-        }
 
         return responseDto;
     }
