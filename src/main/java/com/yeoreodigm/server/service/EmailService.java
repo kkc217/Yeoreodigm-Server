@@ -28,8 +28,6 @@ public class EmailService {
 
     private final TemplateEngine templateEngine;
 
-    private final MemberService memberService;
-
     public String sendConfirmMail(String email) {
         Member member = memberRepository.findByEmail(email);
 
@@ -45,15 +43,6 @@ public class EmailService {
             return confirmCode;
         } else {
             throw new BadRequestException("등록된 회원 정보가 없습니다.");
-        }
-    }
-
-    @Transactional
-    public void checkConfirmMail(MemberAuthDto memberAuthDto, String confirmCode) {
-        if (Objects.equals(confirmCode, memberAuthDto.getConfirmCode())) {
-            memberService.updateMemberAuthority(memberAuthDto.getEmail(), Authority.ROLE_SURVEY);
-        } else {
-            throw new BadRequestException("인증 코드가 일치하지 않습니다.");
         }
     }
 

@@ -95,7 +95,7 @@ public class MemberApiController {
     }
 
     @PostMapping("/auth/{email}")
-    public void emailConfirmSubmit(
+    public void submitAuth(
             @PathVariable("email") String email,
             HttpServletRequest httpServletRequest) {
         String confirmCode = emailService.sendConfirmMail(email);
@@ -109,30 +109,24 @@ public class MemberApiController {
     }
 
     @PatchMapping("/auth/{code}")
-    public void emailConfirm(
+    public void confirmAuth(
             @PathVariable("code") String code,
             HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession(false);
 
         if (session != null) {
             MemberAuthDto memberAuthDto = (MemberAuthDto) session.getAttribute(SessionConst.CONFIRM_MEMBER);
-            emailService.checkConfirmMail(memberAuthDto, code);
+            memberService.confirmAuth(memberAuthDto, code);
             session.invalidate();
         } else {
             throw new BadRequestException("인증 코드의 유효 시간이 초과되었습니다.");
         }
     }
 
-    @ApiOperation(value = "임시 비밀번호 전송")
-    @Tag(name = "auth")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "(성공)"),
-            @ApiResponse(code = 400, message = "등록된 회원 정보가 없습니다.|인증 메일 전송을 실패하였습니다.")
-    })
-    @PostMapping("/password/reset")
-    public void passwordReset(@RequestBody @Valid EmailRequestDto requestDto) {
-        emailService.sendResetMail(
-                requestDto.getEmail(), memberService.resetPassword(requestDto.getEmail()));
+    @PutMapping("/password/{email}")
+    public void passwordReset(
+            @PathVariable("email") String email) {
+        memberService.resetPassword(email);
     }
 
 }
