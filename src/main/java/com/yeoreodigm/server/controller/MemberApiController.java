@@ -108,17 +108,16 @@ public class MemberApiController {
         session.setAttribute(SessionConst.CONFIRM_MEMBER, memberAuthDto);
     }
 
-    @ApiOperation(value = "이메일 인증 코드 확인")
-    @Tag(name = "auth")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "(성공)"),
-            @ApiResponse(code = 400, message = "인증 코드의 유효 시간이 초과되었습니다.|인증 코드가 일치하지 않습니다.")
-    })
-    @PostMapping("/email/confirm")
-    public void emailConfirm(@RequestBody @Valid ConfirmCodeRequestDto requestDto,
-         @SessionAttribute(name = SessionConst.CONFIRM_MEMBER, required = false) MemberAuthDto memberAuthDto) {
-        if (memberAuthDto != null) {
-            emailService.checkConfirmMail(memberAuthDto, requestDto.getConfirmCode());
+    @PatchMapping("/auth/{code}")
+    public void emailConfirm(
+            @PathVariable("code") String code,
+            HttpServletRequest httpServletRequest) {
+        HttpSession session = httpServletRequest.getSession(false);
+
+        if (session != null) {
+            MemberAuthDto memberAuthDto = (MemberAuthDto) session.getAttribute(SessionConst.CONFIRM_MEMBER);
+            emailService.checkConfirmMail(memberAuthDto, code);
+            session.invalidate();
         } else {
             throw new BadRequestException("인증 코드의 유효 시간이 초과되었습니다.");
         }
