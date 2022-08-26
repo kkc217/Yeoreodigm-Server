@@ -3,7 +3,7 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
-import com.yeoreodigm.server.dto.MemberRequestDto;
+import com.yeoreodigm.server.dto.MemberJoinRequestDto;
 import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.MemberRepository;
@@ -29,24 +29,24 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void join(MemberRequestDto memberRequestDto) {
+    public void join(MemberJoinRequestDto memberJoinRequestDto) {
         //중복 검사
-        checkDuplicateEmail(memberRequestDto.getEmail());
-        checkDuplicateNickname(memberRequestDto.getNickname());
+        checkDuplicateEmail(memberJoinRequestDto.getEmail());
+        checkDuplicateNickname(memberJoinRequestDto.getNickname());
 
         //비밀번호 암호화
-        String password = encodePassword(memberRequestDto.getPassword());
+        String password = encodePassword(memberJoinRequestDto.getPassword());
 
-        LocalDate birth = LocalDate.of(memberRequestDto.getYear(), memberRequestDto.getMonth(), memberRequestDto.getDay());
+        LocalDate birth = LocalDate.of(memberJoinRequestDto.getYear(), memberJoinRequestDto.getMonth(), memberJoinRequestDto.getDay());
 
         Member member = new Member(
-                memberRequestDto.getEmail(),
+                memberJoinRequestDto.getEmail(),
                 password,
-                memberRequestDto.getNickname(),
+                memberJoinRequestDto.getNickname(),
                 birth,
-                memberRequestDto.getGender(),
-                memberRequestDto.getRegion(),
-                memberRequestDto.isOptional()
+                memberJoinRequestDto.getGender(),
+                memberJoinRequestDto.getRegion(),
+                memberJoinRequestDto.isOptional()
         );
 
         memberRepository.saveAndFlush(member);

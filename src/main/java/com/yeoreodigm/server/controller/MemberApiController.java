@@ -20,10 +20,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-@Tag(name = "auth", description = "인증에 관한 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
+@RequestMapping("/api/member")
 public class MemberApiController {
 
     private final MemberService memberService;
@@ -32,14 +31,8 @@ public class MemberApiController {
 
     private final EmailService emailService;
 
-    @ApiOperation(value = "회원 가입")
-    @Tag(name = "auth")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "(성공)"),
-            @ApiResponse(code = 400, message = "(중복시) 이미 등록된 이메일입니다.|이미 등록된 닉네임입니다.")
-    })
-    @PostMapping("/join")
-    public void joinMember(@RequestBody @Valid MemberRequestDto requestDto) {
+    @PostMapping("/new")
+    public void joinMember(@RequestBody @Valid MemberJoinRequestDto requestDto) {
         memberService.join(requestDto);
     }
 
