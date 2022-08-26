@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class MainPageTravelNote {
+public class TravelNoteItemDto {
 
     private Long travelNoteId;
 
@@ -19,7 +19,7 @@ public class MainPageTravelNote {
 
     private Long likeCount;
 
-    public MainPageTravelNote(TravelNote travelNote, LikeItemDto likeItemDto) {
+    public TravelNoteItemDto(TravelNote travelNote, LikeItemDto likeItemDto) {
         this.travelNoteId = travelNote.getId();
         this.title = travelNote.getTitle();
         this.imageUrl = travelNote.getThumbnail();

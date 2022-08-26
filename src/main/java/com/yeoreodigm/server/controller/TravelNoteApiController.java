@@ -4,15 +4,14 @@ import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.ContentRequestDto;
 import com.yeoreodigm.server.dto.MemberResponseDto;
 import com.yeoreodigm.server.dto.Result;
-import com.yeoreodigm.server.dto.constraint.RecommendConst;
+import com.yeoreodigm.server.dto.constraint.MainPageConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
+import com.yeoreodigm.server.dto.mainpage.TravelNoteItemDto;
 import com.yeoreodigm.server.dto.note.*;
 import com.yeoreodigm.server.dto.note.comment.CommentResponseDto;
-import com.yeoreodigm.server.dto.note.comment.CommentShortResponseDto;
 import com.yeoreodigm.server.dto.note.comment.CourseCommentRequestDto;
 import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteRequestDto;
 import com.yeoreodigm.server.dto.noteprepare.TravelNoteIdResponseDto;
-import com.yeoreodigm.server.dto.place.PlaceResponseDto;
 import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -144,27 +143,32 @@ public class TravelNoteApiController {
         commentService.deleteCourseComment(member, commentId);
     }
 
-    @PostMapping("/place/add")
-    public void addRecommendedPlaceToCourse(
-            @RequestBody @Valid RecommendPlaceRequestDto requestDto) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(requestDto.getTravelNoteId());
-
-        if (requestDto.getPlaceId() != null) {
-            courseService.addPlace(travelNote, requestDto.getDay(), requestDto.getPlaceId());
-        } else {
-            courseService.addPlaces(travelNote, requestDto.getDay(), requestDto.getPlaceIdList());
-        }
+    @GetMapping("/week")
+    public Result<List<TravelNoteItemDto>> callWeekTravelNote(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new Result<>(travelNoteService.getWeekNotes(MainPageConst.NUMBER_OF_WEEK_NOTES, member));
     }
 
-    @GetMapping("/place/recommend/{travelNoteId}")
-    public Result<List<PlaceResponseDto>> refreshPlaceRecommended(
-            @PathVariable("travelNoteId") Long travelNoteId) {
-        List<Places> placeList = recommendService.getRecommendedPlacesByTravelNote(
-                travelNoteService.getTravelNoteById(travelNoteId), RecommendConst.NOTE_PLACE_RECOMMEND_NUM);
+//    @PostMapping("/place/add")
+//    public void addRecommendedPlaceToCourse(
+//            @RequestBody @Valid RecommendPlaceRequestDto requestDto) {
+//        TravelNote travelNote = travelNoteService.getTravelNoteById(requestDto.getTravelNoteId());
+//
+//        if (requestDto.getPlaceId() != null) {
+//            courseService.addPlace(travelNote, requestDto.getDay(), requestDto.getPlaceId());
+//        } else {
+//            courseService.addPlaces(travelNote, requestDto.getDay(), requestDto.getPlaceIdList());
+//        }
+//    }
 
-        return new Result<>(placeList.stream().map(PlaceResponseDto::new).toList());
-    }
-
+//    @GetMapping("/place/recommend/{travelNoteId}")
+//    public Result<List<PlaceResponseDto>> refreshPlaceRecommended(
+//            @PathVariable("travelNoteId") Long travelNoteId) {
+//        List<Places> placeList = recommendService.getRecommendedPlacesByTravelNote(
+//                travelNoteService.getTravelNoteById(travelNoteId), RecommendConst.NOTE_PLACE_RECOMMEND_NUM);
+//
+//        return new Result<>(placeList.stream().map(PlaceResponseDto::new).toList());
+//    }
 
 //    @GetMapping("/course/{travelNoteId}")
 //    public Result<List<TravelMakingNoteCourseResponseDto>> callTravelMakingNoteCourse(
