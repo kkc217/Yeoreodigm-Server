@@ -1,4 +1,4 @@
-package com.yeoreodigm.server.dto.surveypage;
+package com.yeoreodigm.server.dto.survey;
 
 import com.yeoreodigm.server.domain.SurveyItem;
 import lombok.AllArgsConstructor;
