@@ -3,7 +3,7 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.dto.*;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.ConfirmMemberDto;
+import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.member.LoginResponseDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
@@ -94,23 +94,18 @@ public class MemberApiController {
         memberService.checkDuplicateNickname(nickname);
     }
 
-    @ApiOperation(value = "이메일 인증 코드 전송")
-    @Tag(name = "auth")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "(성공)"),
-            @ApiResponse(code = 400, message = "등록된 회원 정보가 없습니다.|이메일 전송에 실패하였습니다.")
-    })
-    @PostMapping("/email/confirm/submit")
-    public void emailConfirmSubmit(@RequestBody @Valid EmailRequestDto requestDto,
-                                   HttpServletRequest httpServletRequest) {
-        String confirmCode = emailService.sendConfirmMail(requestDto.getEmail());
+    @PostMapping("/auth/{email}")
+    public void emailConfirmSubmit(
+            @PathVariable("email") String email,
+            HttpServletRequest httpServletRequest) {
+        String confirmCode = emailService.sendConfirmMail(email);
 
-        ConfirmMemberDto confirmMemberDto = new ConfirmMemberDto(requestDto.getEmail(), confirmCode);
+        MemberAuthDto memberAuthDto = new MemberAuthDto(email, confirmCode);
 
         //세션에 인증 요청 회원 정보 저장
         HttpSession session = httpServletRequest.getSession(true);
         session.setMaxInactiveInterval(10 * 60);
-        session.setAttribute(SessionConst.CONFIRM_MEMBER, confirmMemberDto);
+        session.setAttribute(SessionConst.CONFIRM_MEMBER, memberAuthDto);
     }
 
     @ApiOperation(value = "이메일 인증 코드 확인")
@@ -121,9 +116,9 @@ public class MemberApiController {
     })
     @PostMapping("/email/confirm")
     public void emailConfirm(@RequestBody @Valid ConfirmCodeRequestDto requestDto,
-         @SessionAttribute(name = SessionConst.CONFIRM_MEMBER, required = false) ConfirmMemberDto confirmMemberDto) {
-        if (confirmMemberDto != null) {
-            emailService.checkConfirmMail(confirmMemberDto, requestDto.getConfirmCode());
+         @SessionAttribute(name = SessionConst.CONFIRM_MEMBER, required = false) MemberAuthDto memberAuthDto) {
+        if (memberAuthDto != null) {
+            emailService.checkConfirmMail(memberAuthDto, requestDto.getConfirmCode());
         } else {
             throw new BadRequestException("인증 코드의 유효 시간이 초과되었습니다.");
         }
