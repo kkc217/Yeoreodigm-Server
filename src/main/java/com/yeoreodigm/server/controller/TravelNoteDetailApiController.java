@@ -12,7 +12,7 @@ import com.yeoreodigm.server.dto.detail.travelnote.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.note.CourseCoordinateDto;
 import com.yeoreodigm.server.dto.note.RouteInfoDto;
-import com.yeoreodigm.server.dto.noteprepare.TravelNoteResponseDto;
+import com.yeoreodigm.server.dto.noteprepare.TravelNoteIdResponseDto;
 import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -84,7 +84,7 @@ public class TravelNoteDetailApiController {
     public void changeTravelNoteLike(
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        travelNoteLikeService.changeTravelNoteLike(member, requestDto.getTravelNoteId(), requestDto.isLike());
+        travelNoteLikeService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
     }
 
     @GetMapping("/course/{travelNoteId}/{day}")
@@ -131,11 +131,11 @@ public class TravelNoteDetailApiController {
     public void changeTravelNoteCommentLike(
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        noteCommentLikeService.changeTravelNoteLike(member, requestDto.getCommentId(), requestDto.isLike());
+        noteCommentLikeService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
     }
 
     @PostMapping("/make")
-    public TravelNoteResponseDto makeMyTravelNote(
+    public TravelNoteIdResponseDto makeMyTravelNote(
             @RequestBody @Valid TravelNoteRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(requestDto.getTravelNoteId());
@@ -143,7 +143,7 @@ public class TravelNoteDetailApiController {
         TravelNote newTravelNote = travelNoteService.createTravelNoteFromOther(travelNote, member);
         Long newTravelNoteId = travelNoteService.submitFromOtherNote(travelNote, newTravelNote);
 
-        return new TravelNoteResponseDto(newTravelNoteId);
+        return new TravelNoteIdResponseDto(newTravelNoteId);
     }
 
 }

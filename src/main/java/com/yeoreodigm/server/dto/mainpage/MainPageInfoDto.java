@@ -8,18 +8,18 @@ import java.util.List;
 @Data
 public class MainPageInfoDto {
 
-    private List<MainPageTravelNote> recommendedNotes;
+    private List<TravelNoteItemDto> recommendedNotes;
 
     private List<MainPagePlace> recommendedPlaces;
 
-    private List<MainPageTravelNote> weeklyNotes;
+    private List<TravelNoteItemDto> weeklyNotes;
 
     private List<CoordinateItemInfo> popularPlaces;
 
     public MainPageInfoDto(
-            List<MainPageTravelNote> recommendedNotes,
+            List<TravelNoteItemDto> recommendedNotes,
             List<MainPagePlace> recommendedPlaces,
-            List<MainPageTravelNote> weeklyNotes,
+            List<TravelNoteItemDto> weeklyNotes,
             List<Places> popularPlaces) {
         this.recommendedNotes = recommendedNotes;
         this.recommendedPlaces = recommendedPlaces;

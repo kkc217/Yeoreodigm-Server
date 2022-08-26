@@ -2,7 +2,7 @@ package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.detail.travelnote.TravelNoteDetailInfo;
-import com.yeoreodigm.server.dto.mainpage.MainPageTravelNote;
+import com.yeoreodigm.server.dto.mainpage.TravelNoteItemDto;
 import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
@@ -168,7 +168,7 @@ public class TravelNoteService {
         } else if (travelNote.getCompanion().contains(memberId)) {
             return NoteAuthority.ROLE_COMPANION;
         } else {
-            return NoteAuthority.ROLE_VISITOR;
+            throw new BadRequestException("여행 메이킹 노트에 접근 권한이 없습니다.");
         }
     }
 
@@ -220,7 +220,7 @@ public class TravelNoteService {
     }
 
     @Transactional
-    public Member addNoteCompanion(TravelNote travelNote, Member member, String content) {
+    public void addNoteCompanion(TravelNote travelNote, Member member, String content) {
         if (member == null || !member.getId().equals(travelNote.getMember().getId())) {
             throw new BadRequestException("여행 메이킹 노트 소유자만 동행자를 추가할 수 있습니다.");
         }
@@ -241,9 +241,7 @@ public class TravelNoteService {
             companionList.add(newCompanion.getId());
             travelNote.changeCompanion(companionList);
             travelNoteRepository.saveAndFlush(travelNote);
-            return newCompanion;
         }
-
     }
 
     @Transactional
@@ -267,13 +265,13 @@ public class TravelNoteService {
                 .toList();
     }
 
-    public List<MainPageTravelNote> getRecommendedNotesMainPage(int limit, Member member) {
+    public List<TravelNoteItemDto> getRecommendedNotesMainPage(int limit, Member member) {
         List<TravelNote> travelNoteList = recommendService.getRecommendedNotes(limit, member);
-        return getMainPageItemList(travelNoteList, member);
+        return getTravelNoteItemList(travelNoteList, member);
     }
 
-    public List<MainPageTravelNote> getRandomNotesMainPage(int limit, Member member) {
-        return getMainPageItemList(getRandomNotes(limit), member);
+    public List<TravelNoteItemDto> getRandomNotesMainPage(int limit, Member member) {
+        return getTravelNoteItemList(getRandomNotes(limit), member);
     }
 
     public List<TravelNote> getRandomNotes(int limit) {
@@ -292,20 +290,20 @@ public class TravelNoteService {
         return result;
     }
 
-    public List<MainPageTravelNote> getWeeklyNotesMainPage(int limit, Member member) {
+    public List<TravelNoteItemDto> getWeekNotes(int limit, Member member) {
         List<TravelNote> travelNoteList = logRepository
                 .findMostNoteIdLimiting(limit)
                 .stream()
                 .map(travelNoteRepository::findById)
                 .toList();
 
-        return getMainPageItemList(travelNoteList, member);
+        return getTravelNoteItemList(travelNoteList, member);
     }
 
-    private List<MainPageTravelNote> getMainPageItemList(List<TravelNote> travelNoteList, Member member) {
-        List<MainPageTravelNote> result = new ArrayList<>();
+    private List<TravelNoteItemDto> getTravelNoteItemList(List<TravelNote> travelNoteList, Member member) {
+        List<TravelNoteItemDto> result = new ArrayList<>();
         for (TravelNote travelNote : travelNoteList) {
-            result.add(new MainPageTravelNote(travelNote, travelNoteLikeService.getLikeInfo(travelNote, member)));
+            result.add(new TravelNoteItemDto(travelNote, travelNoteLikeService.getLikeInfo(travelNote, member)));
         }
         return result;
     }
