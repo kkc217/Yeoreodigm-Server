@@ -109,15 +109,15 @@ public class MemberApiController {
         session.setAttribute(SessionConst.CONFIRM_MEMBER, memberAuthDto);
     }
 
-    @PatchMapping("/auth/{code}")
+    @PatchMapping("/auth")
     public void confirmAuth(
-            @PathVariable("code") String code,
+            @RequestBody HashMap<String, String> request,
             HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession(false);
 
         if (session != null) {
             MemberAuthDto memberAuthDto = (MemberAuthDto) session.getAttribute(SessionConst.CONFIRM_MEMBER);
-            memberService.confirmAuth(memberAuthDto, code);
+            memberService.confirmAuth(memberAuthDto, request.get("code"));
             session.invalidate();
         } else {
             throw new BadRequestException("인증 코드의 유효 시간이 초과되었습니다.");
