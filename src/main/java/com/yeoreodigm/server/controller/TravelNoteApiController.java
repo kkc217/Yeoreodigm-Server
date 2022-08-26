@@ -10,7 +10,7 @@ import com.yeoreodigm.server.dto.note.comment.CommentResponseDto;
 import com.yeoreodigm.server.dto.note.comment.CommentShortResponseDto;
 import com.yeoreodigm.server.dto.note.comment.CourseCommentRequestDto;
 import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteRequestDto;
-import com.yeoreodigm.server.dto.noteprepare.TravelNoteResponseDto;
+import com.yeoreodigm.server.dto.noteprepare.TravelNoteIdResponseDto;
 import com.yeoreodigm.server.dto.place.PlaceResponseDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
@@ -39,31 +39,23 @@ public class TravelNoteApiController {
     private final MapMarkerService mapMarkerService;
 
     @PostMapping("/new")
-    public TravelNoteResponseDto createNewTravelNote(
+    public TravelNoteIdResponseDto createNewTravelNote(
             @RequestBody @Valid NewTravelNoteRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return new TravelNoteResponseDto(
+        return new TravelNoteIdResponseDto(
                 travelNoteService.submitNotePrepare(
                         travelNoteService.createTravelNote(member, requestDto)));
     }
 
     @GetMapping("/{travelNoteId}")
-    public TravelMakingNoteResponseDto callTravelMakingNoteInfo(
+    public TravelNoteInfoResponseDto callTravelMakingNoteInfo(
             @PathVariable("travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
         NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(member, travelNote);
 
-        if (noteAuthority == NoteAuthority.ROLE_OWNER) {
-            List<Places> placesRecommended
-                    = recommendService.getRecommendedPlacesByTravelNote(travelNote, RecommendConst.NOTE_PLACE_RECOMMEND_NUM);
-            return new TravelMakingNoteResponseDto(noteAuthority, travelNote, placesRecommended);
-        } else if (noteAuthority == NoteAuthority.ROLE_COMPANION) {
-            return new TravelMakingNoteResponseDto(noteAuthority, travelNote);
-        } else {
-            throw new BadRequestException("여행 메이킹 노트에 접근 권한이 없습니다.");
-        }
+        return new TravelNoteInfoResponseDto(noteAuthority, travelNote);
     }
 
     @GetMapping("/course/{travelNoteId}")

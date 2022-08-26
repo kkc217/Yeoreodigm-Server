@@ -168,7 +168,7 @@ public class TravelNoteService {
         } else if (travelNote.getCompanion().contains(memberId)) {
             return NoteAuthority.ROLE_COMPANION;
         } else {
-            return NoteAuthority.ROLE_VISITOR;
+            throw new BadRequestException("여행 메이킹 노트에 접근 권한이 없습니다.");
         }
     }
 
