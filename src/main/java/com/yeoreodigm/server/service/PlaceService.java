@@ -1,8 +1,7 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
-import com.yeoreodigm.server.dto.constraint.MainPageConst;
-import com.yeoreodigm.server.dto.mainpage.MainPagePlace;
+import com.yeoreodigm.server.dto.place.PlaceItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.LogRepository;
 import com.yeoreodigm.server.repository.PlacesRepository;
@@ -95,26 +94,25 @@ public class PlaceService {
         return placesRepository.findPagingAndLimiting(page, limit);
     }
 
-    public List<MainPagePlace> getRandomPlacesMainPage(int limit, Member member) {
-        List<Places> placeList = getRandomPlaces(limit);
-
-        return getMainPageItemList(placeList, member);
-    }
-
     public String getRandomImageUrl() {
         return placesRepository.findOneImageUrl((int) (Math.random() * 1000));
     }
 
-    public List<MainPagePlace> getRecommendedPlacesMainPage(int limit, Member member) {
-        List<Places> placeList = recommendService.getRecommendedPlaces(member, new ArrayList<>(), limit);
+    public List<PlaceItemDto> getRecommendedPlaces(int limit, Member member) {
+        List<Places> placeList;
+        if (member != null) {
+            placeList = recommendService.getRecommendedPlaces(member, new ArrayList<>(), limit);
+        } else {
+            placeList = getRandomPlaces(limit);
+        }
 
         return getMainPageItemList(placeList, member);
     }
 
-    private List<MainPagePlace> getMainPageItemList(List<Places> placeList, Member member) {
-        List<MainPagePlace> result = new ArrayList<>();
+    private List<PlaceItemDto> getMainPageItemList(List<Places> placeList, Member member) {
+        List<PlaceItemDto> result = new ArrayList<>();
         for (Places place : placeList) {
-            result.add(new MainPagePlace(place, placeLikeService.getLikeInfo(place, member)));
+            result.add(new PlaceItemDto(place, placeLikeService.getLikeInfo(place, member)));
         }
 
         return result;
