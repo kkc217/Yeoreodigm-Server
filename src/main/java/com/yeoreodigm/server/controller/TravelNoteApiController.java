@@ -6,6 +6,8 @@ import com.yeoreodigm.server.dto.MemberResponseDto;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
+import com.yeoreodigm.server.dto.detail.travelnote.LikeRequestDto;
+import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.mainpage.TravelNoteItemDto;
 import com.yeoreodigm.server.dto.note.*;
 import com.yeoreodigm.server.dto.note.comment.CommentResponseDto;
@@ -25,6 +27,8 @@ import java.util.List;
 public class TravelNoteApiController {
 
     private final TravelNoteService travelNoteService;
+
+    private final TravelNoteLikeService travelNoteLikeService;
 
     private final PlaceService placeService;
 
@@ -147,6 +151,21 @@ public class TravelNoteApiController {
     public Result<List<TravelNoteItemDto>> callWeekTravelNote(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new Result<>(travelNoteService.getWeekNotes(MainPageConst.NUMBER_OF_WEEK_NOTES, member));
+    }
+
+    @GetMapping("/like/{travelNoteId}")
+    public LikeItemDto callTravelNoteLike(
+            @PathVariable(name = "travelNoteId") Long travelNoteId,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return travelNoteLikeService.getLikeInfo(
+                travelNoteService.getTravelNoteById(travelNoteId), member);
+    }
+
+    @PatchMapping("/like")
+    public void changeTravelNoteLike(
+            @RequestBody @Valid LikeRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        travelNoteLikeService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
     }
 
 //    @PostMapping("/place/add")

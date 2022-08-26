@@ -84,7 +84,7 @@ public class TravelNoteDetailApiController {
     public void changeTravelNoteLike(
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        travelNoteLikeService.changeTravelNoteLike(member, requestDto.getTravelNoteId(), requestDto.isLike());
+        travelNoteLikeService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
     }
 
     @GetMapping("/course/{travelNoteId}/{day}")
@@ -131,7 +131,7 @@ public class TravelNoteDetailApiController {
     public void changeTravelNoteCommentLike(
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        noteCommentLikeService.changeTravelNoteLike(member, requestDto.getCommentId(), requestDto.isLike());
+        noteCommentLikeService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
     }
 
     @PostMapping("/make")
