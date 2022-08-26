@@ -71,7 +71,7 @@ public class TravelNoteApiController {
                 requestDto.getAnimal());
     }
 
-    @PostMapping("/publicshare/change")
+    @PatchMapping("/public-share")
     public void changeTravelMakingNotePublicShare(
             @RequestBody @Valid PublicShareRequestDto requestDto) {
         travelNoteService.changePublicShare(
