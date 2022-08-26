@@ -124,10 +124,10 @@ public class MemberApiController {
         }
     }
 
-    @PutMapping("/password/{email}")
+    @PutMapping("/password")
     public void passwordReset(
-            @PathVariable("email") String email) {
-        memberService.resetPassword(email);
+            @RequestBody HashMap<String, String> request) {
+        memberService.resetPassword(request.get("email"));
     }
 
 }
