@@ -61,7 +61,7 @@ public class TravelNoteApiController {
                 travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()), requestDto.getNewTitle());
     }
 
-    @PostMapping("/composition/change")
+    @PatchMapping("/composition")
     public void changeTravelMakingNoteComposition(
             @RequestBody @Valid NoteCompositionRequestDto requestDto) {
         travelNoteService.changeComposition(
