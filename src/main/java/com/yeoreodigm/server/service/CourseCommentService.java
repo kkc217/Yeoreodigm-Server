@@ -35,7 +35,7 @@ public class CourseCommentService {
     }
 
     @Transactional
-    public CourseComment addCourseComment(TravelNote travelNote, Member member, int day, String text) {
+    public void addCourseComment(TravelNote travelNote, Member member, int day, String text) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
 
         Course course = courseRepository.findByTravelNoteIdAndDay(travelNote.getId(), day);
@@ -46,10 +46,7 @@ public class CourseCommentService {
             throw new BadRequestException("댓글을 작성할 수 있는 권한이 없습니다.");
         }
 
-        CourseComment courseComment = new CourseComment(course, member, text);
-        courseCommentRepository.saveAndFlush(courseComment);
-
-        return courseComment;
+        courseCommentRepository.saveAndFlush(new CourseComment(course, member, text));
     }
 
     @Transactional

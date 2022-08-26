@@ -102,7 +102,7 @@ public class TravelNoteApiController {
     }
 
     @DeleteMapping("/companion/{travelNoteId}/{memberId}")
-    public void deleteCompanion(
+    public void deleteTravelMakingNoteCompanion(
             @PathVariable(name = "travelNoteId") Long travelNoteId,
             @PathVariable(name = "memberId") Long memberId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
@@ -126,24 +126,22 @@ public class TravelNoteApiController {
                         .toList());
     }
 
-    @PostMapping("/comment/add")
-    public CommentShortResponseDto addCourseComment(
+    @PostMapping("/comment")
+    public void addCourseComment(
             @RequestBody @Valid CourseCommentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        CourseComment courseComment = commentService.addCourseComment(
+        commentService.addCourseComment(
                 travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()),
                 member,
                 requestDto.getDay(),
                 requestDto.getText());
-
-        return new CommentShortResponseDto(courseComment.getId(), courseComment.getCreated());
     }
 
-    @PostMapping("/comment/delete")
+    @DeleteMapping("/comment/{commentId}")
     public void deleteCourseComment(
-            @RequestBody @Valid CourseCommentRequestDto requestDto,
+            @PathVariable(name = "commentId") Long commentId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        commentService.deleteCourseComment(member, requestDto.getCommentId());
+        commentService.deleteCourseComment(member, commentId);
     }
 
     @PostMapping("/place/add")

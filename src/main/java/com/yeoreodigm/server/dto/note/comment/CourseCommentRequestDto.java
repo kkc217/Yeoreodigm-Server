@@ -11,6 +11,4 @@ public class CourseCommentRequestDto {
 
     private String text;
 
-    private Long commentId;
-
 }
