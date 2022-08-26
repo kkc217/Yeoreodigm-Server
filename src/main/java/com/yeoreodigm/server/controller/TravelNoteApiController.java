@@ -12,13 +12,11 @@ import com.yeoreodigm.server.dto.note.comment.CourseCommentRequestDto;
 import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteRequestDto;
 import com.yeoreodigm.server.dto.noteprepare.TravelNoteIdResponseDto;
 import com.yeoreodigm.server.dto.place.PlaceResponseDto;
-import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -35,8 +33,6 @@ public class TravelNoteApiController {
     private final CourseCommentService commentService;
 
     private final RecommendService recommendService;
-
-    private final MapMarkerService mapMarkerService;
 
     @PostMapping("/new")
     public TravelNoteIdResponseDto createNewTravelNote(
@@ -58,73 +54,7 @@ public class TravelNoteApiController {
         return new TravelNoteInfoResponseDto(noteAuthority, travelNote);
     }
 
-    @GetMapping("/course/{travelNoteId}")
-    public Result<List<TravelMakingNoteCourseResponseDto>> callTravelMakingNoteCourse(
-            @PathVariable("travelNoteId") Long travelNoteId) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
-
-        List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
-        List<RouteInfoDto> routeInfoList = courseService.getRouteInfosByTravelNote(travelNote);
-
-        List<TravelMakingNoteCourseResponseDto> response = new ArrayList<>();
-        int indexStart = 0;
-        for (int i = 0; i < courseList.size(); i++) {
-            RouteInfoDto routeInfoDto = routeInfoList.get(i);
-
-            Course course = courseList.get(i);
-            List<Places> placeList = placeService.getPlacesByCourse(course);
-
-            response.add(new TravelMakingNoteCourseResponseDto(
-                    indexStart,
-                    course.getDay(),
-                    placeList,
-                    routeInfoDto.getRouteInfos()));
-            indexStart += placeList.size();
-        }
-
-        return new Result<>(response);
-    }
-
-    @GetMapping("/course/coordinate/{travelNoteId}")
-    public Result<List<CourseCoordinateDto>> callTravelMakingNoteCourseCoordinate(
-            @PathVariable("travelNoteId") Long travelNoteId) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
-
-        List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
-        List<String> markerColorList = mapMarkerService.getMarkerColors(courseList.size());
-
-        List<CourseCoordinateDto> response = new ArrayList<>();
-        for (Course course : courseList) {
-            response.add(new CourseCoordinateDto(
-                    course.getDay(),
-                    markerColorList.get(course.getDay() - 1),
-                    placeService.getPlacesByCourse(course)));
-        }
-
-        return new Result<>(response);
-    }
-
-    @PostMapping("/course/save/{travelNoteId}")
-    public void saveTravelMakingNoteCourse(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @RequestBody @Valid List<List<Long>> request) {
-        travelNoteService.updateCourse(travelNoteService.getTravelNoteById(travelNoteId), request);
-    }
-
-    @GetMapping("/course/optimize/{travelNoteId}")
-    public void optimizeCourse(
-            @PathVariable("travelNoteId") Long travelNoteId) {
-        courseService.optimizeCourse(travelNoteService.getTravelNoteById(travelNoteId));
-    }
-
-    @GetMapping("/course/route/{travelNoteId}")
-    public Result<List<RouteInfoDto>> callRoutes(
-            @PathVariable("travelNoteId") Long travelNoteId) {
-        return new Result<>(
-                courseService.getRouteInfosByTravelNote(travelNoteService.getTravelNoteById(travelNoteId)));
-    }
-
-    @PostMapping("/title/change")
+    @PatchMapping("/title")
     public void changeTravelMakingNoteTitle(
             @RequestBody @Valid NoteTitleRequestDto requestDto) {
         travelNoteService.changeTitle(
@@ -235,5 +165,72 @@ public class TravelNoteApiController {
 
         return new Result<>(placeList.stream().map(PlaceResponseDto::new).toList());
     }
+
+
+//    @GetMapping("/course/{travelNoteId}")
+//    public Result<List<TravelMakingNoteCourseResponseDto>> callTravelMakingNoteCourse(
+//            @PathVariable("travelNoteId") Long travelNoteId) {
+//        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
+//
+//        List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
+//        List<RouteInfoDto> routeInfoList = courseService.getRouteInfosByTravelNote(travelNote);
+//
+//        List<TravelMakingNoteCourseResponseDto> response = new ArrayList<>();
+//        int indexStart = 0;
+//        for (int i = 0; i < courseList.size(); i++) {
+//            RouteInfoDto routeInfoDto = routeInfoList.get(i);
+//
+//            Course course = courseList.get(i);
+//            List<Places> placeList = placeService.getPlacesByCourse(course);
+//
+//            response.add(new TravelMakingNoteCourseResponseDto(
+//                    indexStart,
+//                    course.getDay(),
+//                    placeList,
+//                    routeInfoDto.getRouteInfos()));
+//            indexStart += placeList.size();
+//        }
+//
+//        return new Result<>(response);
+//    }
+//
+//    @GetMapping("/course/coordinate/{travelNoteId}")
+//    public Result<List<CourseCoordinateDto>> callTravelMakingNoteCourseCoordinate(
+//            @PathVariable("travelNoteId") Long travelNoteId) {
+//        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
+//
+//        List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
+//        List<String> markerColorList = mapMarkerService.getMarkerColors(courseList.size());
+//
+//        List<CourseCoordinateDto> response = new ArrayList<>();
+//        for (Course course : courseList) {
+//            response.add(new CourseCoordinateDto(
+//                    course.getDay(),
+//                    markerColorList.get(course.getDay() - 1),
+//                    placeService.getPlacesByCourse(course)));
+//        }
+//
+//        return new Result<>(response);
+//    }
+//
+//    @PostMapping("/course/save/{travelNoteId}")
+//    public void saveTravelMakingNoteCourse(
+//            @PathVariable("travelNoteId") Long travelNoteId,
+//            @RequestBody @Valid List<List<Long>> request) {
+//        travelNoteService.updateCourse(travelNoteService.getTravelNoteById(travelNoteId), request);
+//    }
+//
+//    @GetMapping("/course/optimize/{travelNoteId}")
+//    public void optimizeCourse(
+//            @PathVariable("travelNoteId") Long travelNoteId) {
+//        courseService.optimizeCourse(travelNoteService.getTravelNoteById(travelNoteId));
+//    }
+//
+//    @GetMapping("/course/route/{travelNoteId}")
+//    public Result<List<RouteInfoDto>> callRoutes(
+//            @PathVariable("travelNoteId") Long travelNoteId) {
+//        return new Result<>(
+//                courseService.getRouteInfosByTravelNote(travelNoteService.getTravelNoteById(travelNoteId)));
+//    }
 
 }
