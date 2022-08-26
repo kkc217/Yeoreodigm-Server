@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.*;
+import com.yeoreodigm.server.dto.ContentRequestDto;
 import com.yeoreodigm.server.dto.MemberResponseDto;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.RecommendConst;
@@ -92,21 +93,22 @@ public class TravelNoteApiController {
         return new Result<>(response);
     }
 
-    @PostMapping("/companion/add")
+    @PatchMapping("/companion")
     public MemberResponseDto addTravelMakingNoteCompanion(
-            @RequestBody @Valid CompanionRequestDto requestDto,
+            @RequestBody @Valid ContentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         Member companion = travelNoteService.addNoteCompanion(
-                travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()), member, requestDto.getContent());
+                travelNoteService.getTravelNoteById(requestDto.getId()), member, requestDto.getContent());
         return new MemberResponseDto(companion);
     }
 
-    @PostMapping("/companion/delete")
+    @DeleteMapping("/companion/{travelNoteId}/{memberId}")
     public void deleteCompanion(
-            @RequestBody @Valid CompanionRequestDto requestDto,
+            @PathVariable(name = "travelNoteId") Long travelNoteId,
+            @PathVariable(name = "memberId") Long memberId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         travelNoteService.deleteCompanion(
-                travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()), member, requestDto.getMemberId());
+                travelNoteService.getTravelNoteById(travelNoteId), member, memberId);
     }
 
     @GetMapping("/comment/{travelNoteId}/{day}")
