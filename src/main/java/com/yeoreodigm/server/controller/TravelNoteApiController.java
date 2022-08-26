@@ -9,6 +9,8 @@ import com.yeoreodigm.server.dto.note.*;
 import com.yeoreodigm.server.dto.note.comment.CommentResponseDto;
 import com.yeoreodigm.server.dto.note.comment.CommentShortResponseDto;
 import com.yeoreodigm.server.dto.note.comment.CourseCommentRequestDto;
+import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteRequestDto;
+import com.yeoreodigm.server.dto.noteprepare.TravelNoteResponseDto;
 import com.yeoreodigm.server.dto.place.PlaceResponseDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
@@ -36,12 +38,21 @@ public class TravelNoteApiController {
 
     private final MapMarkerService mapMarkerService;
 
+    @PostMapping("/new")
+    public TravelNoteResponseDto createNewTravelNote(
+            @RequestBody @Valid NewTravelNoteRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new TravelNoteResponseDto(
+                travelNoteService.submitNotePrepare(
+                        travelNoteService.createTravelNote(member, requestDto)));
+    }
+
     @GetMapping("/{travelNoteId}")
     public TravelMakingNoteResponseDto callTravelMakingNoteInfo(
             @PathVariable("travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
-        
+
         NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(member, travelNote);
 
         if (noteAuthority == NoteAuthority.ROLE_OWNER) {
