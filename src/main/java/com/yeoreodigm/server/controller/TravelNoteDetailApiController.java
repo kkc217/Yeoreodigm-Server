@@ -1,26 +1,21 @@
 package com.yeoreodigm.server.controller;
 
-import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.ContentRequestDto;
-import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
-import com.yeoreodigm.server.dto.constraint.DetailPageConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.detail.travelnote.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
-import com.yeoreodigm.server.dto.note.CourseCoordinateDto;
-import com.yeoreodigm.server.dto.note.RouteInfoDto;
-import com.yeoreodigm.server.dto.noteprepare.TravelNoteIdResponseDto;
+import com.yeoreodigm.server.dto.note.TravelNoteIdDto;
 import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,21 +24,11 @@ public class TravelNoteDetailApiController {
 
     private final TravelNoteService travelNoteService;
 
-    private final TravelNoteLikeService travelNoteLikeService;
-
     private final TravelNoteLogService travelNoteLogService;
 
     private final NoteCommentService noteCommentService;
 
     private final NoteCommentLikeService noteCommentLikeService;
-
-    private final CourseService courseService;
-
-    private final MapMarkerService mapMarkerService;
-
-    private final PlaceService placeService;
-
-    private final RecommendService recommendService;
 
     @GetMapping("/{travelNoteId}")
     public NoteDetailInfoResponseDto callTravelNoteDetail(
@@ -95,16 +80,16 @@ public class TravelNoteDetailApiController {
         noteCommentLikeService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
     }
 
-    @PostMapping("/make")
-    public TravelNoteIdResponseDto makeMyTravelNote(
-            @RequestBody @Valid TravelNoteRequestDto requestDto,
+    @PostMapping("/new")
+    public TravelNoteIdDto makeMyTravelNote(
+            @RequestBody HashMap<String, Long> request,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(requestDto.getTravelNoteId());
+        TravelNote travelNote = travelNoteService.getTravelNoteById(request.get("travelNoteId"));
 
         TravelNote newTravelNote = travelNoteService.createTravelNoteFromOther(travelNote, member);
         Long newTravelNoteId = travelNoteService.submitFromOtherNote(travelNote, newTravelNote);
 
-        return new TravelNoteIdResponseDto(newTravelNoteId);
+        return new TravelNoteIdDto(newTravelNoteId);
     }
 
 //    @GetMapping("/course/{travelNoteId}/{day}")
