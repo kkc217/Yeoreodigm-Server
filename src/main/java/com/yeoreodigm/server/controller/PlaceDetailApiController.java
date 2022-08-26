@@ -4,14 +4,12 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.detail.place.PlaceCommentLikeRequestDto;
-import com.yeoreodigm.server.dto.detail.place.PlaceCommentRequestDto;
-import com.yeoreodigm.server.dto.detail.place.PlaceDetailResponseDto;
-import com.yeoreodigm.server.dto.detail.place.PlaceLikeRequestDto;
+import com.yeoreodigm.server.dto.detail.travelnote.LikeRequestDto;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.dto.place.detail.CommentRequestDto;
+import com.yeoreodigm.server.dto.place.detail.PlaceDetailResponseDto;
 import com.yeoreodigm.server.service.PlaceCommentLikeService;
 import com.yeoreodigm.server.service.PlaceCommentService;
-import com.yeoreodigm.server.service.PlaceLikeService;
 import com.yeoreodigm.server.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -21,19 +19,17 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/detail/place")
+@RequestMapping("/api/place/detail")
 public class PlaceDetailApiController {
 
     private final PlaceService placeService;
-
-    private final PlaceLikeService placeLikeService;
 
     private final PlaceCommentService placeCommentService;
 
     private final PlaceCommentLikeService placeCommentLikeService;
 
     @GetMapping("/{placeId}")
-    public PlaceDetailResponseDto callPlaceDetail(
+    public PlaceDetailResponseDto callPlaceDetailInfo(
             @PathVariable("placeId") Long placeId) {
         return new PlaceDetailResponseDto(placeService.getPlaceById(placeId));
     }
@@ -48,11 +44,11 @@ public class PlaceDetailApiController {
 
     @PostMapping("/comment")
     public void addPlaceComment(
-            @RequestBody @Valid PlaceCommentRequestDto requestDto,
+            @RequestBody @Valid CommentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         placeCommentService.addPlaceComment(
                 member,
-                placeService.getPlaceById(requestDto.getPlaceId()),
+                placeService.getPlaceById(requestDto.getId()),
                 requestDto.getText());
     }
 
@@ -63,11 +59,18 @@ public class PlaceDetailApiController {
         placeCommentService.deletePlaceComment(member, commentId);
     }
 
+    @GetMapping("/comment/like/{placeCommentId}")
+    public LikeItemDto callPlaceCommentLike(
+            @PathVariable(name = "placeCommentId") Long placeCommentId,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return placeCommentLikeService.getLikeInfo(placeCommentId, member);
+    }
+
     @PatchMapping("/comment/like")
     public void changePlaceCommentLike(
-            @RequestBody @Valid PlaceCommentLikeRequestDto requestDto,
+            @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        placeCommentLikeService.changeLike(member, requestDto.getCommentId(), requestDto.isLike());
+        placeCommentLikeService.changeLike(member, requestDto.getId(), requestDto.isLike());
     }
 
 }
