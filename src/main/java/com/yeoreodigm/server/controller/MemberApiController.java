@@ -58,21 +58,19 @@ public class MemberApiController {
         return responseDto;
     }
 
-    @ApiOperation(value = "오토 로그인")
-    @Tag(name = "auth")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "(성공) ROLE_USER|ROLE_ADMIN"),
-            @ApiResponse(code = 201, message = "(성공) ROLE_NOT_PERMITTED"),
-            @ApiResponse(code = 202, message = "(성공) ROLE_SURVEY"),
-            @ApiResponse(code = 400, message = "세션이 만료되었습니다.")
-    })
-    @PostMapping("/autologin")
+    @GetMapping("/auto-login")
     public LoginResponseDto autoLogin(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         if (member != null) {
-            return new LoginResponseDto(member);
+            LoginResponseDto responseDto = new LoginResponseDto(member);
+
+            if (member.getAuthority() == Authority.ROLE_SURVEY) {
+                responseDto.setSurveyIndex(surveyService.getProgress(member));
+            }
+
+            return responseDto;
         } else {
-            throw new BadRequestException("세션이 만료되었습니다.");
+            throw new BadRequestException("다시 로그인해주시기 바랍니다.");
         }
     }
 
