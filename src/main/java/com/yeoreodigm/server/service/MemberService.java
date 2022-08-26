@@ -71,8 +71,8 @@ public class MemberService {
     }
 
     public void checkDuplicateNickname(String nickname) {
-        Member findMember = memberRepository.findByNickname(nickname);
-        if (findMember != null) {
+        Member member = memberRepository.findByNickname(nickname);
+        if (member != null) {
             throw new BadRequestException("이미 등록된 닉네임입니다.");
         }
     }

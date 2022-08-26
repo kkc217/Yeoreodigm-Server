@@ -5,6 +5,7 @@ import com.yeoreodigm.server.dto.*;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.ConfirmMemberDto;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.dto.member.LoginResponseDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.dto.member.MemberLoginRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -14,8 +15,6 @@ import com.yeoreodigm.server.service.SurveyService;
 import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -89,15 +88,10 @@ public class MemberApiController {
         memberService.checkDuplicateEmail(email);
     }
 
-    @ApiOperation(value = "닉네임 중복 확인")
-    @Tag(name = "auth")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "(성공)"),
-            @ApiResponse(code = 400, message = "(중복시) 이미 등록된 닉네임입니다.")
-    })
-    @PostMapping("/check/nickname")
-    public void checkNickname(@RequestBody @Valid CheckNicknameRequestDto requestDto) {
-        memberService.checkDuplicateNickname(requestDto.getNickname());
+    @GetMapping("/nickname/{nickname}")
+    public void checkNickname(
+            @PathVariable("nickname") String nickname) {
+        memberService.checkDuplicateNickname(nickname);
     }
 
     @ApiOperation(value = "이메일 인증 코드 전송")
