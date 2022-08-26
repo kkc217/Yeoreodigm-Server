@@ -1,4 +1,4 @@
-package com.yeoreodigm.server.dto;
+package com.yeoreodigm.server.dto.member;
 
 import com.yeoreodigm.server.domain.Gender;
 import io.swagger.annotations.ApiModel;

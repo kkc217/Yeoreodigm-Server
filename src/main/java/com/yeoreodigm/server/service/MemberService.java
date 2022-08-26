@@ -3,7 +3,7 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
-import com.yeoreodigm.server.dto.MemberJoinRequestDto;
+import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.MemberRepository;

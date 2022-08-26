@@ -5,6 +5,8 @@ import com.yeoreodigm.server.dto.*;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.ConfirmMemberDto;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
+import com.yeoreodigm.server.dto.member.MemberLoginRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.EmailService;
 import com.yeoreodigm.server.service.MemberService;
@@ -32,38 +34,28 @@ public class MemberApiController {
     private final EmailService emailService;
 
     @PostMapping("/new")
-    public void joinMember(@RequestBody @Valid MemberJoinRequestDto requestDto) {
+    public void join(@RequestBody @Valid MemberJoinRequestDto requestDto) {
         memberService.join(requestDto);
     }
 
-    @ApiOperation(value = "로그인")
-    @Tag(name = "auth")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "(성공) ROLE_USER|ROLE_ADMIN"),
-            @ApiResponse(code = 201, message = "(성공) ROLE_NOT_PERMITTED"),
-            @ApiResponse(code = 202, message = "(성공) ROLE_SURVEY"),
-            @ApiResponse(code = 400, message = "등록된 이메일 정보가 없습니다.|비밀번호가 일치하지 않습니다.")
-    })
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto requestDto,
-                                                  HttpServletRequest httpServletRequest) {
+    public LoginResponseDto login(
+            @RequestBody @Valid MemberLoginRequestDto requestDto,
+            HttpServletRequest httpServletRequest) {
         //회원 유무, 비밀번호 일치 확인
         Member member = memberService.login(requestDto.getEmail(), requestDto.getPassword());
-
-        LoginResponseDto loginResponseDto = new LoginResponseDto(member);
-
-        if (member.getAuthority() == Authority.ROLE_NOT_PERMITTED) {
-            return new ResponseEntity<>(loginResponseDto, HttpStatus.CREATED);
-        } else if (member.getAuthority() == Authority.ROLE_SURVEY) {
-            loginResponseDto.setSurveyIndex(surveyService.getProgress(member));
-        }
 
         //세션에 회원 정보 저장
         HttpSession session = httpServletRequest.getSession(true);
         session.setAttribute(SessionConst.LOGIN_MEMBER, member);
 
-        return new ResponseEntity<>(loginResponseDto,
-                member.getAuthority() == Authority.ROLE_SURVEY ? HttpStatus.ACCEPTED : HttpStatus.OK);
+        LoginResponseDto responseDto = new LoginResponseDto(member);
+
+        if (member.getAuthority() == Authority.ROLE_SURVEY) {
+            responseDto.setSurveyIndex(surveyService.getProgress(member));
+        }
+
+        return responseDto;
     }
 
     @ApiOperation(value = "오토 로그인")
