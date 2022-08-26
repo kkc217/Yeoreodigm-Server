@@ -81,25 +81,18 @@ public class TravelNoteDetailApiController {
         noteCommentService.deleteNoteComment(member, commentId);
     }
 
-    @PostMapping("/comment/like")
+    @GetMapping("/comment/like/{commentId}")
+    public LikeItemDto callTravelNoteLike(
+            @PathVariable("commentId") Long commentId,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return noteCommentLikeService.getLikeInfo(commentId, member);
+    }
+
+    @PatchMapping("/comment/like")
     public void changeTravelNoteCommentLike(
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         noteCommentLikeService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
-    }
-
-    @GetMapping("/like/{travelNoteId}")
-    public LikeItemDto callTravelNoteLike(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return travelNoteLikeService.getLikeInfo(travelNoteService.getTravelNoteById(travelNoteId), member);
-    }
-
-    @PostMapping("/like")
-    public void changeTravelNoteLike(
-            @RequestBody @Valid LikeRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        travelNoteLikeService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
     }
 
     @PostMapping("/make")
