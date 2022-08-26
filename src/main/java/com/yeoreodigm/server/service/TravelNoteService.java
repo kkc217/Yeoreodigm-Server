@@ -265,13 +265,15 @@ public class TravelNoteService {
                 .toList();
     }
 
-    public List<TravelNoteItemDto> getRecommendedNotesMainPage(int limit, Member member) {
-        List<TravelNote> travelNoteList = recommendService.getRecommendedNotes(limit, member);
-        return getTravelNoteItemList(travelNoteList, member);
-    }
+    public List<TravelNoteItemDto> getRecommendedNotes(int limit, Member member) {
+        List<TravelNote> travelNoteList;
+        if (member != null) {
+            travelNoteList = recommendService.getRecommendedNotes(limit, member);
+        } else {
+            travelNoteList = getRandomNotes(limit);
+        }
 
-    public List<TravelNoteItemDto> getRandomNotesMainPage(int limit, Member member) {
-        return getTravelNoteItemList(getRandomNotes(limit), member);
+        return getTravelNoteItemList(travelNoteList, member);
     }
 
     public List<TravelNote> getRandomNotes(int limit) {

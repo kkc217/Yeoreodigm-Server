@@ -6,7 +6,7 @@ import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.constraint.TravelNoteConst;
-import com.yeoreodigm.server.dto.mainpage.MainPagePlace;
+import com.yeoreodigm.server.dto.note.TravelNoteItemDto;
 import com.yeoreodigm.server.dto.place.PlaceItemDto;
 import com.yeoreodigm.server.dto.place.PlaceResponseDto;
 import com.yeoreodigm.server.service.PlaceService;
@@ -42,6 +42,13 @@ public class RecommendApiController {
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new Result<>(
                 placeService.getRecommendedPlaces(MainPageConst.NUMBER_OF_RECOMMENDED_PLACES, member));
+    }
+
+    @GetMapping("/note")
+    public Result<List<TravelNoteItemDto>> getRecommendedTravelNote(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new Result<>(
+                travelNoteService.getRecommendedNotes(MainPageConst.NUMBER_OF_RECOMMENDED_NOTES, member));
     }
 
 }

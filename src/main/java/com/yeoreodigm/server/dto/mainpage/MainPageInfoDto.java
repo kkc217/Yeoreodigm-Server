@@ -18,11 +18,11 @@ public class MainPageInfoDto {
     private List<CoordinateItemInfo> popularPlaces;
 
     public MainPageInfoDto(
-            List<TravelNoteItemDto> recommendedNotes,
+//            List<TravelNoteItemDto> recommendedNotes,
 //            List<MainPagePlace> recommendedPlaces,
             List<TravelNoteItemDto> weeklyNotes,
             List<Places> popularPlaces) {
-        this.recommendedNotes = recommendedNotes;
+//        this.recommendedNotes = recommendedNotes;
 //        this.recommendedPlaces = recommendedPlaces;
         this.weeklyNotes = weeklyNotes;
         this.popularPlaces = popularPlaces.stream().map(CoordinateItemInfo::new).toList();

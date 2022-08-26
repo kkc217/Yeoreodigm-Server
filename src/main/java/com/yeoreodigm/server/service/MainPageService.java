@@ -24,7 +24,7 @@ public class MainPageService {
 
     public MainPageInfoDto getMainPageInfoByMember(Member member) {
         List<TravelNoteItemDto> recommendedNotes
-                = travelNoteService.getRecommendedNotesMainPage(NUMBER_OF_RECOMMENDED_NOTES, member);
+                = travelNoteService.getRecommendedNotes(NUMBER_OF_RECOMMENDED_NOTES, member);
 
         List<PlaceItemDto> recommendedPlaces
                 = placeService.getRecommendedPlaces(NUMBER_OF_RECOMMENDED_PLACES, member);
@@ -33,12 +33,12 @@ public class MainPageService {
                 = travelNoteService.getWeekNotes(NUMBER_OF_WEEK_NOTES, member);
 
         List<Places> popularPlaces = placeService.getPopularPlaces(NUMBER_OF_POPULAR_PLACES);
-        return new MainPageInfoDto(recommendedNotes, weeklyNotes, popularPlaces);
+        return new MainPageInfoDto(weeklyNotes, popularPlaces);
     }
 
     public MainPageInfoDto getMainPageInfoGeneral() {
-        List<TravelNoteItemDto> recommendedNotes
-                = travelNoteService.getRandomNotesMainPage(NUMBER_OF_RECOMMENDED_NOTES, null);
+//        List<TravelNoteItemDto> recommendedNotes
+//                = travelNoteService.getRandomNotesMainPage(NUMBER_OF_RECOMMENDED_NOTES, null);
 
 //        List<PlaceItemDto> recommendedPlaces
 //                = placeService.getRandomPlaces(NUMBER_OF_RECOMMENDED_PLACES, null);
@@ -47,7 +47,7 @@ public class MainPageService {
                 = travelNoteService.getWeekNotes(NUMBER_OF_WEEK_NOTES, null);
 
         List<Places> popularPlaces = placeService.getPopularPlaces(NUMBER_OF_POPULAR_PLACES);
-        return new MainPageInfoDto(recommendedNotes, weeklyNotes, popularPlaces);
+        return new MainPageInfoDto(weeklyNotes, popularPlaces);
     }
 
 }
