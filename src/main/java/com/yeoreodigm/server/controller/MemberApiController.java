@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.HashMap;
 
 @RestController
 @RequiredArgsConstructor
@@ -81,16 +82,16 @@ public class MemberApiController {
         }
     }
 
-    @GetMapping("/email/{email}")
+    @PostMapping("/email")
     public void checkEmail(
-            @PathVariable("email") String email) {
-        memberService.checkDuplicateEmail(email);
+            @RequestBody HashMap<String, String> request) {
+        memberService.checkDuplicateEmail(request.get("email"));
     }
 
-    @GetMapping("/nickname/{nickname}")
+    @PostMapping("/nickname")
     public void checkNickname(
-            @PathVariable("nickname") String nickname) {
-        memberService.checkDuplicateNickname(nickname);
+            @RequestBody HashMap<String, String> request) {
+        memberService.checkDuplicateNickname(request.get("nickname"));
     }
 
     @PostMapping("/auth/{email}")
