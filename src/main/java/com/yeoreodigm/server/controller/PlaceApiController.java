@@ -4,6 +4,8 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.PlaceLike;
 import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.dto.PageResult;
+import com.yeoreodigm.server.dto.Result;
+import com.yeoreodigm.server.dto.constraint.MainPageConst;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.detail.place.PlaceLikeRequestDto;
@@ -54,6 +56,14 @@ public class PlaceApiController {
             @RequestBody HashMap<String, Boolean> request,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         placeLikeService.changePlaceLike(member, placeId, request.get("like"));
+    }
+
+    @GetMapping("/popular")
+    public Result<List<PlaceResponseDto>> callPopularPlaces() {
+        return new Result<>(placeService.getPopularPlaces(MainPageConst.NUMBER_OF_POPULAR_PLACES)
+                .stream()
+                .map(PlaceResponseDto::new)
+                .toList());
     }
 
 }
