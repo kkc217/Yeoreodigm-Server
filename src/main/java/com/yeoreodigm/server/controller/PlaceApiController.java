@@ -39,9 +39,10 @@ public class PlaceApiController {
     }
 
     @GetMapping("/like/{placeId}")
-    public LikeItemDto callPlaceLikeItem(
+    public LikeItemDto callPlaceLikeInfo(
             @PathVariable("placeId") Long placeId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return placeLikeService.getLikeInfo(placeService.getPlaceById(placeId), member);
     }
+
 }
