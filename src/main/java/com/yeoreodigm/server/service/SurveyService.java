@@ -54,8 +54,6 @@ public class SurveyService {
     }
 
     public int getProgress(Member member) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
-
         return surveyRepository.findSurveyResultByMember(member).getProgress();
     }
 

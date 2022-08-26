@@ -3,7 +3,8 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
-import com.yeoreodigm.server.dto.MemberRequestDto;
+import com.yeoreodigm.server.dto.member.MemberAuthDto;
+import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.MemberRepository;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -28,25 +30,37 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final EmailService emailService;
+
+    public Member getMemberByEmail(String email) {
+        Member member = memberRepository.findByEmail(email);
+
+        if (member != null) {
+            return member;
+        } else {
+            throw new BadRequestException("일치하는 회원 정보가 없습니다.");
+        }
+    }
+
     @Transactional
-    public void join(MemberRequestDto memberRequestDto) {
+    public void join(MemberJoinRequestDto memberJoinRequestDto) {
         //중복 검사
-        checkDuplicateEmail(memberRequestDto.getEmail());
-        checkDuplicateNickname(memberRequestDto.getNickname());
+        checkDuplicateEmail(memberJoinRequestDto.getEmail());
+        checkDuplicateNickname(memberJoinRequestDto.getNickname());
 
         //비밀번호 암호화
-        String password = encodePassword(memberRequestDto.getPassword());
+        String password = encodePassword(memberJoinRequestDto.getPassword());
 
-        LocalDate birth = LocalDate.of(memberRequestDto.getYear(), memberRequestDto.getMonth(), memberRequestDto.getDay());
+        LocalDate birth = LocalDate.of(memberJoinRequestDto.getYear(), memberJoinRequestDto.getMonth(), memberJoinRequestDto.getDay());
 
         Member member = new Member(
-                memberRequestDto.getEmail(),
+                memberJoinRequestDto.getEmail(),
                 password,
-                memberRequestDto.getNickname(),
+                memberJoinRequestDto.getNickname(),
                 birth,
-                memberRequestDto.getGender(),
-                memberRequestDto.getRegion(),
-                memberRequestDto.isOptional()
+                memberJoinRequestDto.getGender(),
+                memberJoinRequestDto.getRegion(),
+                memberJoinRequestDto.isOptional()
         );
 
         memberRepository.saveAndFlush(member);
@@ -64,52 +78,41 @@ public class MemberService {
     }
 
     public void checkDuplicateEmail(String email) {
-        Member findMembers = memberRepository.findByEmail(email);
-        if (findMembers != null) {
+        Member member = memberRepository.findByEmail(email);
+        if (member != null) {
             throw new BadRequestException("이미 등록된 이메일입니다.");
         }
     }
 
     public void checkDuplicateNickname(String nickname) {
-        Member findMember = memberRepository.findByNickname(nickname);
-        if (findMember != null) {
+        Member member = memberRepository.findByNickname(nickname);
+        if (member != null) {
             throw new BadRequestException("이미 등록된 닉네임입니다.");
         }
     }
 
     @Transactional
-    public void updateMemberAuthority(String email, Authority authority) {
-        Member member = memberRepository.findByEmail(email);
-        if (member != null) {
-            member.changeAuthority(authority);
-            memberRepository.saveAndFlush(member);
-        } else {
-            throw new BadRequestException("일치하는 이메일 정보가 없습니다.");
+    public void confirmAuth(MemberAuthDto memberAuthDto, String code) {
+        if (!Objects.equals(code, memberAuthDto.getConfirmCode())) {
+            throw new BadRequestException("인증 코드가 일치하지 않습니다.");
         }
+
+        Member member = getMemberByEmail(memberAuthDto.getEmail());
+
+        member.changeAuthority(Authority.ROLE_SURVEY);
+        memberRepository.saveAndFlush(member);
     }
 
     @Transactional
-    public String resetPassword(String email) {
-        Member member = memberRepository.findByEmail(email);
+    public void resetPassword(String email) {
+        Member member = getMemberByEmail(email);
 
-        if (member != null) {
-            String newPassword = genPassword();
-            member.changePassword(encodePassword(newPassword));
-            memberRepository.saveAndFlush(member);
-            return newPassword;
-        } else {
-            throw new BadRequestException("등록된 회원 정보가 없습니다.");
-        }
-    }
+        String newPassword = genPassword();
 
-    public Member checkMemberByEmail(String email) {
-        Member member = memberRepository.findByEmail(email);
+        member.changePassword(encodePassword(newPassword));
+        memberRepository.saveAndFlush(member);
 
-        if (member != null) {
-            return member;
-        } else {
-            throw new BadRequestException("등록된 이메일 정보가 없습니다.");
-        }
+        emailService.sendResetMail(email, newPassword);
     }
 
     private String genPassword() {

@@ -1,4 +1,4 @@
-package com.yeoreodigm.server.dto;
+package com.yeoreodigm.server.dto.member;
 
 
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
-public class ConfirmMemberDto implements Serializable {
+public class MemberAuthDto implements Serializable {
 
     private String email;
     private String confirmCode;
