@@ -64,8 +64,8 @@ public class MemberService {
     }
 
     public void checkDuplicateEmail(String email) {
-        Member findMembers = memberRepository.findByEmail(email);
-        if (findMembers != null) {
+        Member member = memberRepository.findByEmail(email);
+        if (member != null) {
             throw new BadRequestException("이미 등록된 이메일입니다.");
         }
     }

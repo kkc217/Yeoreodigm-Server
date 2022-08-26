@@ -83,15 +83,10 @@ public class MemberApiController {
         }
     }
 
-    @ApiOperation(value = "이메일 중복 확인")
-    @Tag(name = "auth")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "(성공)"),
-            @ApiResponse(code = 400, message = "(중복시) 이미 등록된 이메일입니다.")
-    })
-    @PostMapping("/check/email")
-    public void checkEmail(@RequestBody @Valid EmailRequestDto requestDto) {
-        memberService.checkDuplicateEmail(requestDto.getEmail());
+    @GetMapping("/email/{email}")
+    public void checkEmail(
+            @PathVariable("email") String email) {
+        memberService.checkDuplicateEmail(email);
     }
 
     @ApiOperation(value = "닉네임 중복 확인")
