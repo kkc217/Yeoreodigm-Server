@@ -4,14 +4,11 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.detail.place.PlaceCommentLikeRequestDto;
-import com.yeoreodigm.server.dto.detail.place.PlaceCommentRequestDto;
-import com.yeoreodigm.server.dto.detail.place.PlaceDetailResponseDto;
-import com.yeoreodigm.server.dto.detail.place.PlaceLikeRequestDto;
-import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.dto.place.detail.PlaceCommentLikeRequestDto;
+import com.yeoreodigm.server.dto.place.detail.PlaceCommentRequestDto;
+import com.yeoreodigm.server.dto.place.detail.PlaceDetailResponseDto;
 import com.yeoreodigm.server.service.PlaceCommentLikeService;
 import com.yeoreodigm.server.service.PlaceCommentService;
-import com.yeoreodigm.server.service.PlaceLikeService;
 import com.yeoreodigm.server.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -21,19 +18,17 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/detail/place")
+@RequestMapping("/api/place/detail")
 public class PlaceDetailApiController {
 
     private final PlaceService placeService;
-
-    private final PlaceLikeService placeLikeService;
 
     private final PlaceCommentService placeCommentService;
 
     private final PlaceCommentLikeService placeCommentLikeService;
 
     @GetMapping("/{placeId}")
-    public PlaceDetailResponseDto callPlaceDetail(
+    public PlaceDetailResponseDto callPlaceDetailInfo(
             @PathVariable("placeId") Long placeId) {
         return new PlaceDetailResponseDto(placeService.getPlaceById(placeId));
     }

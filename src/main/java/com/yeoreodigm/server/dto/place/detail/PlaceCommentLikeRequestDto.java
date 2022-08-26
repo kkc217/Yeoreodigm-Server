@@ -1,4 +1,4 @@
-package com.yeoreodigm.server.dto.detail.place;
+package com.yeoreodigm.server.dto.place.detail;
 
 import lombok.Data;
 
