@@ -50,12 +50,13 @@ public class PlaceApiController {
         return placeLikeService.getLikeInfo(placeService.getPlaceById(placeId), member);
     }
 
-    @PatchMapping("/like/{placeId}")
+    @PatchMapping("/like")
     public void changePlaceLike(
-            @PathVariable("placeId") Long placeId,
-            @RequestBody HashMap<String, Boolean> request,
+            @RequestBody HashMap<String, String > request,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        placeLikeService.changePlaceLike(member, placeId, request.get("like"));
+        long placeId = Long.parseLong(request.get("placeId"));
+        boolean like = Boolean.parseBoolean(request.get("like"));
+        placeLikeService.changePlaceLike(member, placeId, like);
     }
 
     @GetMapping("/popular")
