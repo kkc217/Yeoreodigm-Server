@@ -9,6 +9,7 @@ import com.yeoreodigm.server.dto.constraint.MainPageConst;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.detail.place.PlaceLikeRequestDto;
+import com.yeoreodigm.server.dto.detail.travelnote.LikeRequestDto;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.place.PlaceResponseDto;
 import com.yeoreodigm.server.service.PlaceLikeService;
@@ -52,11 +53,9 @@ public class PlaceApiController {
 
     @PatchMapping("/like")
     public void changePlaceLike(
-            @RequestBody HashMap<String, String > request,
+            @RequestBody LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        long placeId = Long.parseLong(request.get("placeId"));
-        boolean like = Boolean.parseBoolean(request.get("like"));
-        placeLikeService.changePlaceLike(member, placeId, like);
+        placeLikeService.changePlaceLike(member, requestDto.getId(), requestDto.isLike());
     }
 
     @GetMapping("/popular")

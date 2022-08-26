@@ -5,6 +5,8 @@ import lombok.Data;
 @Data
 public class LikeRequestDto {
 
+    private Long id;
+
     private Long travelNoteId;
 
     private Long commentId;
