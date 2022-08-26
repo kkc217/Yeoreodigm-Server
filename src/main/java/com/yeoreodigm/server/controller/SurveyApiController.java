@@ -25,12 +25,13 @@ public class SurveyApiController {
         return new Result<>(surveyService.getSurveyItemsByProgress(progress));
     }
 
-    @PostMapping("/{progress}")
+    @PostMapping("/result")
     public void submitSurveyResult(
-            @PathVariable("progress") int progress,
-            @RequestBody HashMap<String, Long> request,
+            @RequestBody HashMap<String, String> request,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        surveyService.submitSurveyResult(member, request.get("contentId"), progress);
+        int progress = Integer.parseInt(request.get("progress"));
+        Long contentId = Long.parseLong(request.get("contentId"));
+        surveyService.submitSurveyResult(member, contentId, progress);
     }
 
     @GetMapping("/progress")
