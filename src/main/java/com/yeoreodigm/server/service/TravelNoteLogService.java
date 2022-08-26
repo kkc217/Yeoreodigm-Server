@@ -24,12 +24,10 @@ public class TravelNoteLogService {
 
         if (travelNoteLog != null) {
             travelNoteLog.updateVisitTime();
-            travelNoteLogRepository.save(travelNoteLog);
-            travelNoteLogRepository.flushAndClear();
+            travelNoteLogRepository.saveAndFlush(travelNoteLog);
         } else {
             TravelNoteLog newTravelNoteLog = new TravelNoteLog(travelNote.getId(), member.getId());
-            travelNoteLogRepository.save(newTravelNoteLog);
-            travelNoteLogRepository.flushAndClear();
+            travelNoteLogRepository.saveAndFlush(newTravelNoteLog);
         }
     }
 

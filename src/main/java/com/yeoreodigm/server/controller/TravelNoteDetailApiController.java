@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/detail/travelnote")
+@RequestMapping("/api/note/detail")
 public class TravelNoteDetailApiController {
 
     private final TravelNoteService travelNoteService;
@@ -45,32 +45,14 @@ public class TravelNoteDetailApiController {
     private final RecommendService recommendService;
 
     @GetMapping("/{travelNoteId}")
-    public NoteDetailResponseDto callTravelNoteDetail(
+    public NoteDetailInfoResponseDto callTravelNoteDetail(
             @PathVariable("travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
-        TravelNoteDetailInfo travelNoteInfo = travelNoteService.getTravelNoteDetailInfo(travelNote);
-
-        List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
-        List<String> markerColorList = mapMarkerService.getMarkerColors(courseList.size());
-        List<CourseCoordinateDto> coordinateDtoList = courseList.stream().map(course -> new CourseCoordinateDto(
-                course.getDay(),
-                markerColorList.get(course.getDay() - 1),
-                placeService.getPlacesByCourse(course))).collect(Collectors.toList());
-
-        List<TravelNote> recommendedNoteList = recommendService.getSimilarTravelNotes(
-                travelNote, DetailPageConst.NUMBER_OF_SIMILAR_TRAVEL_NOTE, member);
-        if (recommendedNoteList == null) {
-            recommendedNoteList = travelNoteService.getRandomNotes(DetailPageConst.NUMBER_OF_SIMILAR_TRAVEL_NOTE);
-        }
-
-        List<CommentItemDto> commentList = noteCommentService.getNoteCommentInfo(travelNote, member);
-
         travelNoteLogService.updateTravelNoteLog(travelNote, member);
 
-        return new NoteDetailResponseDto(
-                travelNoteInfo, coordinateDtoList, recommendedNoteList, commentList);
+        return new NoteDetailInfoResponseDto(travelNoteService.getTravelNoteDetailInfo(travelNote));
     }
 
     @GetMapping("/like/{travelNoteId}")
