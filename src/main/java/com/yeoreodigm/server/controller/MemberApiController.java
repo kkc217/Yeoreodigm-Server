@@ -1,7 +1,6 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Authority;
-import com.yeoreodigm.server.dto.*;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.domain.Member;
@@ -12,8 +11,6 @@ import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.EmailService;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.SurveyService;
-import io.swagger.annotations.*;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
