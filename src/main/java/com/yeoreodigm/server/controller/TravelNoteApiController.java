@@ -12,8 +12,8 @@ import com.yeoreodigm.server.dto.mainpage.TravelNoteItemDto;
 import com.yeoreodigm.server.dto.note.*;
 import com.yeoreodigm.server.dto.note.comment.CommentResponseDto;
 import com.yeoreodigm.server.dto.note.comment.CourseCommentRequestDto;
-import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteRequestDto;
-import com.yeoreodigm.server.dto.noteprepare.TravelNoteIdResponseDto;
+import com.yeoreodigm.server.dto.note.NewTravelNoteRequestDto;
+import com.yeoreodigm.server.dto.note.TravelNoteIdDto;
 import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -39,10 +39,10 @@ public class TravelNoteApiController {
     private final RecommendService recommendService;
 
     @PostMapping("/new")
-    public TravelNoteIdResponseDto createNewTravelNote(
+    public TravelNoteIdDto createNewTravelNote(
             @RequestBody @Valid NewTravelNoteRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return new TravelNoteIdResponseDto(
+        return new TravelNoteIdDto(
                 travelNoteService.submitNotePrepare(
                         travelNoteService.createTravelNote(member, requestDto)));
     }

@@ -36,13 +36,10 @@ public class NoteCommentService {
     }
 
     @Transactional
-    public CommentItemDto addNoteComment(Member member, TravelNote travelNote, String text) {
+    public void addNoteComment(Member member, TravelNote travelNote, String text) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
 
-        NoteComment noteComment = new NoteComment(travelNote.getId(), member, text);
-        noteCommentRepository.saveAndFlush(noteComment);
-
-        return new CommentItemDto(noteComment);
+        noteCommentRepository.saveAndFlush(new NoteComment(travelNote.getId(), member, text));
     }
 
     @Transactional
@@ -50,7 +47,7 @@ public class NoteCommentService {
         if (member == null) throw new BadRequestException("댓글을 삭제할 수 없습니다.");
         NoteComment noteComment = noteCommentRepository.findById(commentId);
 
-        if (noteComment == null) throw new BadRequestException("댓글 삭제를 실패하였습니다.");
+        if (noteComment == null) return;
         if (!member.getId().equals(noteComment.getMember().getId()))
             throw new BadRequestException("댓글을 삭제할 수 없습니다.");
 

@@ -1,4 +1,4 @@
-package com.yeoreodigm.server.dto.noteprepare;
+package com.yeoreodigm.server.dto.note;
 
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
