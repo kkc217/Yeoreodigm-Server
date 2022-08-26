@@ -9,7 +9,7 @@ import com.yeoreodigm.server.dto.note.*;
 import com.yeoreodigm.server.dto.note.comment.CommentResponseDto;
 import com.yeoreodigm.server.dto.note.comment.CommentShortResponseDto;
 import com.yeoreodigm.server.dto.note.comment.CourseCommentRequestDto;
-import com.yeoreodigm.server.dto.search.PlaceResponseDto;
+import com.yeoreodigm.server.dto.place.PlaceResponseDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;

@@ -8,7 +8,7 @@ import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.noteprepare.TravelNoteResponseDto;
 import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteRequestDto;
-import com.yeoreodigm.server.dto.search.PlaceResponseDto;
+import com.yeoreodigm.server.dto.place.PlaceResponseDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.service.CourseService;
 import com.yeoreodigm.server.service.PlaceLikeService;
@@ -27,26 +27,9 @@ import java.util.List;
 @RequestMapping("/api/note/prepare")
 public class NotePrepareApiController {
 
-    private final PlaceService placeService;
-
-    private final PlaceLikeService placeLikeService;
-
     private final TravelNoteService travelNoteService;
 
     private final CourseService courseService;
-
-    @GetMapping("/like/{page}")
-    public PageResult<List<PlaceResponseDto>> callPlacesLike(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member,
-            @PathVariable("page") int page) {
-        List<PlaceLike> placeLikeList
-                = placeLikeService.getPlaceLikesByMemberPaging(member, page, QueryConst.PLACE_LIKE_PAGING_LIMIT);
-        List<Places> placeList = placeService.getPlacesByPlaceLikes(placeLikeList);
-
-        int next = placeLikeService.checkNextPlaceLikePage(member, page, QueryConst.PLACE_LIKE_PAGING_LIMIT);
-
-        return new PageResult<>(placeList.stream().map(PlaceResponseDto::new).toList(), next);
-    }
 
     @PutMapping("/submit")
     public TravelNoteResponseDto submitPrepareResult(

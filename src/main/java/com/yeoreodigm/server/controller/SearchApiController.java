@@ -2,7 +2,7 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.PageResult;
-import com.yeoreodigm.server.dto.search.PlaceResponseDto;
+import com.yeoreodigm.server.dto.place.PlaceResponseDto;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.MemberResponseDto;
 import com.yeoreodigm.server.exception.BadRequestException;
