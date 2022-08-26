@@ -2,6 +2,8 @@ package com.yeoreodigm.server.dto.constraint;
 
 public class TravelNoteConst {
 
+    public static final int NUMBER_OF_RECOMMENDED_PLACES = 4;
+
     public static final boolean PUBLIC_SHARE_DEFAULT_VALUE = false;
 
     public static final int ID_SIZE_MIN = 1000000;
