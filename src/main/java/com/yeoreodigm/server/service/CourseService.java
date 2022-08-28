@@ -5,7 +5,7 @@ import com.yeoreodigm.server.domain.RouteInfo;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.constraint.EnvConst;
 import com.yeoreodigm.server.dto.note.OptimizedCourseDto;
-import com.yeoreodigm.server.dto.note.RouteInfoDto;
+import com.yeoreodigm.server.dto.note.RouteItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,13 @@ public class CourseService {
     }
 
     public Course getCourseByTravelNoteAndDay(TravelNote travelNote, int day) {
-        return courseRepository.findByTravelNoteIdAndDay(travelNote.getId(), day);
+        Course course = courseRepository.findByTravelNoteIdAndDay(travelNote.getId(), day);
+
+        if (course != null) {
+            return course;
+        } else {
+            throw new BadRequestException("일치하는 코스 정보가 없습니다.");
+        }
     }
 
     public List<Course> getCoursesByTravelNote(TravelNote travelNote) {
@@ -86,7 +92,7 @@ public class CourseService {
     }
 
     @Transactional
-    public RouteInfoDto getRouteInfoByCourse(Course course) {
+    public RouteItemDto getRouteInfoByCourse(Course course) {
         if (course == null) throw new BadRequestException("일치하는 일차 정보가 없습니다.");
 
         List<RouteInfo> routeInfoList = new ArrayList<>();
@@ -97,12 +103,12 @@ public class CourseService {
             routeInfoList.add(placeService.getRouteInfo(placeList.get(i), placeList.get(i + 1)));
         }
 
-        return new RouteInfoDto(course.getDay(), routeInfoList);
+        return new RouteItemDto(course.getDay(), routeInfoList);
     }
 
     @Transactional
-    public List<RouteInfoDto> getRouteInfosByTravelNote(TravelNote travelNote) {
-        List<RouteInfoDto> result = new ArrayList<>();
+    public List<RouteItemDto> getRouteInfosByTravelNote(TravelNote travelNote) {
+        List<RouteItemDto> result = new ArrayList<>();
 
         List<Course> courseList = getCoursesByTravelNote(travelNote);
 
@@ -114,8 +120,13 @@ public class CourseService {
     }
 
     @Transactional
-    public List<RouteInfoDto> getRouteInfosByCourseList(List<Course> courseList) {
-        List<RouteInfoDto> result = new ArrayList<>();
+    public RouteItemDto getRouteInfoByTravelNoteAndDay(TravelNote travelNote, int day) {
+        return getRouteInfoByCourse(getCourseByTravelNoteAndDay(travelNote, day));
+    }
+
+    @Transactional
+    public List<RouteItemDto> getRouteInfosByCourseList(List<Course> courseList) {
+        List<RouteItemDto> result = new ArrayList<>();
 
         for (Course course : courseList) {
             result.add(getRouteInfoByCourse(course));
