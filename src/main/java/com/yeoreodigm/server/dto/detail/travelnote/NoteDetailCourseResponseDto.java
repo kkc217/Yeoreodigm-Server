@@ -2,7 +2,7 @@ package com.yeoreodigm.server.dto.detail.travelnote;
 
 import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.dto.note.RouteInfoData;
-import com.yeoreodigm.server.dto.note.RouteInfoDto;
+import com.yeoreodigm.server.dto.note.RouteItemDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -17,10 +17,10 @@ public class NoteDetailCourseResponseDto {
 
     private List<PlaceInfo> places = new ArrayList<>();
 
-    public NoteDetailCourseResponseDto(RouteInfoDto routeInfoDto, List<Places> placeList) {
-        this.day = routeInfoDto.getDay();
+    public NoteDetailCourseResponseDto(RouteItemDto routeItemDto, List<Places> placeList) {
+        this.day = routeItemDto.getDay();
 
-        List<RouteInfoData> routeInfoDataList = routeInfoDto.getRouteInfos();
+        List<RouteInfoData> routeInfoDataList = routeItemDto.getRouteInfos();
 
         for (int i = 0; i < placeList.size(); i++) {
             Places place = placeList.get(i);

@@ -11,8 +11,6 @@ public class RecommendPlaceRequestDto {
 
     private int day;
 
-    private Long placeId;
-
     private List<Long> placeIdList;
 
 }
