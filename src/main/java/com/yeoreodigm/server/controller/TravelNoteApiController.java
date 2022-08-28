@@ -1,20 +1,22 @@
 package com.yeoreodigm.server.controller;
 
-import com.yeoreodigm.server.domain.*;
+import com.yeoreodigm.server.domain.CourseComment;
+import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.domain.NoteAuthority;
+import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.ContentRequestDto;
-import com.yeoreodigm.server.dto.MemberResponseDto;
 import com.yeoreodigm.server.dto.Result;
+import com.yeoreodigm.server.dto.comment.CommentItemDto;
+import com.yeoreodigm.server.dto.comment.CourseCommentRequestDto;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.detail.travelnote.LikeRequestDto;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
-import com.yeoreodigm.server.dto.note.TravelNoteItemDto;
-import com.yeoreodigm.server.dto.note.*;
-import com.yeoreodigm.server.dto.note.comment.CommentResponseDto;
-import com.yeoreodigm.server.dto.note.comment.CourseCommentRequestDto;
-import com.yeoreodigm.server.dto.note.NewTravelNoteRequestDto;
-import com.yeoreodigm.server.dto.note.TravelNoteIdDto;
-import com.yeoreodigm.server.service.*;
+import com.yeoreodigm.server.dto.like.LikeRequestDto;
+import com.yeoreodigm.server.dto.member.MemberItemDto;
+import com.yeoreodigm.server.dto.travelnote.*;
+import com.yeoreodigm.server.service.CourseCommentService;
+import com.yeoreodigm.server.service.MemberService;
+import com.yeoreodigm.server.service.TravelNoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,34 +30,26 @@ public class TravelNoteApiController {
 
     private final TravelNoteService travelNoteService;
 
-    private final TravelNoteLikeService travelNoteLikeService;
-
-    private final PlaceService placeService;
-
-    private final CourseService courseService;
-
     private final CourseCommentService commentService;
 
-    private final RecommendService recommendService;
+    private final MemberService memberService;
 
     @PostMapping("/new")
     public TravelNoteIdDto createNewTravelNote(
             @RequestBody @Valid NewTravelNoteRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return new TravelNoteIdDto(
-                travelNoteService.submitNotePrepare(
-                        travelNoteService.createTravelNote(member, requestDto)));
+        return new TravelNoteIdDto(travelNoteService.createTravelNote(member, requestDto));
     }
 
     @GetMapping("/{travelNoteId}")
-    public TravelNoteInfoResponseDto callTravelMakingNoteInfo(
+    public TravelNoteInfoDto callTravelMakingNoteInfo(
             @PathVariable("travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
         NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(member, travelNote);
 
-        return new TravelNoteInfoResponseDto(noteAuthority, travelNote);
+        return new TravelNoteInfoDto(noteAuthority, travelNote);
     }
 
     @PatchMapping("/title")
@@ -83,14 +77,14 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/companion/{travelNoteId}")
-    public Result<List<MemberResponseDto>> callTravelMakingNoteCompanion(
+    public Result<List<MemberItemDto>> callTravelMakingNoteCompanion(
             @PathVariable("travelNoteId") Long travelNoteId) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
         List<Member> memberList = travelNoteService.getCompanionMember(travelNote);
-        List<MemberResponseDto> response = memberList
+        List<MemberItemDto> response = memberList
                 .stream()
-                .map(MemberResponseDto::new)
+                .map(MemberItemDto::new)
                 .toList();
 
         return new Result<>(response);
@@ -101,7 +95,9 @@ public class TravelNoteApiController {
             @RequestBody @Valid ContentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         travelNoteService.addNoteCompanion(
-                travelNoteService.getTravelNoteById(requestDto.getId()), member, requestDto.getContent());
+                travelNoteService.getTravelNoteById(requestDto.getId()),
+                member,
+                memberService.searchMember(requestDto.getContent()));
     }
 
     @DeleteMapping("/companion/{travelNoteId}/{memberId}")
@@ -114,7 +110,7 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/comment/{travelNoteId}/{day}")
-    public Result<List<CommentResponseDto>> callCourseComment(
+    public Result<List<CommentItemDto>> callCourseComment(
             @PathVariable(name = "travelNoteId") Long travelNoteId,
             @PathVariable(name = "day") int day) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
@@ -125,7 +121,7 @@ public class TravelNoteApiController {
         return new Result<>(
                 courseCommentList
                         .stream()
-                        .map(CommentResponseDto::new)
+                        .map(CommentItemDto::new)
                         .toList());
     }
 
@@ -157,7 +153,7 @@ public class TravelNoteApiController {
     public LikeItemDto callTravelNoteLike(
             @PathVariable(name = "travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return travelNoteLikeService.getLikeInfo(
+        return travelNoteService.getLikeInfo(
                 travelNoteService.getTravelNoteById(travelNoteId), member);
     }
 
@@ -165,94 +161,7 @@ public class TravelNoteApiController {
     public void changeTravelNoteLike(
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        travelNoteLikeService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
+        travelNoteService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
     }
-
-//    @PostMapping("/place/add")
-//    public void addRecommendedPlaceToCourse(
-//            @RequestBody @Valid RecommendPlaceRequestDto requestDto) {
-//        TravelNote travelNote = travelNoteService.getTravelNoteById(requestDto.getTravelNoteId());
-//
-//        if (requestDto.getPlaceId() != null) {
-//            courseService.addPlace(travelNote, requestDto.getDay(), requestDto.getPlaceId());
-//        } else {
-//            courseService.addPlaces(travelNote, requestDto.getDay(), requestDto.getPlaceIdList());
-//        }
-//    }
-
-//    @GetMapping("/place/recommend/{travelNoteId}")
-//    public Result<List<PlaceResponseDto>> refreshPlaceRecommended(
-//            @PathVariable("travelNoteId") Long travelNoteId) {
-//        List<Places> placeList = recommendService.getRecommendedPlacesByTravelNote(
-//                travelNoteService.getTravelNoteById(travelNoteId), RecommendConst.NOTE_PLACE_RECOMMEND_NUM);
-//
-//        return new Result<>(placeList.stream().map(PlaceResponseDto::new).toList());
-//    }
-
-//    @GetMapping("/course/{travelNoteId}")
-//    public Result<List<TravelMakingNoteCourseResponseDto>> callTravelMakingNoteCourse(
-//            @PathVariable("travelNoteId") Long travelNoteId) {
-//        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
-//
-//        List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
-//        List<RouteInfoDto> routeInfoList = courseService.getRouteInfosByTravelNote(travelNote);
-//
-//        List<TravelMakingNoteCourseResponseDto> response = new ArrayList<>();
-//        int indexStart = 0;
-//        for (int i = 0; i < courseList.size(); i++) {
-//            RouteInfoDto routeInfoDto = routeInfoList.get(i);
-//
-//            Course course = courseList.get(i);
-//            List<Places> placeList = placeService.getPlacesByCourse(course);
-//
-//            response.add(new TravelMakingNoteCourseResponseDto(
-//                    indexStart,
-//                    course.getDay(),
-//                    placeList,
-//                    routeInfoDto.getRouteInfos()));
-//            indexStart += placeList.size();
-//        }
-//
-//        return new Result<>(response);
-//    }
-//
-//    @GetMapping("/course/coordinate/{travelNoteId}")
-//    public Result<List<CourseCoordinateDto>> callTravelMakingNoteCourseCoordinate(
-//            @PathVariable("travelNoteId") Long travelNoteId) {
-//        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
-//
-//        List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
-//        List<String> markerColorList = mapMarkerService.getMarkerColors(courseList.size());
-//
-//        List<CourseCoordinateDto> response = new ArrayList<>();
-//        for (Course course : courseList) {
-//            response.add(new CourseCoordinateDto(
-//                    course.getDay(),
-//                    markerColorList.get(course.getDay() - 1),
-//                    placeService.getPlacesByCourse(course)));
-//        }
-//
-//        return new Result<>(response);
-//    }
-//
-//    @PostMapping("/course/save/{travelNoteId}")
-//    public void saveTravelMakingNoteCourse(
-//            @PathVariable("travelNoteId") Long travelNoteId,
-//            @RequestBody @Valid List<List<Long>> request) {
-//        travelNoteService.updateCourse(travelNoteService.getTravelNoteById(travelNoteId), request);
-//    }
-//
-//    @GetMapping("/course/optimize/{travelNoteId}")
-//    public void optimizeCourse(
-//            @PathVariable("travelNoteId") Long travelNoteId) {
-//        courseService.optimizeCourse(travelNoteService.getTravelNoteById(travelNoteId));
-//    }
-//
-//    @GetMapping("/course/route/{travelNoteId}")
-//    public Result<List<RouteInfoDto>> callRoutes(
-//            @PathVariable("travelNoteId") Long travelNoteId) {
-//        return new Result<>(
-//                courseService.getRouteInfosByTravelNote(travelNoteService.getTravelNoteById(travelNoteId)));
-//    }
 
 }

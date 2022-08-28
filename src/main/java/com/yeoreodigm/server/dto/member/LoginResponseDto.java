@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 public class LoginResponseDto {
 
+    private Long memberId;
+
     private String email;
 
     private String nickname;
@@ -16,6 +18,7 @@ public class LoginResponseDto {
     private int surveyIndex;
 
     public LoginResponseDto(final Member member) {
+        this.memberId = member.getId();
         this.email = member.getEmail();
         this.nickname = member.getNickname();
         this.authority = member.getAuthority();

@@ -3,12 +3,12 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.Result;
-import com.yeoreodigm.server.dto.course.SaveCourseRequestDto;
-import com.yeoreodigm.server.dto.note.CoordinateItemDto;
-import com.yeoreodigm.server.dto.note.RecommendPlaceRequestDto;
-import com.yeoreodigm.server.dto.note.RouteItemDto;
-import com.yeoreodigm.server.dto.course.CoursItemDto;
-import com.yeoreodigm.server.service.*;
+import com.yeoreodigm.server.dto.course.*;
+import com.yeoreodigm.server.dto.route.RouteItemDto;
+import com.yeoreodigm.server.service.CourseService;
+import com.yeoreodigm.server.service.MapMarkerService;
+import com.yeoreodigm.server.service.PlaceService;
+import com.yeoreodigm.server.service.TravelNoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,16 +31,16 @@ public class CourseApiController {
     private final MapMarkerService mapMarkerService;
 
     @GetMapping("/{travelNoteId}")
-    public Result<List<CoursItemDto>> callCourseInfos(
+    public Result<List<CourseItemDto>> callCourseInfos(
             @PathVariable("travelNoteId") Long travelNoteId) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
         List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
 
-        List<CoursItemDto> response = new ArrayList<>();
+        List<CourseItemDto> response = new ArrayList<>();
         int indexStart = 0;
         for (Course course : courseList) {
-            response.add(new CoursItemDto(
+            response.add(new CourseItemDto(
                     indexStart,
                     course.getDay(),
                     placeService.getPlacesByCourse(course)));
@@ -58,22 +58,16 @@ public class CourseApiController {
     }
 
     @GetMapping("/{travelNoteId}/{day}")
-    public Result<CoursItemDto> callCourseInfo(
+    public Result<CourseRouteDto> callCourseInfo(
             @PathVariable("travelNoteId") Long travelNoteId,
             @PathVariable("day") int day) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
         Course course = courseService.getCourseByTravelNoteAndDay(travelNote, day);
 
-        return new Result<>(
-                new CoursItemDto(0, course.getDay(), placeService.getPlacesByCourse(course)));
-    }
+        RouteItemDto routeItemDto = courseService.getRouteInfoByTravelNoteAndDay(travelNote, day);
 
-    @GetMapping("/route/{travelNoteId}/{day}")
-    public Result<RouteItemDto> callRouteInfo(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @PathVariable("day") int day) {
-        return new Result<>(
-                courseService.getRouteInfoByTravelNoteAndDay(travelNoteService.getTravelNoteById(travelNoteId), day));
+        return new Result<>(new CourseRouteDto(
+                0, course.getDay(), placeService.getPlacesByCourse(course), routeItemDto.getRouteInfos()));
     }
 
     @GetMapping("/coordinate/{travelNoteId}")

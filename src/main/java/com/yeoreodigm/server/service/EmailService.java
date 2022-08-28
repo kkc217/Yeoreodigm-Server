@@ -1,9 +1,7 @@
 package com.yeoreodigm.server.service;
 
-import com.yeoreodigm.server.dto.constraint.EmailConst;
-import com.yeoreodigm.server.dto.member.MemberAuthDto;
-import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +13,6 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.mail.internet.MimeMessage;
-import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)

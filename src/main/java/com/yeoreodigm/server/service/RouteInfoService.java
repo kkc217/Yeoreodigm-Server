@@ -4,6 +4,7 @@ import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.RouteInfo;
 import com.yeoreodigm.server.dto.constraint.EnvConst;
 import com.yeoreodigm.server.dto.constraint.RouteInfoConst;
+import com.yeoreodigm.server.dto.route.RouteData;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.PlacesRepository;
 import com.yeoreodigm.server.repository.RouteInfoRepository;
@@ -15,6 +16,10 @@ import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -89,6 +94,45 @@ public class RouteInfoService {
         } catch (ParseException e) {
             throw new BadRequestException("API 통신 중 에러가 발생하였습니다. 다시 시도해주시기 바랍니다.");
         }
+    }
+
+    public List<RouteData> getRouteData(List<RouteInfo> routeInfoList) {
+        List<RouteData> result = new ArrayList<>();
+
+        for (RouteInfo routeInfo : routeInfoList) {
+            int distanceInt = routeInfo.getDistance();
+            String distance;
+            if (distanceInt < 1000) {
+                distance = distanceInt + "m 이동";
+            } else {
+                DecimalFormat decimalFormat = new DecimalFormat("###,###.##");
+                distance = decimalFormat.format(((float) distanceInt) / 1000) + "km 이동";
+            }
+
+            int carInt = routeInfo.getCar();
+            String car;
+            if ((carInt / 60) == 0) {
+                car = carInt + "분";
+            } else {
+                car = (carInt / 60) + "시간 " + (carInt % 60) + "분";
+            }
+
+            String walk;
+            if (routeInfo.getWalk() < 0) {
+                walk = "10시간 이상";
+            } else {
+                int walkInt = routeInfo.getWalk();
+
+                if ((walkInt / 60) == 0) {
+                    walk = walkInt + "분";
+                } else {
+                    walk = (walkInt / 60) + "시간 " + (walkInt % 60) + "분";
+                }
+            }
+            result.add(new RouteData(distance, car, walk));
+        }
+
+        return result;
     }
 
 }

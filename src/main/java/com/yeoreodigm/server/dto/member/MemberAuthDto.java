@@ -11,6 +11,7 @@ import java.io.Serializable;
 public class MemberAuthDto implements Serializable {
 
     private String email;
+
     private String confirmCode;
 
 }

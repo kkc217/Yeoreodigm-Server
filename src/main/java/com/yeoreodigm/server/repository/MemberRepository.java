@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 
-import static com.yeoreodigm.server.domain.QMember.*;
+import static com.yeoreodigm.server.domain.QMember.member;
 
 @Repository
 @RequiredArgsConstructor

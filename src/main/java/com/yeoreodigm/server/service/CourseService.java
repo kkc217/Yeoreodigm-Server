@@ -4,8 +4,8 @@ import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.RouteInfo;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.constraint.EnvConst;
-import com.yeoreodigm.server.dto.note.OptimizedCourseDto;
-import com.yeoreodigm.server.dto.note.RouteItemDto;
+import com.yeoreodigm.server.dto.course.OptimizedCourseDto;
+import com.yeoreodigm.server.dto.route.RouteItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +28,12 @@ public class CourseService {
 
     private final PlaceService placeService;
 
+    private final RouteInfoService routeInfoService;
+
     @Transactional
     public void saveNewCourse(TravelNote travelNote, int day, List<Long> places) {
         Course course = new Course(travelNote, day, places);
-        courseRepository.save(course);
+        courseRepository.saveAndFlush(course);
     }
 
     @Transactional
@@ -39,6 +41,7 @@ public class CourseService {
         for (int i = 0; i < recommendedCourse.size(); i++) {
             saveNewCourse(travelNote, i + 1, recommendedCourse.get(i));
         }
+        courseRepository.flush();
     }
 
     public Course getCourseByTravelNoteAndDay(TravelNote travelNote, int day) {
@@ -53,28 +56,6 @@ public class CourseService {
 
     public List<Course> getCoursesByTravelNote(TravelNote travelNote) {
         return courseRepository.findCoursesByTravelNoteId(travelNote.getId());
-    }
-
-    public List<Course> getCoursesByTravelNotePaging(TravelNote travelNote, int page, int limit) {
-        return courseRepository.findCoursesByTravelNoteIdPaging(travelNote.getId(), limit * (page - 1), limit);
-    }
-
-    public int checkNextCoursePage(TravelNote travelNote, int page, int limit) {
-        return getCoursesByTravelNotePaging(travelNote, page + 1, limit).size() > 0 ? page + 1 : 0;
-    }
-
-    @Transactional
-    public void addPlace(TravelNote travelNote, int day, Long placeId) {
-        Course course = courseRepository.findByTravelNoteIdAndDay(travelNote.getId(), day);
-
-        if (course != null) {
-            List<Long> places = course.getPlaces();
-            places.add(placeId);
-            course.changePlaces(places);
-            courseRepository.saveAndFlush(course);
-        } else {
-            throw new BadRequestException("일치하는 코스 정보가 없습니다.");
-        }
     }
 
     @Transactional
@@ -103,7 +84,7 @@ public class CourseService {
             routeInfoList.add(placeService.getRouteInfo(placeList.get(i), placeList.get(i + 1)));
         }
 
-        return new RouteItemDto(course.getDay(), routeInfoList);
+        return new RouteItemDto(course.getDay(), routeInfoService.getRouteData(routeInfoList));
     }
 
     @Transactional
@@ -122,17 +103,6 @@ public class CourseService {
     @Transactional
     public RouteItemDto getRouteInfoByTravelNoteAndDay(TravelNote travelNote, int day) {
         return getRouteInfoByCourse(getCourseByTravelNoteAndDay(travelNote, day));
-    }
-
-    @Transactional
-    public List<RouteItemDto> getRouteInfosByCourseList(List<Course> courseList) {
-        List<RouteItemDto> result = new ArrayList<>();
-
-        for (Course course : courseList) {
-            result.add(getRouteInfoByCourse(course));
-        }
-
-        return result;
     }
 
     @Transactional

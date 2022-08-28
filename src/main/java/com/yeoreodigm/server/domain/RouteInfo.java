@@ -10,12 +10,14 @@ import java.io.Serializable;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(indexes = @Index(name = "multiIndex1", columnList = "start, goal"))
 public class RouteInfo implements Serializable {
 
-    @Id
+    @Id @GeneratedValue
+    private Long id;
+
     private Long start;
 
-    @Id
     private Long goal;
 
     private int distance;

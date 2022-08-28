@@ -8,10 +8,9 @@ import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.detail.travelnote.LikeRequestDto;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
-import com.yeoreodigm.server.dto.place.PlaceResponseDto;
-import com.yeoreodigm.server.service.PlaceLikeService;
+import com.yeoreodigm.server.dto.like.LikeRequestDto;
+import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,41 +24,39 @@ public class PlaceApiController {
 
     private final PlaceService placeService;
 
-    private final PlaceLikeService placeLikeService;
-
     @GetMapping("/like/list/{page}")
-    public PageResult<List<PlaceResponseDto>> callPlaceLikeList(
+    public PageResult<List<PlaceCoordinateDto>> callPlaceLikeList(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member,
             @PathVariable("page") int page) {
         List<PlaceLike> placeLikeList
-                = placeLikeService.getPlaceLikesByMemberPaging(member, page, QueryConst.PLACE_LIKE_PAGING_LIMIT);
+                = placeService.getPlaceLikesByMemberPaging(member, page, QueryConst.PLACE_LIKE_PAGING_LIMIT);
 
         List<Places> placeList = placeService.getPlacesByPlaceLikes(placeLikeList);
 
-        int next = placeLikeService.checkNextPlaceLikePage(member, page, QueryConst.PLACE_LIKE_PAGING_LIMIT);
+        int next = placeService.checkNextPlaceLikePage(member, page, QueryConst.PLACE_LIKE_PAGING_LIMIT);
 
-        return new PageResult<>(placeList.stream().map(PlaceResponseDto::new).toList(), next);
+        return new PageResult<>(placeList.stream().map(PlaceCoordinateDto::new).toList(), next);
     }
 
     @GetMapping("/like/{placeId}")
     public LikeItemDto callPlaceLikeInfo(
             @PathVariable("placeId") Long placeId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return placeLikeService.getLikeInfo(placeService.getPlaceById(placeId), member);
+        return placeService.getLikeInfo(placeService.getPlaceById(placeId), member);
     }
 
     @PatchMapping("/like")
     public void changePlaceLike(
             @RequestBody LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        placeLikeService.changePlaceLike(member, requestDto.getId(), requestDto.isLike());
+        placeService.changePlaceLike(member, requestDto.getId(), requestDto.isLike());
     }
 
     @GetMapping("/popular")
-    public Result<List<PlaceResponseDto>> callPopularPlaces() {
+    public Result<List<PlaceCoordinateDto>> callPopularPlaces() {
         return new Result<>(placeService.getPopularPlaces(MainPageConst.NUMBER_OF_POPULAR_PLACES)
                 .stream()
-                .map(PlaceResponseDto::new)
+                .map(PlaceCoordinateDto::new)
                 .toList());
     }
 

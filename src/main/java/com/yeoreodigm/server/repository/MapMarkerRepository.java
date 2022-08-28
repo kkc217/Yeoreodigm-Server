@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static com.yeoreodigm.server.domain.QMapMarker.*;
+import static com.yeoreodigm.server.domain.QMapMarker.mapMarker;
 
 @Repository
 @RequiredArgsConstructor

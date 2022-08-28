@@ -4,12 +4,14 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.ContentRequestDto;
 import com.yeoreodigm.server.dto.Result;
-import com.yeoreodigm.server.dto.comment.CommentItemDto;
+import com.yeoreodigm.server.dto.comment.CommentLikeDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.detail.travelnote.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
-import com.yeoreodigm.server.dto.note.TravelNoteIdDto;
-import com.yeoreodigm.server.service.*;
+import com.yeoreodigm.server.dto.like.LikeRequestDto;
+import com.yeoreodigm.server.dto.travelnote.NoteDetailInfoResponseDto;
+import com.yeoreodigm.server.dto.travelnote.TravelNoteIdDto;
+import com.yeoreodigm.server.service.TravelNoteCommentService;
+import com.yeoreodigm.server.service.TravelNoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,11 +26,7 @@ public class TravelNoteDetailApiController {
 
     private final TravelNoteService travelNoteService;
 
-    private final TravelNoteLogService travelNoteLogService;
-
-    private final NoteCommentService noteCommentService;
-
-    private final NoteCommentLikeService noteCommentLikeService;
+    private final TravelNoteCommentService travelNoteCommentService;
 
     @GetMapping("/{travelNoteId}")
     public NoteDetailInfoResponseDto callTravelNoteDetail(
@@ -36,16 +34,16 @@ public class TravelNoteDetailApiController {
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
-        travelNoteLogService.updateTravelNoteLog(travelNote, member);
+        travelNoteService.updateTravelNoteLog(travelNote, member);
 
         return new NoteDetailInfoResponseDto(travelNoteService.getTravelNoteDetailInfo(travelNote));
     }
 
     @GetMapping("/comment/{travelNoteId}")
-    public Result<List<CommentItemDto>> callTravelNoteComment(
+    public Result<List<CommentLikeDto>> callTravelNoteComment(
             @PathVariable("travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return new Result<>(noteCommentService.getNoteCommentInfo(
+        return new Result<>(travelNoteCommentService.getNoteCommentInfo(
                 travelNoteService.getTravelNoteById(travelNoteId), member));
     }
 
@@ -53,7 +51,7 @@ public class TravelNoteDetailApiController {
     public void addTravelNoteComment(
             @RequestBody @Valid ContentRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        noteCommentService.addNoteComment(
+        travelNoteCommentService.addNoteComment(
                 member,
                 travelNoteService.getTravelNoteById(requestDto.getId()),
                 requestDto.getContent());
@@ -63,21 +61,21 @@ public class TravelNoteDetailApiController {
     public void deleteTravelNoteComment(
             @PathVariable(name = "commentId") Long commentId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        noteCommentService.deleteNoteComment(member, commentId);
+        travelNoteCommentService.deleteNoteComment(member, commentId);
     }
 
     @GetMapping("/comment/like/{commentId}")
     public LikeItemDto callTravelNoteLike(
             @PathVariable("commentId") Long commentId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return noteCommentLikeService.getLikeInfo(commentId, member);
+        return travelNoteCommentService.getLikeInfo(commentId, member);
     }
 
     @PatchMapping("/comment/like")
     public void changeTravelNoteCommentLike(
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        noteCommentLikeService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
+        travelNoteCommentService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
     }
 
     @PostMapping("/new")
@@ -86,25 +84,7 @@ public class TravelNoteDetailApiController {
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(request.get("travelNoteId"));
 
-        TravelNote newTravelNote = travelNoteService.createTravelNoteFromOther(travelNote, member);
-        Long newTravelNoteId = travelNoteService.submitFromOtherNote(travelNote, newTravelNote);
-
-        return new TravelNoteIdDto(newTravelNoteId);
+        return new TravelNoteIdDto(travelNoteService.createTravelNoteFromOther(travelNote, member));
     }
-
-//    @GetMapping("/course/{travelNoteId}/{day}")
-//    public PageResult<NoteDetailCourseResponseDto> callTravelNoteDetailCourse(
-//            @PathVariable("travelNoteId") Long travelNoteId,
-//            @PathVariable("day") int day) {
-//        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
-//
-//        Course course = courseService.getCourseByTravelNoteAndDay(travelNote, day);
-//        RouteInfoDto routeInfo = courseService.getRouteInfoByCourse(course);
-//
-//        int next = courseService.checkNextCoursePage(
-//                travelNote, day, 1);
-//
-//        return new PageResult<>(new NoteDetailCourseResponseDto(routeInfo, placeService.getPlacesByCourse(course)), next);
-//    }
 
 }

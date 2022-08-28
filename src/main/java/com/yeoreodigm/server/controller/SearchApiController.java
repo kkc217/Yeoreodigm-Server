@@ -2,14 +2,17 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.PageResult;
-import com.yeoreodigm.server.dto.place.PlaceResponseDto;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
-import com.yeoreodigm.server.dto.MemberResponseDto;
+import com.yeoreodigm.server.dto.member.MemberItemDto;
+import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -23,14 +26,14 @@ public class SearchApiController {
     private final MemberService memberService;
 
     @GetMapping("/place/{content}/{page}")
-    public PageResult<List<PlaceResponseDto>> searchPlaces(
+    public PageResult<List<PlaceCoordinateDto>> searchPlaces(
             @PathVariable("content") String content,
             @PathVariable("page") int page) {
-        List<PlaceResponseDto> responseDtoList =
+        List<PlaceCoordinateDto> responseDtoList =
                 placeService
                         .searchPlaces(content, page, QueryConst.SEARCH_PAGING_LIMit)
                         .stream()
-                        .map(PlaceResponseDto::new)
+                        .map(PlaceCoordinateDto::new)
                         .toList();
 
         int next = placeService.checkNextSearchPage(content, page, QueryConst.SEARCH_PAGING_LIMit);
@@ -39,11 +42,11 @@ public class SearchApiController {
     }
 
     @GetMapping("/member/{content}")
-    public MemberResponseDto searchMember(
+    public MemberItemDto searchMember(
             @PathVariable("content") String content) {
         Member member = memberService.searchMember(content);
         if (member != null) {
-            return new MemberResponseDto(member);
+            return new MemberItemDto(member);
         } else {
             throw new BadRequestException("일치하는 사용자가 없습니다.");
         }

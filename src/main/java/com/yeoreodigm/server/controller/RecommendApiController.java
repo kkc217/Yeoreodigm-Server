@@ -8,17 +8,15 @@ import com.yeoreodigm.server.dto.constraint.DetailPageConst;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.constraint.TravelNoteConst;
-import com.yeoreodigm.server.dto.note.TravelNoteItemDto;
-import com.yeoreodigm.server.dto.place.PlaceItemDto;
-import com.yeoreodigm.server.dto.place.PlaceResponseDto;
+import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
+import com.yeoreodigm.server.dto.place.PlaceLikeDto;
+import com.yeoreodigm.server.dto.travelnote.TravelNoteItemDto;
 import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.RecommendService;
-import com.yeoreodigm.server.service.TravelNoteLikeService;
 import com.yeoreodigm.server.service.TravelNoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -30,21 +28,19 @@ public class RecommendApiController {
 
     private final TravelNoteService travelNoteService;
 
-    private final TravelNoteLikeService travelNoteLikeService;
-    
     private final PlaceService placeService;
 
     @GetMapping("/place/{travelNoteId}")
-    public Result<List<PlaceResponseDto>> getRecommendedPlacesFromNote(
+    public Result<List<PlaceCoordinateDto>> getRecommendedPlacesFromNote(
             @PathVariable(name = "travelNoteId") Long travelNoteId) {
         List<Places> placeList = recommendService.getRecommendedPlacesByTravelNote(
                 travelNoteService.getTravelNoteById(travelNoteId), TravelNoteConst.NUMBER_OF_RECOMMENDED_PLACES);
 
-        return new Result<>(placeList.stream().map(PlaceResponseDto::new).toList());
+        return new Result<>(placeList.stream().map(PlaceCoordinateDto::new).toList());
     }
 
     @GetMapping("/place")
-    public Result<List<PlaceItemDto>> getRecommendedPlaces(
+    public Result<List<PlaceLikeDto>> getRecommendedPlaces(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new Result<>(
                 placeService.getRecommendedPlaces(MainPageConst.NUMBER_OF_RECOMMENDED_PLACES, member));
@@ -53,8 +49,10 @@ public class RecommendApiController {
     @GetMapping("/note")
     public Result<List<TravelNoteItemDto>> getRecommendedTravelNote(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return new Result<>(
-                travelNoteService.getRecommendedNotes(MainPageConst.NUMBER_OF_RECOMMENDED_NOTES, member));
+        List<TravelNote> travelNoteList
+                = recommendService.getRecommendedNotes(MainPageConst.NUMBER_OF_RECOMMENDED_NOTES, member);
+        
+        return new Result<>(travelNoteService.getTravelNoteItemList(travelNoteList, member));
     }
 
     @GetMapping("/similar/note/{travelNoteId}")
@@ -66,15 +64,12 @@ public class RecommendApiController {
                 DetailPageConst.NUMBER_OF_SIMILAR_TRAVEL_NOTE,
                 member);
 
-        if (travelNoteList == null)
-            travelNoteList = travelNoteService.getRandomNotes(DetailPageConst.NUMBER_OF_SIMILAR_TRAVEL_NOTE);
-
         return new Result<>(
                 travelNoteList
                         .stream()
                         .map(travelNote -> new TravelNoteItemDto(
                                 travelNote,
-                                travelNoteLikeService.getLikeInfo(travelNote, member)))
+                                travelNoteService.getLikeInfo(travelNote, member)))
                         .toList());
     }
 
