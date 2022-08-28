@@ -2,7 +2,7 @@ package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.detail.travelnote.TravelNoteDetailInfo;
-import com.yeoreodigm.server.dto.mainpage.TravelNoteItemDto;
+import com.yeoreodigm.server.dto.note.TravelNoteItemDto;
 import com.yeoreodigm.server.dto.note.NewTravelNoteRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
@@ -265,13 +265,15 @@ public class TravelNoteService {
                 .toList();
     }
 
-    public List<TravelNoteItemDto> getRecommendedNotesMainPage(int limit, Member member) {
-        List<TravelNote> travelNoteList = recommendService.getRecommendedNotes(limit, member);
-        return getTravelNoteItemList(travelNoteList, member);
-    }
+    public List<TravelNoteItemDto> getRecommendedNotes(int limit, Member member) {
+        List<TravelNote> travelNoteList;
+        if (member != null) {
+            travelNoteList = recommendService.getRecommendedNotes(limit, member);
+        } else {
+            travelNoteList = getRandomNotes(limit);
+        }
 
-    public List<TravelNoteItemDto> getRandomNotesMainPage(int limit, Member member) {
-        return getTravelNoteItemList(getRandomNotes(limit), member);
+        return getTravelNoteItemList(travelNoteList, member);
     }
 
     public List<TravelNote> getRandomNotes(int limit) {

@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.dto.mainpage;
 
 import com.yeoreodigm.server.domain.Places;
+import com.yeoreodigm.server.dto.note.TravelNoteItemDto;
 import lombok.Data;
 
 import java.util.List;
@@ -17,12 +18,12 @@ public class MainPageInfoDto {
     private List<CoordinateItemInfo> popularPlaces;
 
     public MainPageInfoDto(
-            List<TravelNoteItemDto> recommendedNotes,
-            List<MainPagePlace> recommendedPlaces,
+//            List<TravelNoteItemDto> recommendedNotes,
+//            List<MainPagePlace> recommendedPlaces,
             List<TravelNoteItemDto> weeklyNotes,
             List<Places> popularPlaces) {
-        this.recommendedNotes = recommendedNotes;
-        this.recommendedPlaces = recommendedPlaces;
+//        this.recommendedNotes = recommendedNotes;
+//        this.recommendedPlaces = recommendedPlaces;
         this.weeklyNotes = weeklyNotes;
         this.popularPlaces = popularPlaces.stream().map(CoordinateItemInfo::new).toList();
     }
