@@ -15,11 +15,15 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @TypeDef(
         name = "list-array",
-        typeClass = ListArrayType.class
-)
+        typeClass = ListArrayType.class)
+@SequenceGenerator(
+        name = "COURSE_ID_SEQ_GENERATOR",
+        sequenceName = "course_id_seq",
+        allocationSize = 1)
 public class Course {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COURSE_ID_SEQ_GENERATOR")
     @Column(name = "course_id")
     private Long id;
 
