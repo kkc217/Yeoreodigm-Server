@@ -13,10 +13,18 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @AllArgsConstructor
+@SequenceGenerator(
+        name = "MEMBER_ID_SEQ_GENERATOR",
+        sequenceName = "member_id_seq",
+        allocationSize = 1)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member implements Serializable {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "MEMBER_ID_SEQ_GENERATOR"
+    )
     @Column(name = "member_id")
     private Long id;
 

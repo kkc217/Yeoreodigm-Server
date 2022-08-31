@@ -10,9 +10,17 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(indexes = @Index(name = "multiIndex1", columnList = "noteCommentId, memberId"))
+@SequenceGenerator(
+        name = "NOTE_COMMENT_LIKE_ID_SEQ_GENERATOR",
+        sequenceName = "note_comment_like_id_seq",
+        allocationSize = 1)
 public class NoteCommentLike {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "NOTE_COMMENT_LIKE_ID_SEQ_GENERATOR"
+    )
     private Long id;
 
     private Long noteCommentId;

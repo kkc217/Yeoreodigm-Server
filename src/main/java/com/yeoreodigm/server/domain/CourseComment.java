@@ -10,9 +10,15 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SequenceGenerator(
+        name = "COURSE_COMMENT_ID_SEQ_GENERATOR",
+        sequenceName = "course_comment_id_seq",
+        allocationSize = 1)
 public class CourseComment {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "COURSE_COMMENT_ID_SEQ_GENERATOR")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
