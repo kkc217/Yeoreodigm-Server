@@ -30,14 +30,14 @@ public class TravelNoteLog {
 
     private LocalDateTime visitTime;
 
-    public TravelNoteLog(Long travelNoteId, Long memberId) {
-        this.travelNoteId = travelNoteId;
-        this.memberId = memberId;
+    public TravelNoteLog(TravelNote travelNote, Member member) {
+        this.travelNoteId = travelNote.getId();
+        this.memberId = member.getId();
         visitTime = LocalDateTime.now();
     }
 
-    public void updateVisitTime() {
-        this.visitTime = LocalDateTime.now();
+    public void changeVisitTime(LocalDateTime dateTime) {
+        this.visitTime = dateTime;
     }
 
 }

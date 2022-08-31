@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -311,18 +312,18 @@ public class TravelNoteService {
     }
 
     @Transactional
-    public void updateTravelNoteLog(TravelNote travelNote, Member member) {
+    public void updateLog(TravelNote travelNote, Member member) {
         if (member == null) return;
 
         TravelNoteLog travelNoteLog
                 = travelNoteLogRepository.findByTravelNoteIdAndMemberId(travelNote.getId(), member.getId());
 
-        if (travelNoteLog != null) {
-            travelNoteLog.updateVisitTime();
-            travelNoteLogRepository.saveAndFlush(travelNoteLog);
-        } else {
-            TravelNoteLog newTravelNoteLog = new TravelNoteLog(travelNote.getId(), member.getId());
+        if (travelNoteLog == null) {
+            TravelNoteLog newTravelNoteLog = new TravelNoteLog(travelNote, member);
             travelNoteLogRepository.saveAndFlush(newTravelNoteLog);
+        } else {
+            travelNoteLog.changeVisitTime(LocalDateTime.now());
+            travelNoteLogRepository.saveAndFlush(travelNoteLog);
         }
     }
 

@@ -34,7 +34,7 @@ public class TravelNoteDetailApiController {
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
-        travelNoteService.updateTravelNoteLog(travelNote, member);
+        travelNoteService.updateLog(travelNote, member);
 
         return new NoteDetailInfoResponseDto(travelNoteService.getTravelNoteDetailInfo(travelNote));
     }
