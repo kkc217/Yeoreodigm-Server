@@ -4,14 +4,12 @@ import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.exception.BadRequestException;
-import com.yeoreodigm.server.repository.LogRepository;
-import com.yeoreodigm.server.repository.PlaceLikeRepository;
-import com.yeoreodigm.server.repository.PlacesRepository;
-import com.yeoreodigm.server.repository.RouteInfoRepository;
+import com.yeoreodigm.server.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +21,8 @@ public class PlaceService {
     private final PlacesRepository placesRepository;
 
     private final PlaceLikeRepository placeLikeRepository;
+
+    private final PlacesLogRepository placesLogRepository;
 
     private final RouteInfoRepository routeInfoRepository;
 
@@ -164,4 +164,18 @@ public class PlaceService {
         }
     }
 
+    @Transactional
+    public void updateLog(Places place, Member member) {
+        if (member == null) return;
+
+        PlacesLog placeLog = placesLogRepository.findByPlaceAndMember(place, member);
+
+        if (placeLog == null) {
+            PlacesLog newPlaceLog = new PlacesLog(place, member);
+            placesLogRepository.saveAndFlush(newPlaceLog);
+        } else {
+            placeLog.changeVisitTime(LocalDateTime.now());
+            placesLogRepository.saveAndFlush(placeLog);
+        }
+    }
 }

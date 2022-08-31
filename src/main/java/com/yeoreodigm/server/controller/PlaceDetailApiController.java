@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentLikeDto;
 import com.yeoreodigm.server.dto.comment.CommentRequestDto;
@@ -27,8 +28,12 @@ public class PlaceDetailApiController {
 
     @GetMapping("/{placeId}")
     public PlaceDetailDto callPlaceDetailInfo(
-            @PathVariable("placeId") Long placeId) {
-        return new PlaceDetailDto(placeService.getPlaceById(placeId));
+            @PathVariable("placeId") Long placeId,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        Places place = placeService.getPlaceById(placeId);
+
+        placeService.updateLog(place, member);
+        return new PlaceDetailDto(place);
     }
 
     @GetMapping("/comment/{placeId}")
