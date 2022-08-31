@@ -60,4 +60,13 @@ public class TravelNoteRepository {
                 .fetch();
     }
 
+    public List<TravelNote> findByPublicPagingAndLimiting(int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.publicShare.eq(true))
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
 }

@@ -32,7 +32,7 @@ public class RecommendService {
 
     private final TravelNoteRepository travelNoteRepository;
 
-    private final static int RANDOM_NUMBER = 300;
+    private final static int RANDOM_PAGING = 3000;
 
     public List<List<Long>> getRecommendedCourses(TravelNote travelNote) {
         int day = Period.between(travelNote.getDayStart(), travelNote.getDayEnd()).getDays() + 1;
@@ -175,19 +175,22 @@ public class RecommendService {
     }
 
     public List<TravelNote> getRandomNotes(int limit) {
-        List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(RANDOM_NUMBER);
-        int index = (int) (Math.random() * travelNoteList.size());
-
-        List<TravelNote> result = new ArrayList<>();
-
-        for (int i = 0; i < limit; i++) {
-            result.add(travelNoteList.get(index));
-            index += 1;
-            while (index >= travelNoteList.size()) {
-                index -= travelNoteList.size();
-            }
-        }
-        return result;
+        int page = (int) (Math.random() * RANDOM_PAGING);
+        return travelNoteRepository.findByPublicPagingAndLimiting(page, limit);
+//        List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(RANDOM_PAGING);
+//
+//        int index = (int) (Math.random() * travelNoteList.size());
+//
+//        List<TravelNote> result = new ArrayList<>();
+//
+//        for (int i = 0; i < limit; i++) {
+//            result.add(travelNoteList.get(index));
+//            index += 1;
+//            while (index >= travelNoteList.size()) {
+//                index -= travelNoteList.size();
+//            }
+//        }
+//        return result;
     }
 
 }
