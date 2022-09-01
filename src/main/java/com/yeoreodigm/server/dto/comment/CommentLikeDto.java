@@ -25,8 +25,7 @@ public class CommentLikeDto {
 
     private boolean hasModified;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    private LocalDateTime dateTime;
+    private String dateTime;
 
     private boolean hasLiked;
 
@@ -34,26 +33,30 @@ public class CommentLikeDto {
 
     public CommentLikeDto(NoteComment noteComment, LikeItemDto likeItemDto) {
         Member member = noteComment.getMember();
+        CommentDateTime commentDateTime = new CommentDateTime(noteComment.getModified());
+
         this.commentId = noteComment.getId();
         this.memberId = member.getId();
         this.nickname = member.getNickname();
         this.profileImageUrl = member.getProfileImage();
         this.text = noteComment.getText();
         this.hasModified = !Objects.equals(noteComment.getCreated(), noteComment.getModified());
-        this.dateTime = noteComment.getModified();
+        this.dateTime = commentDateTime.getDateTime();
         this.hasLiked = likeItemDto.isHasLiked();
         this.likeCount = likeItemDto.getLikeCount();
     }
 
     public CommentLikeDto(PlaceComment placeComment, LikeItemDto likeItemDto) {
         Member member = placeComment.getMember();
+        CommentDateTime commentDateTime = new CommentDateTime(placeComment.getModified());
+
         this.commentId = placeComment.getId();
         this.memberId = member.getId();
         this.nickname = member.getNickname();
         this.profileImageUrl = member.getProfileImage();
         this.text = placeComment.getText();
         this.hasModified = !Objects.equals(placeComment.getCreated(), placeComment.getModified());
-        this.dateTime = placeComment.getModified();
+        this.dateTime = commentDateTime.getDateTime();
         this.hasLiked = likeItemDto.isHasLiked();
         this.likeCount = likeItemDto.getLikeCount();
     }
