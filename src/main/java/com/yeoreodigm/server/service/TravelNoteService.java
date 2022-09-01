@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -54,6 +55,13 @@ public class TravelNoteService {
     @Transactional
     public Long createTravelNote(Member member, NewTravelNoteRequestDto requestDto) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        long days = ChronoUnit.DAYS.between(requestDto.getDayStart(), requestDto.getDayEnd());
+        if (days < 0) {
+            throw new BadRequestException("잘못된 일정입니다.");
+        } else if (days > 100) {
+            throw new BadRequestException("100일 이하의 일정만 생성 가능합니다.");
+        }
 
         String title = member.getNickname() +
                 "님의 " +
