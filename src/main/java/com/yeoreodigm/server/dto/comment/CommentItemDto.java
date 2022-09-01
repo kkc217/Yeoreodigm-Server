@@ -23,11 +23,11 @@ public class CommentItemDto {
 
     private boolean hasModified;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    private LocalDateTime dateTime;
+    private String dateTime;
 
     public CommentItemDto(CourseComment comment) {
         Member member = comment.getMember();
+        CommentDateTime commentDateTime = new CommentDateTime(comment.getModified());
 
         this.commentId = comment.getId();
         this.text = comment.getText();
@@ -35,7 +35,7 @@ public class CommentItemDto {
         this.profileImageUrl = member.getProfileImage();
         this.nickname = member.getNickname();
         this.hasModified = !Objects.equals(comment.getCreated(), comment.getModified());
-        this.dateTime = comment.getModified();
+        this.dateTime = commentDateTime.getDateTime();
     }
 
 }
