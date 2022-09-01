@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,13 +99,13 @@ public class TravelNoteService {
                 " 제주여행";
 
         long between = ChronoUnit.DAYS.between(originTravelNote.getDayStart(), originTravelNote.getDayEnd());
-        LocalDate dayStart = LocalDate.now();
+        LocalDate dayStart = LocalDate.now(ZoneId.of("Asia/Seoul"));
         LocalDate dayEnd = dayStart.plusDays(between);
 
         int birthYear = member.getBirth().getYear();
         int adult = 0;
         int child = 0;
-        if (LocalDate.now().getYear() - birthYear > 18) {
+        if (LocalDate.now(ZoneId.of("Asia/Seoul")).getYear() - birthYear > 18) {
             adult++;
         } else {
             child++;
@@ -322,7 +323,7 @@ public class TravelNoteService {
             TravelNoteLog newTravelNoteLog = new TravelNoteLog(travelNote, member);
             travelNoteLogRepository.saveAndFlush(newTravelNoteLog);
         } else {
-            travelNoteLog.changeVisitTime(LocalDateTime.now());
+            travelNoteLog.changeVisitTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
             travelNoteLogRepository.saveAndFlush(travelNoteLog);
         }
     }

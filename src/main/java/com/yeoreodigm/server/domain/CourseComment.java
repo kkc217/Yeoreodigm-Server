@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Getter
@@ -39,7 +40,7 @@ public class CourseComment {
         this.course = course;
         this.member = member;
         this.text = text;
-        this.created = LocalDateTime.now();
+        this.created = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         this.modified = this.created;
     }
 

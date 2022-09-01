@@ -11,6 +11,7 @@ import org.hibernate.annotations.TypeDef;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,7 +92,7 @@ public class TravelNote {
         this.region = region;
         this.theme = theme;
         this.placesInput = placesInput;
-        this.createdTime = LocalDateTime.now();
+        this.createdTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         this.modifiedTime = this.createdTime;
         this.publicShare = publicShare;
         this.thumbnail = thumbnail;

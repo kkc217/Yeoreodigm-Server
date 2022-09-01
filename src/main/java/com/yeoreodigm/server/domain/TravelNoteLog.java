@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Getter
@@ -33,7 +34,7 @@ public class TravelNoteLog {
     public TravelNoteLog(TravelNote travelNote, Member member) {
         this.travelNoteId = travelNote.getId();
         this.memberId = member.getId();
-        visitTime = LocalDateTime.now();
+        visitTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
     public void changeVisitTime(LocalDateTime dateTime) {
