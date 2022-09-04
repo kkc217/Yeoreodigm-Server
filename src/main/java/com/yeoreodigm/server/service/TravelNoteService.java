@@ -5,7 +5,7 @@ import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.travelnote.MyTravelNoteDto;
 import com.yeoreodigm.server.dto.travelnote.NewTravelNoteRequestDto;
 import com.yeoreodigm.server.dto.travelnote.TravelNoteDetailInfo;
-import com.yeoreodigm.server.dto.travelnote.TravelNoteItemDto;
+import com.yeoreodigm.server.dto.travelnote.TravelNoteLikeDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -262,7 +262,7 @@ public class TravelNoteService {
                 .toList();
     }
 
-    public List<TravelNoteItemDto> getWeekNotes(int limit, Member member) {
+    public List<TravelNoteLikeDto> getWeekNotes(int limit, Member member) {
         List<TravelNote> travelNoteList = travelNoteLogRepository
                 .findMostNoteIdLimiting(limit)
                 .stream()
@@ -272,10 +272,10 @@ public class TravelNoteService {
         return getTravelNoteItemList(travelNoteList, member);
     }
 
-    public List<TravelNoteItemDto> getTravelNoteItemList(List<TravelNote> travelNoteList, Member member) {
-        List<TravelNoteItemDto> result = new ArrayList<>();
+    public List<TravelNoteLikeDto> getTravelNoteItemList(List<TravelNote> travelNoteList, Member member) {
+        List<TravelNoteLikeDto> result = new ArrayList<>();
         for (TravelNote travelNote : travelNoteList) {
-            result.add(new TravelNoteItemDto(travelNote, getLikeInfo(travelNote, member)));
+            result.add(new TravelNoteLikeDto(travelNote, getLikeInfo(travelNote, member)));
         }
         return result;
     }
@@ -394,5 +394,23 @@ public class TravelNoteService {
         }
 
         travelNoteRepository.flush();
+    }
+
+    public List<TravelNoteLike> getNoteLikes(Member member, int page, int limit) {
+        if (member == null) return new ArrayList<>();
+
+        return travelNoteLikeRepository
+                .findByMemberPaging(member, limit * (page - 1), limit);
+    }
+
+    public int checkNextNoteLikePage(Member member, int page, int limit) {
+        return getNoteLikes(member, page + 1, limit).size() > 0 ? page + 1 : 0;
+    }
+
+    public List<TravelNote> getNotesByNoteLikes(List<TravelNoteLike> noteLikeList) {
+        return noteLikeList
+                .stream()
+                .map(travelNoteLike -> this.getTravelNoteById(travelNoteLike.getTravelNoteId()))
+                .toList();
     }
 }

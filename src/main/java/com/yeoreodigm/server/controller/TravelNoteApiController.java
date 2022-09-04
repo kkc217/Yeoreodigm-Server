@@ -1,9 +1,6 @@
 package com.yeoreodigm.server.controller;
 
-import com.yeoreodigm.server.domain.CourseComment;
-import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.NoteAuthority;
-import com.yeoreodigm.server.domain.TravelNote;
+import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.ContentRequestDto;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
@@ -22,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -145,7 +143,7 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/week")
-    public Result<List<TravelNoteItemDto>> callWeekTravelNote(
+    public Result<List<TravelNoteLikeDto>> callWeekTravelNote(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new Result<>(travelNoteService.getWeekNotes(MainPageConst.NUMBER_OF_WEEK_NOTES, member));
     }
@@ -163,6 +161,25 @@ public class TravelNoteApiController {
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         travelNoteService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
+    }
+
+    @GetMapping("/like/list/{page}/{limit}")
+    public PageResult<List<TravelNoteLikeDto>> callTravelNoteLikeList(
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        List<TravelNoteLike> noteLikeList = travelNoteService.getNoteLikes(member, page, limit);
+
+        List<TravelNote> travelNoteList = travelNoteService.getNotesByNoteLikes(noteLikeList);
+
+        int next = travelNoteService.checkNextNoteLikePage(member, page, limit);
+
+        List<TravelNoteLikeDto> response = new ArrayList<>();
+        for (TravelNote travelNote : travelNoteList) {
+            response.add(new TravelNoteLikeDto(travelNote, travelNoteService.getLikeInfo(travelNote, member)));
+        }
+
+        return new PageResult<>(response, next);
     }
 
     @GetMapping("/my/{page}/{limit}")

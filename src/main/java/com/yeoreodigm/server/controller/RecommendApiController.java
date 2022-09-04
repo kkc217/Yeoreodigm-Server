@@ -10,7 +10,7 @@ import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.constraint.TravelNoteConst;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
-import com.yeoreodigm.server.dto.travelnote.TravelNoteItemDto;
+import com.yeoreodigm.server.dto.travelnote.TravelNoteLikeDto;
 import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.RecommendService;
 import com.yeoreodigm.server.service.TravelNoteService;
@@ -47,7 +47,7 @@ public class RecommendApiController {
     }
 
     @GetMapping("/note")
-    public Result<List<TravelNoteItemDto>> getRecommendedTravelNote(
+    public Result<List<TravelNoteLikeDto>> getRecommendedTravelNote(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         List<TravelNote> travelNoteList
                 = recommendService.getRecommendedNotes(MainPageConst.NUMBER_OF_RECOMMENDED_NOTES, member);
@@ -56,7 +56,7 @@ public class RecommendApiController {
     }
 
     @GetMapping("/similar/note/{travelNoteId}")
-    public Result<List<TravelNoteItemDto>> getSimilarTravelNote(
+    public Result<List<TravelNoteLikeDto>> getSimilarTravelNote(
             @PathVariable(name = "travelNoteId") Long travelNoteId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         List<TravelNote> travelNoteList = recommendService.getSimilarTravelNotes(
@@ -67,7 +67,7 @@ public class RecommendApiController {
         return new Result<>(
                 travelNoteList
                         .stream()
-                        .map(travelNote -> new TravelNoteItemDto(
+                        .map(travelNote -> new TravelNoteLikeDto(
                                 travelNote,
                                 travelNoteService.getLikeInfo(travelNote, member)))
                         .toList());
