@@ -122,7 +122,7 @@ public class PlaceService {
     }
 
     public List<PlaceLike> getPlaceLikesByMemberPaging(Member member, int page, int limit) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) return new ArrayList<>();
 
         return placeLikeRepository
                 .findByMemberPaging(member, limit * (page - 1), limit);
