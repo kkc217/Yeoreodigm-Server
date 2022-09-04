@@ -63,10 +63,7 @@ public class TravelNoteService {
             throw new BadRequestException("100일 이하의 일정만 생성 가능합니다.");
         }
 
-        String title = member.getNickname() +
-                "님의 " +
-                TITLE_LIST[(int) (Math.random() * TITLE_LIST.length)] +
-                " 제주여행";
+        String title = getMemberTitle(member);
 
         TravelNote travelNote = TravelNote.builder()
                 .id(getRandomId())
@@ -101,10 +98,7 @@ public class TravelNoteService {
     public Long createTravelNoteFromOther(TravelNote originTravelNote, Member member) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
 
-        String title = member.getNickname() +
-                "님의 " +
-                TITLE_LIST[(int) (Math.random() * TITLE_LIST.length)] +
-                " 제주여행";
+        String title = getMemberTitle(member);
 
         long between = ChronoUnit.DAYS.between(originTravelNote.getDayStart(), originTravelNote.getDayEnd());
         LocalDate dayStart = LocalDate.now(ZoneId.of("Asia/Seoul"));
@@ -143,6 +137,14 @@ public class TravelNoteService {
         }
 
         return travelNote.getId();
+    }
+
+    private String getMemberTitle(Member member) {
+        return member.getNickname() + "님의 " + getRandomTitle();
+    }
+
+    private String getRandomTitle() {
+        return TITLE_LIST[(int) (Math.random() * TITLE_LIST.length)] + " 제주여행";
     }
 
     private long getRandomId() {
@@ -381,5 +383,15 @@ public class TravelNoteService {
 
     public int checkNextMyTravelNote(Member member, int page, int limit) {
         return travelNoteRepository.findByMember(member, page * limit, limit).size() > 0 ? page + 1 : 0;
+    }
+
+    public void resetTitle(Member member) {
+        List<TravelNote> travelNoteList = travelNoteRepository.findAllByMember(member);
+
+        for (TravelNote travelNote : travelNoteList) {
+            travelNote.changeTitle(getRandomTitle());
+        }
+
+        travelNoteRepository.flush();
     }
 }

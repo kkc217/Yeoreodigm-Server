@@ -5,7 +5,6 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.member.*;
 import com.yeoreodigm.server.exception.BadRequestException;
-import com.yeoreodigm.server.service.AwsS3Service;
 import com.yeoreodigm.server.service.EmailService;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.SurveyService;
@@ -151,6 +150,22 @@ public class MemberApiController {
             @RequestPart(value = "file") MultipartFile multipartFile,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         memberService.changeProfileImage(member, multipartFile);
+    }
+
+    @DeleteMapping("")
+    public void deleteMember(
+            HttpServletRequest httpServletRequest) {
+        HttpSession session = httpServletRequest.getSession(false);
+
+        if (session != null) {
+            Member member = (Member) session.getAttribute(SessionConst.LOGIN_MEMBER);
+
+
+            memberService.deleteMember(member);
+            session.invalidate();
+        } else {
+            throw new BadRequestException("로그인이 필요합니다.");
+        }
     }
 
 }
