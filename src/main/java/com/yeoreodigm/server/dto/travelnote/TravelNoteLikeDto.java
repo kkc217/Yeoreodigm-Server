@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class TravelNoteItemDto {
+public class TravelNoteLikeDto {
 
     private Long travelNoteId;
 
@@ -19,11 +19,17 @@ public class TravelNoteItemDto {
 
     private List<String> theme;
 
-    public TravelNoteItemDto(TravelNote travelNote) {
+    private boolean hasLiked;
+
+    private Long likeCount;
+
+    public TravelNoteLikeDto(TravelNote travelNote, LikeItemDto likeItemDto) {
         this.travelNoteId = travelNote.getId();
         this.title = travelNote.getTitle();
         this.imageUrl = travelNote.getThumbnail();
         this.theme = travelNote.getTheme();
+        this.hasLiked = likeItemDto.isHasLiked();
+        this.likeCount = likeItemDto.getLikeCount();
     }
 
 }
