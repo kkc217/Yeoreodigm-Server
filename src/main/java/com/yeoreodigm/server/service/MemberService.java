@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.prefs.BackingStoreException;
 import java.util.regex.Pattern;
 
 @Service
@@ -170,4 +171,14 @@ public class MemberService {
         memberRepository.deleteMember(member);
     }
 
+    @Transactional
+    public void changeNickname(Member member, String nickname) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        checkDuplicateNickname(nickname);
+
+        member.changeNickname(nickname);
+        memberRepository.merge(member);
+        memberRepository.flush();
+    }
 }

@@ -92,6 +92,13 @@ public class MemberApiController {
         memberService.checkDuplicateNickname(request.get("nickname"));
     }
 
+    @PatchMapping("/nickname")
+    public void changeNickname(
+            @RequestBody HashMap<String, String> request,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        memberService.changeNickname(member, request.get("nickname"));
+    }
+
     @PostMapping("/auth")
     public void submitAuth(
             @RequestBody HashMap<String, String> request,
