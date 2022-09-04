@@ -137,4 +137,11 @@ public class MemberApiController {
         }
     }
 
+    @PatchMapping("/profile/introduction")
+    public void changeIntroduction(
+            @RequestBody HashMap<String, String> request,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        memberService.changeIntroduction(member, request.get("introduction"));
+    }
+
 }

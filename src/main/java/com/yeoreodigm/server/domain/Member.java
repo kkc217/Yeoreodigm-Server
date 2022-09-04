@@ -79,5 +79,8 @@ public class Member implements Serializable {
         this.authority = authority;
     }
 
+    public void changeIntroduction(String introduction) {
+        this.introduction = introduction;
+    }
 }
 
