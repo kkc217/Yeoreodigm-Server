@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 
-import static com.yeoreodigm.server.domain.QRouteInfo.*;
+import static com.yeoreodigm.server.domain.QRouteInfo.routeInfo;
 
 @Repository
 @RequiredArgsConstructor

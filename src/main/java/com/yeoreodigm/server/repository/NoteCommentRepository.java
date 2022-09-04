@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static com.yeoreodigm.server.domain.QCourseComment.courseComment;
 import static com.yeoreodigm.server.domain.QNoteComment.noteComment;
 
 @Repository

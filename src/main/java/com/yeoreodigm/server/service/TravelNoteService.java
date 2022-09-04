@@ -1,19 +1,20 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
-import com.yeoreodigm.server.dto.detail.travelnote.TravelNoteDetailInfo;
-import com.yeoreodigm.server.dto.mainpage.MainPageTravelNote;
-import com.yeoreodigm.server.dto.noteprepare.NewTravelNoteRequestDto;
+import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.dto.travelnote.NewTravelNoteRequestDto;
+import com.yeoreodigm.server.dto.travelnote.TravelNoteDetailInfo;
+import com.yeoreodigm.server.dto.travelnote.TravelNoteItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
-import com.yeoreodigm.server.repository.CourseRepository;
-import com.yeoreodigm.server.repository.LogRepository;
-import com.yeoreodigm.server.repository.MemberRepository;
-import com.yeoreodigm.server.repository.TravelNoteRepository;
+import com.yeoreodigm.server.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,23 +29,19 @@ public class TravelNoteService {
 
     private final TravelNoteRepository travelNoteRepository;
 
+    private final TravelNoteLikeRepository travelNoteLikeRepository;
+
+    private final TravelNoteLogRepository travelNoteLogRepository;
+
     private final CourseRepository courseRepository;
 
     private final MemberRepository memberRepository;
-
-    private final MemberService memberService;
 
     private final RecommendService recommendService;
 
     private final CourseService courseService;
 
-    private final LogRepository logRepository;
-
-    private final TravelNoteLikeService travelNoteLikeService;
-
     private final PlaceService placeService;
-
-    private final static int RANDOM_NOTE_NUMBER = 300;
 
     public TravelNote getTravelNoteById(Long travelNoteId) {
         TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
@@ -55,15 +52,23 @@ public class TravelNoteService {
         }
     }
 
-    public TravelNote createTravelNote(Member member, NewTravelNoteRequestDto requestDto) {
+    @Transactional
+    public Long createTravelNote(Member member, NewTravelNoteRequestDto requestDto) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        long days = ChronoUnit.DAYS.between(requestDto.getDayStart(), requestDto.getDayEnd());
+        if (days < 0) {
+            throw new BadRequestException("잘못된 일정입니다.");
+        } else if (days > 100) {
+            throw new BadRequestException("100일 이하의 일정만 생성 가능합니다.");
+        }
 
         String title = member.getNickname() +
                 "님의 " +
                 TITLE_LIST[(int) (Math.random() * TITLE_LIST.length)] +
                 " 제주여행";
 
-        return TravelNote.builder()
+        TravelNote travelNote = TravelNote.builder()
                 .id(getRandomId())
                 .member(member)
                 .title(title)
@@ -78,9 +83,22 @@ public class TravelNoteService {
                 .publicShare(PUBLIC_SHARE_DEFAULT_VALUE)
                 .thumbnail(placeService.getRandomImageUrl())
                 .build();
+
+        travelNoteRepository.saveAndFlush(travelNote);
+
+        List<List<Long>> recommendedCourseList = recommendService.getRecommendedCourses(travelNote);
+
+        if (recommendedCourseList != null) {
+            courseService.saveNewCoursesByRecommend(travelNote, recommendedCourseList);
+
+            return travelNote.getId();
+        } else {
+            throw new BadRequestException("코스 생성 중 에러가 발생하였습니다.");
+        }
     }
 
-    public TravelNote createTravelNoteFromOther(TravelNote originTravelNote, Member member) {
+    @Transactional
+    public Long createTravelNoteFromOther(TravelNote originTravelNote, Member member) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
 
         String title = member.getNickname() +
@@ -89,19 +107,19 @@ public class TravelNoteService {
                 " 제주여행";
 
         long between = ChronoUnit.DAYS.between(originTravelNote.getDayStart(), originTravelNote.getDayEnd());
-        LocalDate dayStart = LocalDate.now();
+        LocalDate dayStart = LocalDate.now(ZoneId.of("Asia/Seoul"));
         LocalDate dayEnd = dayStart.plusDays(between);
 
         int birthYear = member.getBirth().getYear();
         int adult = 0;
         int child = 0;
-        if (LocalDate.now().getYear() - birthYear > 18) {
+        if (LocalDate.now(ZoneId.of("Asia/Seoul")).getYear() - birthYear > 18) {
             adult++;
         } else {
             child++;
         }
 
-        return TravelNote.builder()
+        TravelNote travelNote = TravelNote.builder()
                 .id(getRandomId())
                 .member(member)
                 .title(title)
@@ -115,6 +133,16 @@ public class TravelNoteService {
                 .publicShare(PUBLIC_SHARE_DEFAULT_VALUE)
                 .thumbnail(placeService.getRandomImageUrl())
                 .build();
+
+        travelNoteRepository.saveAndFlush(travelNote);
+
+        List<Course> courseList = courseService.getCoursesByTravelNote(originTravelNote);
+
+        for (Course course : courseList) {
+            courseService.saveNewCourse(travelNote, course.getDay(), course.getPlaces());
+        }
+
+        return travelNote.getId();
     }
 
     private long getRandomId() {
@@ -131,34 +159,6 @@ public class TravelNoteService {
         return id;
     }
 
-    @Transactional
-    public Long submitNotePrepare(TravelNote travelNote) {
-        travelNoteRepository.saveAndFlush(travelNote);
-
-        List<List<Long>> recommendedCourseList = recommendService.getRecommendedCourses(travelNote);
-
-        if (recommendedCourseList != null) {
-            courseService.saveNewCoursesByRecommend(travelNote, recommendedCourseList);
-
-            return travelNote.getId();
-        } else {
-            throw new BadRequestException("코스 생성 중 에러가 발생하였습니다.");
-        }
-    }
-
-    @Transactional
-    public Long submitFromOtherNote(TravelNote originTravelNote, TravelNote travelNote) {
-        travelNoteRepository.saveAndFlush(travelNote);
-
-        List<Course> courseList = courseService.getCoursesByTravelNote(originTravelNote);
-
-        for (Course course : courseList) {
-            courseService.saveNewCourse(travelNote, course.getDay(), course.getPlaces());
-        }
-
-        return travelNote.getId();
-    }
-
     public NoteAuthority checkNoteAuthority(Member member, TravelNote travelNote) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
 
@@ -168,7 +168,7 @@ public class TravelNoteService {
         } else if (travelNote.getCompanion().contains(memberId)) {
             return NoteAuthority.ROLE_COMPANION;
         } else {
-            return NoteAuthority.ROLE_VISITOR;
+            throw new BadRequestException("여행 메이킹 노트에 접근 권한이 없습니다.");
         }
     }
 
@@ -220,14 +220,9 @@ public class TravelNoteService {
     }
 
     @Transactional
-    public Member addNoteCompanion(TravelNote travelNote, Member member, String content) {
+    public void addNoteCompanion(TravelNote travelNote, Member member, Member newCompanion) {
         if (member == null || !member.getId().equals(travelNote.getMember().getId())) {
             throw new BadRequestException("여행 메이킹 노트 소유자만 동행자를 추가할 수 있습니다.");
-        }
-
-        Member newCompanion = memberService.searchMember(content);
-        if (newCompanion == null) {
-            throw new BadRequestException("일치하는 사용자가 없습니다.");
         }
 
         if (newCompanion.getId().equals(travelNote.getMember().getId())) {
@@ -241,9 +236,7 @@ public class TravelNoteService {
             companionList.add(newCompanion.getId());
             travelNote.changeCompanion(companionList);
             travelNoteRepository.saveAndFlush(travelNote);
-            return newCompanion;
         }
-
     }
 
     @Transactional
@@ -267,45 +260,20 @@ public class TravelNoteService {
                 .toList();
     }
 
-    public List<MainPageTravelNote> getRecommendedNotesMainPage(int limit, Member member) {
-        List<TravelNote> travelNoteList = recommendService.getRecommendedNotes(limit, member);
-        return getMainPageItemList(travelNoteList, member);
-    }
-
-    public List<MainPageTravelNote> getRandomNotesMainPage(int limit, Member member) {
-        return getMainPageItemList(getRandomNotes(limit), member);
-    }
-
-    public List<TravelNote> getRandomNotes(int limit) {
-        List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(RANDOM_NOTE_NUMBER);
-        int index = (int) (Math.random() * travelNoteList.size());
-
-        List<TravelNote> result = new ArrayList<>();
-
-        for (int i = 0; i < limit; i++) {
-            result.add(travelNoteList.get(index));
-            index += 1;
-            while (index >= travelNoteList.size()) {
-                index -= travelNoteList.size();
-            }
-        }
-        return result;
-    }
-
-    public List<MainPageTravelNote> getWeeklyNotesMainPage(int limit, Member member) {
-        List<TravelNote> travelNoteList = logRepository
+    public List<TravelNoteItemDto> getWeekNotes(int limit, Member member) {
+        List<TravelNote> travelNoteList = travelNoteLogRepository
                 .findMostNoteIdLimiting(limit)
                 .stream()
                 .map(travelNoteRepository::findById)
                 .toList();
 
-        return getMainPageItemList(travelNoteList, member);
+        return getTravelNoteItemList(travelNoteList, member);
     }
 
-    private List<MainPageTravelNote> getMainPageItemList(List<TravelNote> travelNoteList, Member member) {
-        List<MainPageTravelNote> result = new ArrayList<>();
+    public List<TravelNoteItemDto> getTravelNoteItemList(List<TravelNote> travelNoteList, Member member) {
+        List<TravelNoteItemDto> result = new ArrayList<>();
         for (TravelNote travelNote : travelNoteList) {
-            result.add(new MainPageTravelNote(travelNote, travelNoteLikeService.getLikeInfo(travelNote, member)));
+            result.add(new TravelNoteItemDto(travelNote, getLikeInfo(travelNote, member)));
         }
         return result;
     }
@@ -350,6 +318,54 @@ public class TravelNoteService {
             period.append(between).append("박 ").append(between + 1).append("일");
         }
         return period;
+    }
+
+    @Transactional
+    public void updateLog(TravelNote travelNote, Member member) {
+        if (member == null) return;
+
+        TravelNoteLog travelNoteLog
+                = travelNoteLogRepository.findByTravelNoteIdAndMemberId(travelNote.getId(), member.getId());
+
+        if (travelNoteLog == null) {
+            TravelNoteLog newTravelNoteLog = new TravelNoteLog(travelNote, member);
+            travelNoteLogRepository.saveAndFlush(newTravelNoteLog);
+        } else {
+            travelNoteLog.changeVisitTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
+            travelNoteLogRepository.saveAndFlush(travelNoteLog);
+        }
+    }
+
+    public Long countTravelNoteLike(TravelNote travelNote) {
+        return travelNoteLikeRepository.countByTravelNoteId(travelNote.getId());
+    }
+
+    public boolean checkHasLiked(TravelNote travelNote, Member member) {
+        if (member == null) return false;
+        return travelNoteLikeRepository.findByTravelNoteIdAndMemberId(travelNote.getId(), member.getId()) != null;
+    }
+
+    public LikeItemDto getLikeInfo(TravelNote travelNote, Member member) {
+        return new LikeItemDto(
+                checkHasLiked(travelNote, member),
+                countTravelNoteLike(travelNote));
+    }
+
+    @Transactional
+    public void changeTravelNoteLike(Member member, Long travelNoteId, boolean like) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        TravelNoteLike travelNoteLike
+                = travelNoteLikeRepository.findByTravelNoteIdAndMemberId(travelNoteId, member.getId());
+
+        if (like) {
+            if (travelNoteLike == null) {
+                TravelNoteLike newTravelNoteLike = new TravelNoteLike(travelNoteId, member.getId());
+                travelNoteLikeRepository.saveAndFlush(newTravelNoteLike);
+            }
+        } else if (travelNoteLike != null) {
+            travelNoteLikeRepository.deleteById(travelNoteLike.getId());
+        }
     }
 
 }

@@ -10,12 +10,22 @@ import java.io.Serializable;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(indexes = @Index(name = "multiIndex1", columnList = "start, goal"))
+@SequenceGenerator(
+        name = "ROUTE_INFO_ID_SEQ_GENERATOR",
+        sequenceName = "route_info_id_seq",
+        allocationSize = 1)
 public class RouteInfo implements Serializable {
 
     @Id
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "ROUTE_INFO_ID_SEQ_GENERATOR"
+    )
+    private Long id;
+
     private Long start;
 
-    @Id
     private Long goal;
 
     private int distance;

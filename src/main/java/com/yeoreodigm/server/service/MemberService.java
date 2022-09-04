@@ -3,9 +3,9 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
+import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
-import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
@@ -125,9 +125,14 @@ public class MemberService {
     }
 
     public Member searchMember(String content) {
-        return Pattern.matches(EmailConst.EMAIL_PATTERN, content) ?
+        Member member = Pattern.matches(EmailConst.EMAIL_PATTERN, content) ?
                 memberRepository.findByEmail(content) :
                 memberRepository.findByNickname(content);
+        if (member != null) {
+            return member;
+        } else {
+            throw new BadRequestException("일치하는 사용자가 없습니다.");
+        }
     }
 
 }

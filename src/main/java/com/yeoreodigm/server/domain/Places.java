@@ -2,17 +2,21 @@ package com.yeoreodigm.server.domain;
 
 import lombok.Getter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Getter
+@SequenceGenerator(
+        name = "PLACE_ID_SEQ_GENERATOR",
+        sequenceName = "place_id_seq",
+        allocationSize = 1)
 public class Places {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "PLACE_ID_SEQ_GENERATOR"
+    )
     @Column(name = "place_id")
     private Long id;
 

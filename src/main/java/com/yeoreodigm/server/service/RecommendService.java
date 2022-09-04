@@ -32,8 +32,9 @@ public class RecommendService {
 
     private final TravelNoteRepository travelNoteRepository;
 
-    public List<List<Long>> getRecommendedCourses(TravelNote travelNote) {
+    private final static int RANDOM_PAGING = 3000;
 
+    public List<List<Long>> getRecommendedCourses(TravelNote travelNote) {
         int day = Period.between(travelNote.getDayStart(), travelNote.getDayEnd()).getDays() + 1;
         StringBuilder include = new StringBuilder();
 
@@ -77,7 +78,6 @@ public class RecommendService {
         } catch (WebClientResponseException | NullPointerException e) {
             throw new BadRequestException("추천 코스를 불러오는데 실패하였습니다.");
         }
-
     }
 
     public List<Places> getRecommendedPlacesByTravelNote(TravelNote travelNote, int limit) {
@@ -150,7 +150,7 @@ public class RecommendService {
     }
 
     public List<TravelNote> getRecommendedNotes(int limit, Member member) {
-        if (member == null) return null;
+        if (member == null) return getRandomNotes(limit);
 
         WebClient webClient = WebClient.create(EnvConst.NOTE_RECOMMEND_URL);
 
@@ -170,8 +170,27 @@ public class RecommendService {
                     .map(travelNoteRepository::findById)
                     .toList();
         } catch (WebClientResponseException | NullPointerException e) {
-            throw new BadRequestException("유사한 여행 노트를 불러오는데 실패하였습니다.");
+            return getRandomNotes(limit);
         }
+    }
+
+    public List<TravelNote> getRandomNotes(int limit) {
+        int page = (int) (Math.random() * RANDOM_PAGING);
+        return travelNoteRepository.findByPublicPagingAndLimiting(page, limit);
+//        List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(RANDOM_PAGING);
+//
+//        int index = (int) (Math.random() * travelNoteList.size());
+//
+//        List<TravelNote> result = new ArrayList<>();
+//
+//        for (int i = 0; i < limit; i++) {
+//            result.add(travelNoteList.get(index));
+//            index += 1;
+//            while (index >= travelNoteList.size()) {
+//                index -= travelNoteList.size();
+//            }
+//        }
+//        return result;
     }
 
 }

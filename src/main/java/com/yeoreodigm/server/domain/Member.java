@@ -9,14 +9,23 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Getter
 @AllArgsConstructor
+@SequenceGenerator(
+        name = "MEMBER_ID_SEQ_GENERATOR",
+        sequenceName = "member_id_seq",
+        allocationSize = 1)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member implements Serializable {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "MEMBER_ID_SEQ_GENERATOR"
+    )
     @Column(name = "member_id")
     private Long id;
 
@@ -54,7 +63,7 @@ public class Member implements Serializable {
         this.region = region;
         this.optional = optional;
 
-        this.joinDate = LocalDateTime.now();
+        this.joinDate = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         this.introduction = "소개를 입력해주세요.";
         this.profileImage = "defaultImage";
         this.authority = Authority.ROLE_NOT_PERMITTED;

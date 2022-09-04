@@ -1,25 +1,23 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Authority;
-import com.yeoreodigm.server.dto.*;
-import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.member.LoginResponseDto;
+import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.dto.member.MemberLoginRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.EmailService;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.SurveyService;
-import io.swagger.annotations.*;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.HashMap;
 
 @RestController
 @RequiredArgsConstructor
@@ -84,22 +82,23 @@ public class MemberApiController {
         }
     }
 
-    @GetMapping("/email/{email}")
+    @PostMapping("/email")
     public void checkEmail(
-            @PathVariable("email") String email) {
-        memberService.checkDuplicateEmail(email);
+            @RequestBody HashMap<String, String> request) {
+        memberService.checkDuplicateEmail(request.get("email"));
     }
 
-    @GetMapping("/nickname/{nickname}")
+    @PostMapping("/nickname")
     public void checkNickname(
-            @PathVariable("nickname") String nickname) {
-        memberService.checkDuplicateNickname(nickname);
+            @RequestBody HashMap<String, String> request) {
+        memberService.checkDuplicateNickname(request.get("nickname"));
     }
 
-    @PostMapping("/auth/{email}")
+    @PostMapping("/auth")
     public void submitAuth(
-            @PathVariable("email") String email,
+            @RequestBody HashMap<String, String> request,
             HttpServletRequest httpServletRequest) {
+        String email = request.get("email");
         String confirmCode = emailService.sendConfirmMail(email);
 
         MemberAuthDto memberAuthDto = new MemberAuthDto(email, confirmCode);
@@ -110,25 +109,25 @@ public class MemberApiController {
         session.setAttribute(SessionConst.CONFIRM_MEMBER, memberAuthDto);
     }
 
-    @PatchMapping("/auth/{code}")
+    @PatchMapping("/auth")
     public void confirmAuth(
-            @PathVariable("code") String code,
+            @RequestBody HashMap<String, String> request,
             HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession(false);
 
         if (session != null) {
             MemberAuthDto memberAuthDto = (MemberAuthDto) session.getAttribute(SessionConst.CONFIRM_MEMBER);
-            memberService.confirmAuth(memberAuthDto, code);
+            memberService.confirmAuth(memberAuthDto, request.get("code"));
             session.invalidate();
         } else {
             throw new BadRequestException("인증 코드의 유효 시간이 초과되었습니다.");
         }
     }
 
-    @PutMapping("/password/{email}")
+    @PutMapping("/password")
     public void passwordReset(
-            @PathVariable("email") String email) {
-        memberService.resetPassword(email);
+            @RequestBody HashMap<String, String> request) {
+        memberService.resetPassword(request.get("email"));
     }
 
 }

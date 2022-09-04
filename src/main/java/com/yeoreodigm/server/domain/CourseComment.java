@@ -6,13 +6,20 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SequenceGenerator(
+        name = "COURSE_COMMENT_ID_SEQ_GENERATOR",
+        sequenceName = "course_comment_id_seq",
+        allocationSize = 1)
 public class CourseComment {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "COURSE_COMMENT_ID_SEQ_GENERATOR")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,7 +40,7 @@ public class CourseComment {
         this.course = course;
         this.member = member;
         this.text = text;
-        this.created = LocalDateTime.now();
+        this.created = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         this.modified = this.created;
     }
 

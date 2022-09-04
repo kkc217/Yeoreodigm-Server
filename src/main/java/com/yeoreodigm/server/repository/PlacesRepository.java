@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static com.yeoreodigm.server.domain.QPlaces.*;
+import static com.yeoreodigm.server.domain.QPlaces.places;
 
 @Repository
 @RequiredArgsConstructor
