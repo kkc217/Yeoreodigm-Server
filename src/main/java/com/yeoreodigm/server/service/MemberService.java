@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.prefs.BackingStoreException;
 import java.util.regex.Pattern;
 
 @Service
@@ -131,6 +130,22 @@ public class MemberService {
         return passwordEncoder.encode(password);
     }
 
+    public void checkPassword(String password, Member member) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        if (!passwordEncoder.matches(password, member.getPassword()))
+            throw new BadRequestException("비밀번호가 일치하지 않습니다.");
+    }
+
+    @Transactional
+    public void changePassword(String password, Member member) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        member.changePassword(encodePassword(password));
+        memberRepository.merge(member);
+        memberRepository.flush();
+    }
+
     public Member searchMember(String content) {
         Member member = Pattern.matches(EmailConst.EMAIL_PATTERN, content) ?
                 memberRepository.findByEmail(content) :
@@ -181,4 +196,5 @@ public class MemberService {
         memberRepository.merge(member);
         memberRepository.flush();
     }
+
 }
