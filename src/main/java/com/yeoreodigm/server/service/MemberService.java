@@ -3,6 +3,7 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
+import com.yeoreodigm.server.dto.constraint.AWSConst;
 import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -31,6 +33,8 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     private final EmailService emailService;
+
+    private final AwsS3Service awsS3Service;
 
     public Member getMemberByEmail(String email) {
         Member member = memberRepository.findByEmail(email);
@@ -135,10 +139,24 @@ public class MemberService {
         }
     }
 
+    @Transactional
     public void changeIntroduction(Member member, String newIntroduction) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
 
         member.changeIntroduction(newIntroduction);
         memberRepository.merge(member);
+        memberRepository.flush();
+    }
+
+    @Transactional
+    public void changeProfileImage(Member member, MultipartFile multipartFile) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        String newProfileImageUrl
+                = awsS3Service.uploadFile(AWSConst.AWS_S3_PROFILE_URI, member.getId().toString(), multipartFile);
+
+        member.changeProfileImage(newProfileImageUrl);
+        memberRepository.merge(member);
+        memberRepository.flush();
     }
 }

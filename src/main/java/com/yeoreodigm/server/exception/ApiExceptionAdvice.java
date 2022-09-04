@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,6 +18,17 @@ public class ApiExceptionAdvice {
                 .body(ApiExceptionEntity.builder()
                         .status(400)
                         .error(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    protected ResponseEntity<ApiExceptionEntity> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiExceptionEntity.builder()
+                        .status(400)
+                        .error("업로드 파일의 용량 너무 큽니다.")
                         .build());
     }
 

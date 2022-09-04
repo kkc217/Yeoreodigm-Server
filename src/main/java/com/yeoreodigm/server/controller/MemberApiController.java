@@ -5,11 +5,13 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.member.*;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.service.AwsS3Service;
 import com.yeoreodigm.server.service.EmailService;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -142,6 +144,13 @@ public class MemberApiController {
             @RequestBody HashMap<String, String> request,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         memberService.changeIntroduction(member, request.get("introduction"));
+    }
+
+    @PatchMapping("/profile/image")
+    public void changeProfileImage(
+            @RequestPart(value = "file") MultipartFile multipartFile,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        memberService.changeProfileImage(member, multipartFile);
     }
 
 }
