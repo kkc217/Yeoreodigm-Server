@@ -3,10 +3,7 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.member.LoginResponseDto;
-import com.yeoreodigm.server.dto.member.MemberAuthDto;
-import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
-import com.yeoreodigm.server.dto.member.MemberLoginRequestDto;
+import com.yeoreodigm.server.dto.member.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.EmailService;
 import com.yeoreodigm.server.service.MemberService;
@@ -128,6 +125,16 @@ public class MemberApiController {
     public void passwordReset(
             @RequestBody HashMap<String, String> request) {
         memberService.resetPassword(request.get("email"));
+    }
+
+    @GetMapping("/profile")
+    public ProfileDto callProfileInfo(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (member == null) {
+            throw new BadRequestException("로그인이 필요합니다.");
+        } else {
+            return new ProfileDto(member);
+        }
     }
 
 }
