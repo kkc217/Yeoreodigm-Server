@@ -135,4 +135,10 @@ public class MemberService {
         }
     }
 
+    public void changeIntroduction(Member member, String newIntroduction) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        member.changeIntroduction(newIntroduction);
+        memberRepository.merge(member);
+    }
 }
