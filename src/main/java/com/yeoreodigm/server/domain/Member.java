@@ -86,5 +86,9 @@ public class Member implements Serializable {
     public void changeProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
+
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }
 
