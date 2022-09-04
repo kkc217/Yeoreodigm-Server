@@ -69,4 +69,12 @@ public class TravelNoteRepository {
                 .fetch();
     }
 
+    public List<TravelNote> findByMember(Member member, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.member.id.eq(member.getId()))
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
 }

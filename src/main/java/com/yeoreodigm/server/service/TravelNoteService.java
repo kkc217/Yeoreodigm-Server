@@ -2,6 +2,7 @@ package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.dto.travelnote.MyTravelNoteDto;
 import com.yeoreodigm.server.dto.travelnote.NewTravelNoteRequestDto;
 import com.yeoreodigm.server.dto.travelnote.TravelNoteDetailInfo;
 import com.yeoreodigm.server.dto.travelnote.TravelNoteItemDto;
@@ -13,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -281,14 +281,14 @@ public class TravelNoteService {
     public TravelNoteDetailInfo getTravelNoteDetailInfo(TravelNote travelNote) {
         if (!travelNote.isPublicShare()) throw new BadRequestException("이 여행 메이킹 노트는 볼 수 없습니다.");
 
-        StringBuilder period = getPeriod(travelNote);
+        String period = getPeriod(travelNote);
 
         List<String> theme = getThemeFromComposition(travelNote);
         theme.addAll(travelNote.getTheme());
 
         return new TravelNoteDetailInfo(
                 travelNote.getTitle(),
-                period.toString(),
+                period,
                 travelNote.getRegion(),
                 theme,
                 travelNote.getThumbnail());
@@ -304,7 +304,7 @@ public class TravelNoteService {
         return theme;
     }
 
-    private StringBuilder getPeriod(TravelNote travelNote) {
+    private String getPeriod(TravelNote travelNote) {
         long between = ChronoUnit.DAYS.between(travelNote.getDayStart(), travelNote.getDayEnd());
 
         StringBuilder period = new StringBuilder();
@@ -317,7 +317,7 @@ public class TravelNoteService {
         } else {
             period.append(between).append("박 ").append(between + 1).append("일");
         }
-        return period;
+        return period.toString();
     }
 
     @Transactional
@@ -368,4 +368,18 @@ public class TravelNoteService {
         }
     }
 
+    public List<MyTravelNoteDto> getMyTravelNote(Member member, int page, int limit) {
+        List<TravelNote> travelNoteList = travelNoteRepository.findByMember(member, limit * (page - 1), limit);
+
+        List<MyTravelNoteDto> result = new ArrayList<>();
+
+        for (TravelNote travelNote : travelNoteList) {
+            result.add(new MyTravelNoteDto(travelNote, getPeriod(travelNote)));
+        }
+        return result;
+    }
+
+    public int checkNextMyTravelNote(Member member, int page, int limit) {
+        return travelNoteRepository.findByMember(member, page * limit, limit).size() > 0 ? page + 1 : 0;
+    }
 }

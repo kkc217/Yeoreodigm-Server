@@ -5,6 +5,7 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.NoteAuthority;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.ContentRequestDto;
+import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
 import com.yeoreodigm.server.dto.comment.CourseCommentRequestDto;
@@ -162,6 +163,16 @@ public class TravelNoteApiController {
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         travelNoteService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
+    }
+
+    @GetMapping("/my/{page}/{limit}")
+    public PageResult<List<MyTravelNoteDto>> callMyTravelNotes(
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new PageResult<>(
+                travelNoteService.getMyTravelNote(member, page, limit),
+                travelNoteService.checkNextMyTravelNote(member, page, limit));
     }
 
 }
