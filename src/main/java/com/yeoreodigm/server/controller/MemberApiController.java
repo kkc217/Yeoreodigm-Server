@@ -159,8 +159,6 @@ public class MemberApiController {
 
         if (session != null) {
             Member member = (Member) session.getAttribute(SessionConst.LOGIN_MEMBER);
-
-
             memberService.deleteMember(member);
             session.invalidate();
         } else {

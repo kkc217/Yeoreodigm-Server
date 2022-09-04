@@ -371,6 +371,7 @@ public class TravelNoteService {
     }
 
     public List<MyTravelNoteDto> getMyTravelNote(Member member, int page, int limit) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
         List<TravelNote> travelNoteList = travelNoteRepository.findByMember(member, limit * (page - 1), limit);
 
         List<MyTravelNoteDto> result = new ArrayList<>();
