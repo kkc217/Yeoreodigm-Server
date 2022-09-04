@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+import static com.yeoreodigm.server.dto.constraint.MemberConst.DEFAULT_PROFILE_IMAGE_URL;
+
 @Entity
 @Getter
 @AllArgsConstructor
@@ -65,7 +67,7 @@ public class Member implements Serializable {
 
         this.joinDate = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         this.introduction = "소개를 입력해주세요.";
-        this.profileImage = "defaultImage";
+        this.profileImage = DEFAULT_PROFILE_IMAGE_URL;
         this.authority = Authority.ROLE_NOT_PERMITTED;
     }
 
