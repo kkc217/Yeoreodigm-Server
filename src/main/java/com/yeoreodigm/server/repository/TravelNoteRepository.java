@@ -25,6 +25,10 @@ public class TravelNoteRepository {
         em.persist(travelNote);
     }
 
+    public void flush() {
+        em.flush();
+    }
+
     public void saveAndFlush(TravelNote travelNote) {
         save(travelNote);
         em.flush();
@@ -77,4 +81,12 @@ public class TravelNoteRepository {
                 .limit(limit)
                 .fetch();
     }
+
+    public List<TravelNote> findAllByMember(Member member) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.member.id.eq(member.getId()))
+                .fetch();
+    }
+
 }

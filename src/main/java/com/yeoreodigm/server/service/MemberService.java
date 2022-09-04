@@ -30,6 +30,8 @@ public class MemberService {
 
     private final SurveyRepository surveyRepository;
 
+    private final TravelNoteService travelNoteService;
+
     private final PasswordEncoder passwordEncoder;
 
     private final EmailService emailService;
@@ -159,4 +161,13 @@ public class MemberService {
         memberRepository.merge(member);
         memberRepository.flush();
     }
+
+    @Transactional
+    public void deleteMember(Member member) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다");
+
+        travelNoteService.resetTitle(member);
+        memberRepository.deleteMember(member);
+    }
+
 }
