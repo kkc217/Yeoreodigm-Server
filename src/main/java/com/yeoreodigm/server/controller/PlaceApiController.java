@@ -11,10 +11,12 @@ import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
+import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -24,18 +26,25 @@ public class PlaceApiController {
 
     private final PlaceService placeService;
 
-    @GetMapping("/like/list/{page}")
-    public PageResult<List<PlaceCoordinateDto>> callPlaceLikeList(
+    @GetMapping("/like/list/{page}/{limit}")
+    public PageResult<List<PlaceLikeDto>> callPlaceLikeList(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member,
-            @PathVariable("page") int page) {
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit) {
         List<PlaceLike> placeLikeList
-                = placeService.getPlaceLikesByMemberPaging(member, page, QueryConst.PLACE_LIKE_PAGING_LIMIT);
+                = placeService.getPlaceLikesByMemberPaging(member, page, limit);
 
         List<Places> placeList = placeService.getPlacesByPlaceLikes(placeLikeList);
 
-        int next = placeService.checkNextPlaceLikePage(member, page, QueryConst.PLACE_LIKE_PAGING_LIMIT);
+        int next = placeService.checkNextPlaceLikePage(member, page, limit);
 
-        return new PageResult<>(placeList.stream().map(PlaceCoordinateDto::new).toList(), next);
+        List<PlaceLikeDto> response = new ArrayList<>();
+        for (Places place : placeList) {
+            LikeItemDto likeInfo = placeService.getLikeInfo(place, member);
+            response.add(new PlaceLikeDto(place, likeInfo));
+        }
+
+        return new PageResult<>(response, next);
     }
 
     @GetMapping("/like/{placeId}")
