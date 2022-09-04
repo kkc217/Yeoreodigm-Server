@@ -23,6 +23,10 @@ public class MemberRepository {
         em.persist(member);
     }
 
+    public void flush() {
+        em.flush();
+    }
+
     public void saveAndFlush(Member member) {
         save(member);
         em.flush();
