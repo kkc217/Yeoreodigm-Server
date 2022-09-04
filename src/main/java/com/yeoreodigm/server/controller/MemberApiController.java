@@ -129,10 +129,24 @@ public class MemberApiController {
         }
     }
 
+    @PostMapping("/password")
+    public void checkPassword(
+            @RequestBody HashMap<String, String> request,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        memberService.checkPassword(request.get("password"), member);
+    }
+
     @PutMapping("/password")
     public void passwordReset(
             @RequestBody HashMap<String, String> request) {
         memberService.resetPassword(request.get("email"));
+    }
+
+    @PatchMapping("/password")
+    public void changePassword(
+            @RequestBody HashMap<String, String> request,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        memberService.changePassword(request.get("password"), member);
     }
 
     @GetMapping("/profile")
