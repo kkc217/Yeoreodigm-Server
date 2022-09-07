@@ -48,6 +48,16 @@ public class MemberService {
         }
     }
 
+    public Member getMemberById(Long memberId) {
+        Member member = memberRepository.findById(memberId);
+
+        if (member != null) {
+            return member;
+        } else {
+            throw new BadRequestException("일치하는 회원 정보가 없습니다.");
+        }
+    }
+
     @Transactional
     public void join(MemberJoinRequestDto memberJoinRequestDto) {
         //중복 검사
