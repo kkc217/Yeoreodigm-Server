@@ -6,11 +6,11 @@ import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
-import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
+import com.yeoreodigm.server.dto.place.PlaceIdDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.service.PlaceService;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +66,14 @@ public class PlaceApiController {
         return new Result<>(placeService.getPopularPlaces(MainPageConst.NUMBER_OF_POPULAR_PLACES)
                 .stream()
                 .map(PlaceCoordinateDto::new)
+                .toList());
+    }
+
+    @GetMapping("/all")
+    public Result<List<PlaceIdDto>> callAllPlaces() {
+        return new Result<>(placeService.getAll()
+                .stream()
+                .map(place -> new PlaceIdDto(place.getId()))
                 .toList());
     }
 

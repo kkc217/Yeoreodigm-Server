@@ -35,6 +35,10 @@ public class PlaceService {
 
     private final static int RANDOM_PAGING = 1000;
 
+    public List<Places> getAll() {
+        return placesRepository.findAll();
+    }
+
     public Places getPlaceById(Long placeId) {
         Places place = placesRepository.findByPlaceId(placeId);
 
