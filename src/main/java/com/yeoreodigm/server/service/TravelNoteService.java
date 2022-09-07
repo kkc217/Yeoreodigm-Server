@@ -88,6 +88,8 @@ public class TravelNoteService {
         if (recommendedCourseList != null) {
             courseService.saveNewCoursesByRecommend(travelNote, recommendedCourseList);
 
+            courseService.optimizeCourse(travelNote);
+
             return travelNote.getId();
         } else {
             throw new BadRequestException("코스 생성 중 에러가 발생하였습니다.");
