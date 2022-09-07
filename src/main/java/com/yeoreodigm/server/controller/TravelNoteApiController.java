@@ -192,4 +192,16 @@ public class TravelNoteApiController {
                 travelNoteService.checkNextMyTravelNote(member, page, limit));
     }
 
+    @GetMapping("/my/public/{memberId}/{page}/{limit}")
+    public PageResult<List<MyTravelNoteDto>> callMyPublicTravelNotes(
+            @PathVariable("memberId") Long memberId,
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit) {
+        Member member = memberService.getMemberById(memberId);
+
+        return new PageResult<>(
+                travelNoteService.getPublicMyNotes(member, page, limit),
+                travelNoteService.checkNextPublicMyNote(member, page, limit));
+    }
+
 }

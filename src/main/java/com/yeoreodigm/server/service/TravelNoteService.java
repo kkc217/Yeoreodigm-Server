@@ -413,4 +413,21 @@ public class TravelNoteService {
                 .map(travelNoteLike -> this.getTravelNoteById(travelNoteLike.getTravelNoteId()))
                 .toList();
     }
+
+    public List<MyTravelNoteDto> getPublicMyNotes(Member member, int page, int limit) {
+        List<TravelNote> travelNoteList
+                = travelNoteRepository.findPublicByMember(member, limit * (page - 1), limit);
+
+        List<MyTravelNoteDto> result = new ArrayList<>();
+
+        for (TravelNote travelNote : travelNoteList) {
+            result.add(new MyTravelNoteDto(travelNote, getPeriod(travelNote)));
+        }
+        return result;
+    }
+
+    public int checkNextPublicMyNote(Member member, int page, int limit) {
+        return getPublicMyNotes(member, page + 1, limit).size() > 0 ? page + 1 : 0;
+    }
+
 }

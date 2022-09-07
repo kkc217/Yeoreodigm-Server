@@ -56,18 +56,30 @@ public class TravelNoteRepository {
         }
     }
 
-    public List<TravelNote> findByPublicLimiting(int limit) {
+    public List<TravelNote> findPublicLimiting(int limit) {
         return queryFactory
                 .selectFrom(travelNote)
                 .where(travelNote.publicShare.eq(true))
+                .orderBy(travelNote.id.asc())
                 .limit(limit)
                 .fetch();
     }
 
-    public List<TravelNote> findByPublicPagingAndLimiting(int page, int limit) {
+    public List<TravelNote> findPublicPagingAndLimiting(int page, int limit) {
         return queryFactory
                 .selectFrom(travelNote)
                 .where(travelNote.publicShare.eq(true))
+                .orderBy(travelNote.id.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByMember(Member member, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.member.id.eq(member.getId()), travelNote.publicShare.eq(true))
+                .orderBy(travelNote.id.asc())
                 .offset(page)
                 .limit(limit)
                 .fetch();

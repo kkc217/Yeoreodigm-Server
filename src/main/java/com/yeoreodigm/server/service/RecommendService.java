@@ -176,7 +176,7 @@ public class RecommendService {
 
     public List<TravelNote> getRandomNotes(int limit) {
         int page = (int) (Math.random() * RANDOM_PAGING);
-        return travelNoteRepository.findByPublicPagingAndLimiting(page, limit);
+        return travelNoteRepository.findPublicPagingAndLimiting(page, limit);
 //        List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(RANDOM_PAGING);
 //
 //        int index = (int) (Math.random() * travelNoteList.size());
