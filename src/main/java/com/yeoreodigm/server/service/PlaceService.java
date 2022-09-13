@@ -83,9 +83,8 @@ public class PlaceService {
         RouteInfo routeInfo = routeInfoRepository.findRouteInfoByPlaceIds(start, goal);
         if (routeInfo != null) {
             return routeInfo;
-        } else {
-            return routeInfoService.updateRouteInfo(start, goal);
         }
+       return routeInfoService.updateRouteInfo(start, goal);
     }
 
     public List<Places> getPopularPlaces(int limit) {

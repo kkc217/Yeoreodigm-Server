@@ -43,6 +43,10 @@ public class TravelNoteService {
 
     private final PlaceService placeService;
 
+    public List<TravelNote> getAll() {
+        return travelNoteRepository.findAll();
+    }
+
     public TravelNote getTravelNoteById(Long travelNoteId) {
         TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
         if (travelNote != null) {

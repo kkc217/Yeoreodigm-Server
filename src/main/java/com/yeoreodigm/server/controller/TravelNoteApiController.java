@@ -11,6 +11,7 @@ import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.member.MemberItemDto;
+import com.yeoreodigm.server.dto.place.PlaceStringIdDto;
 import com.yeoreodigm.server.dto.travelnote.*;
 import com.yeoreodigm.server.service.CourseCommentService;
 import com.yeoreodigm.server.service.MemberService;
@@ -202,6 +203,14 @@ public class TravelNoteApiController {
         return new PageResult<>(
                 travelNoteService.getPublicMyNotes(member, page, limit),
                 travelNoteService.checkNextPublicMyNote(member, page, limit));
+    }
+
+    @GetMapping("/all")
+    public Result<List<TravelNoteStringIdDto>> callAllTravelNoteId() {
+        return new Result<>(travelNoteService.getAll()
+                .stream()
+                .map(TravelNoteStringIdDto::new)
+                .toList());
     }
 
 }

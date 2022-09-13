@@ -34,6 +34,13 @@ public class TravelNoteRepository {
         em.flush();
     }
 
+    public List<TravelNote> findAll() {
+        return queryFactory
+                .selectFrom(travelNote)
+                .orderBy(travelNote.id.asc())
+                .fetch();
+    }
+
     public TravelNote findById(Long id) {
         try {
             return queryFactory

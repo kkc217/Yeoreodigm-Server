@@ -10,7 +10,7 @@ import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
-import com.yeoreodigm.server.dto.place.PlaceIdDto;
+import com.yeoreodigm.server.dto.place.PlaceStringIdDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.service.PlaceService;
 import lombok.RequiredArgsConstructor;
@@ -70,10 +70,10 @@ public class PlaceApiController {
     }
 
     @GetMapping("/all")
-    public Result<List<PlaceIdDto>> callAllPlaces() {
+    public Result<List<PlaceStringIdDto>> callAllPlaceId() {
         return new Result<>(placeService.getAll()
                 .stream()
-                .map(place -> new PlaceIdDto(place.getId()))
+                .map(PlaceStringIdDto::new)
                 .toList());
     }
 
