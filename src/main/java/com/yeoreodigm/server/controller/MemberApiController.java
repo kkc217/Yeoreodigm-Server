@@ -173,6 +173,12 @@ public class MemberApiController {
         memberService.changeProfileImage(member, multipartFile);
     }
 
+    @DeleteMapping("/profile/image")
+    public void deleteProfileImage(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        memberService.deleteProfileImage(member);
+    }
+
     @DeleteMapping("")
     public void deleteMember(
             HttpServletRequest httpServletRequest) {

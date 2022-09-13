@@ -5,6 +5,7 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
 import com.yeoreodigm.server.dto.constraint.AWSConst;
 import com.yeoreodigm.server.dto.constraint.EmailConst;
+import com.yeoreodigm.server.dto.constraint.MemberConst;
 import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -184,6 +185,15 @@ public class MemberService {
                 = awsS3Service.uploadFile(AWSConst.AWS_S3_PROFILE_URI, member.getId().toString(), multipartFile);
 
         member.changeProfileImage(newProfileImageUrl);
+        memberRepository.merge(member);
+        memberRepository.flush();
+    }
+
+    @Transactional
+    public void deleteProfileImage(Member member) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        member.changeProfileImage(MemberConst.DEFAULT_PROFILE_IMAGE_URL);
         memberRepository.merge(member);
         memberRepository.flush();
     }
