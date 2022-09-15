@@ -42,6 +42,14 @@ public class NoteCommentRepository {
                 .fetch();
     }
 
+    public Long countByTravelNoteId(Long travelNoteId) {
+        return queryFactory
+                .select(noteComment.count())
+                .from(noteComment)
+                .where(noteComment.travelNoteId.eq(travelNoteId))
+                .fetchOne();
+    }
+
     public void deleteById(Long commentId) {
         queryFactory
                 .delete(noteComment)

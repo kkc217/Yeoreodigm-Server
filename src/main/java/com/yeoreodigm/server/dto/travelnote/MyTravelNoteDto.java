@@ -9,6 +9,8 @@ import java.time.LocalDate;
 @Data
 public class MyTravelNoteDto {
 
+    private Long travelNoteId;
+
     private String title;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
@@ -16,7 +18,6 @@ public class MyTravelNoteDto {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate dayEnd;
-
 
     private String period;
 
@@ -29,6 +30,7 @@ public class MyTravelNoteDto {
     private String thumbnail;
 
     public MyTravelNoteDto(TravelNote travelNote, String period) {
+        this.travelNoteId = travelNote.getId();
         this.title = travelNote.getTitle();
         this.dayStart = travelNote.getDayStart();
         this.dayEnd = travelNote.getDayEnd();

@@ -2,10 +2,7 @@ package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
-import com.yeoreodigm.server.dto.travelnote.MyTravelNoteDto;
-import com.yeoreodigm.server.dto.travelnote.NewTravelNoteRequestDto;
-import com.yeoreodigm.server.dto.travelnote.TravelNoteDetailInfo;
-import com.yeoreodigm.server.dto.travelnote.TravelNoteLikeDto;
+import com.yeoreodigm.server.dto.travelnote.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +29,8 @@ public class TravelNoteService {
     private final TravelNoteLikeRepository travelNoteLikeRepository;
 
     private final TravelNoteLogRepository travelNoteLogRepository;
+
+    private final NoteCommentRepository noteCommentRepository;
 
     private final CourseRepository courseRepository;
 
@@ -420,20 +419,30 @@ public class TravelNoteService {
                 .toList();
     }
 
-    public List<MyTravelNoteDto> getPublicMyNotes(Member member, int page, int limit) {
+    public List<PublicTravelNoteDto> getMyPublicNotes(Member member, int page, int limit) {
         List<TravelNote> travelNoteList
                 = travelNoteRepository.findPublicByMember(member, limit * (page - 1), limit);
 
-        List<MyTravelNoteDto> result = new ArrayList<>();
+        List<PublicTravelNoteDto> result = new ArrayList<>();
 
         for (TravelNote travelNote : travelNoteList) {
-            result.add(new MyTravelNoteDto(travelNote, getPeriod(travelNote)));
+            long placeCount = 0L;
+            for (Course course : travelNote.getCourses()) {
+                placeCount += course.getPlaces().size();
+            }
+
+            result.add(new PublicTravelNoteDto(
+                    travelNote,
+                    getPeriod(travelNote),
+                    getLikeInfo(travelNote, member),
+                    placeCount,
+                    noteCommentRepository.countByTravelNoteId(travelNote.getId())));
         }
         return result;
     }
 
     public int checkNextPublicMyNote(Member member, int page, int limit) {
-        return getPublicMyNotes(member, page + 1, limit).size() > 0 ? page + 1 : 0;
+        return getMyPublicNotes(member, page + 1, limit).size() > 0 ? page + 1 : 0;
     }
 
 }
