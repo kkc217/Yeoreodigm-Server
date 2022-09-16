@@ -423,22 +423,24 @@ public class TravelNoteService {
         List<TravelNote> travelNoteList
                 = travelNoteRepository.findPublicByMember(member, limit * (page - 1), limit);
 
-        List<PublicTravelNoteDto> result = new ArrayList<>();
+        return travelNoteList
+                .stream()
+                .map(travelNote -> getPublicTravelNoteDto(travelNote, member))
+                .toList();
+    }
 
-        for (TravelNote travelNote : travelNoteList) {
-            long placeCount = 0L;
-            for (Course course : travelNote.getCourses()) {
-                placeCount += course.getPlaces().size();
-            }
-
-            result.add(new PublicTravelNoteDto(
-                    travelNote,
-                    getPeriod(travelNote),
-                    getLikeInfo(travelNote, member),
-                    placeCount,
-                    noteCommentRepository.countByTravelNoteId(travelNote.getId())));
+    public PublicTravelNoteDto getPublicTravelNoteDto(TravelNote travelNote, Member member) {
+        long placeCount = 0L;
+        for (Course course : travelNote.getCourses()) {
+            placeCount += course.getPlaces().size();
         }
-        return result;
+
+        return new PublicTravelNoteDto(
+                travelNote,
+                getPeriod(travelNote),
+                getLikeInfo(travelNote, member),
+                placeCount,
+                noteCommentRepository.countByTravelNoteId(travelNote.getId()));
     }
 
     public int checkNextPublicMyNote(Member member, int page, int limit) {

@@ -164,7 +164,7 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/like/list/{page}/{limit}")
-    public PageResult<List<TravelNoteLikeDto>> callTravelNoteLikeList(
+    public PageResult<List<PublicTravelNoteDto>> callTravelNoteLikeList(
             @PathVariable("page") int page,
             @PathVariable("limit") int limit,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
@@ -174,12 +174,12 @@ public class TravelNoteApiController {
 
         int next = travelNoteService.checkNextNoteLikePage(member, page, limit);
 
-        List<TravelNoteLikeDto> response = new ArrayList<>();
-        for (TravelNote travelNote : travelNoteList) {
-            response.add(new TravelNoteLikeDto(travelNote, travelNoteService.getLikeInfo(travelNote, member)));
-        }
-
-        return new PageResult<>(response, next);
+        return new PageResult<>(
+                travelNoteList
+                        .stream()
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                        .toList(),
+                next);
     }
 
     @GetMapping("/my/{page}/{limit}")
