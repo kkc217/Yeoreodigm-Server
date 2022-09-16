@@ -27,6 +27,8 @@ public class CourseItemDto {
                                 countStart + index,
                                 place.getId(),
                                 place.getTitle(),
+                                place.getLatitude(),
+                                place.getLongitude(),
                                 place.getImageUrl(),
                                 place.getAddress(),
                                 false));
@@ -36,6 +38,8 @@ public class CourseItemDto {
                                 countStart + index,
                                 place.getId(),
                                 place.getTitle(),
+                                place.getLatitude(),
+                                place.getLongitude(),
                                 place.getImageUrl(),
                                 place.getAddress(),
                                 true));
@@ -52,6 +56,10 @@ public class CourseItemDto {
         private Long placeId;
 
         private String title;
+
+        private double latitude;
+
+        private double longitude;
 
         private String imageUrl;
 
