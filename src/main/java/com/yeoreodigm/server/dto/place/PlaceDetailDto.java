@@ -1,7 +1,13 @@
 package com.yeoreodigm.server.dto.place;
 
 import com.yeoreodigm.server.domain.Places;
+import com.yeoreodigm.server.dto.constraint.PlaceConst;
 import lombok.Data;
+
+import java.util.Objects;
+
+import static com.yeoreodigm.server.dto.constraint.PlaceConst.NUMBER_OF_CHILDREN;
+import static com.yeoreodigm.server.dto.constraint.PlaceConst.NUMBER_OF_PET;
 
 @Data
 public class PlaceDetailDto {
@@ -22,6 +28,10 @@ public class PlaceDetailDto {
 
     private double longitude;
 
+    private boolean child;
+
+    private boolean animal;
+
     public PlaceDetailDto(Places place) {
         this.placeId = place.getId();
         this.title = place.getTitle();
@@ -31,6 +41,8 @@ public class PlaceDetailDto {
         this.imageUrl = place.getImageUrl();
         this.latitude = place.getLatitude();
         this.longitude = place.getLongitude();
+        this.child = Objects.equals(place.getChildren(), NUMBER_OF_CHILDREN);
+        this.animal = Objects.equals(place.getPet(), NUMBER_OF_PET);
     }
 
 }

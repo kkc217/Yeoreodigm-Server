@@ -1,12 +1,17 @@
 package com.yeoreodigm.server.dto.course;
 
 import com.yeoreodigm.server.domain.Places;
+import com.yeoreodigm.server.dto.constraint.PlaceConst;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static com.yeoreodigm.server.dto.constraint.PlaceConst.NUMBER_OF_CHILDREN;
+import static com.yeoreodigm.server.dto.constraint.PlaceConst.NUMBER_OF_PET;
 
 @Data
 public class CourseItemDto {
@@ -31,6 +36,8 @@ public class CourseItemDto {
                                 place.getLongitude(),
                                 place.getImageUrl(),
                                 place.getAddress(),
+                                Objects.equals(place.getChildren(), NUMBER_OF_CHILDREN),
+                                Objects.equals(place.getPet(), NUMBER_OF_PET),
                                 false));
             } else {
                 this.places.add(
@@ -42,6 +49,8 @@ public class CourseItemDto {
                                 place.getLongitude(),
                                 place.getImageUrl(),
                                 place.getAddress(),
+                                Objects.equals(place.getChildren(), NUMBER_OF_CHILDREN),
+                                Objects.equals(place.getPet(), NUMBER_OF_PET),
                                 true));
             }
         }
@@ -64,6 +73,10 @@ public class CourseItemDto {
         private String imageUrl;
 
         private String address;
+
+        private boolean child;
+
+        private boolean animal;
 
         private boolean hasNext;
 
