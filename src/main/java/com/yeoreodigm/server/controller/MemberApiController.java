@@ -159,6 +159,12 @@ public class MemberApiController {
         }
     }
 
+    @GetMapping("/profile/{memberId}")
+    public ProfileDto callMemberProfileInfo(
+            @PathVariable("memberId") Long memberId) {
+        return new ProfileDto(memberService.getMemberById(memberId));
+    }
+
     @PatchMapping("/profile/introduction")
     public void changeIntroduction(
             @RequestBody HashMap<String, String> request,

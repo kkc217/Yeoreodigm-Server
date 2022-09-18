@@ -128,7 +128,7 @@ public class PlaceService {
         if (member == null) return new ArrayList<>();
 
         return placeLikeRepository
-                .findByMemberPaging(member, limit * (page - 1), limit);
+                .findByMemberIdPaging(member.getId(), limit * (page - 1), limit);
     }
 
     public int checkNextPlaceLikePage(Member member, int page, int limit) {
