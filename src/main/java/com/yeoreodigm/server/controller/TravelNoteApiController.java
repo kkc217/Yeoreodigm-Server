@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -182,6 +181,28 @@ public class TravelNoteApiController {
                 next);
     }
 
+    @GetMapping("/like/list/{memberId}/{page}/{limit}")
+    public PageResult<List<PublicTravelNoteDto>> callMemberTravelNoteLikeList(
+            @PathVariable("memberId") Long memberId,
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        Member targetMember = memberService.getMemberById(memberId);
+
+        List<TravelNoteLike> noteLikeList = travelNoteService.getNoteLikes(targetMember, page, limit);
+
+        List<TravelNote> travelNoteList = travelNoteService.getNotesByNoteLikes(noteLikeList);
+
+        int next = travelNoteService.checkNextNoteLikePage(targetMember, page, limit);
+
+        return new PageResult<>(
+                travelNoteList
+                        .stream()
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                        .toList(),
+                next);
+    }
+
     @GetMapping("/my/{page}/{limit}")
     public PageResult<List<MyTravelNoteDto>> callMyTravelNotes(
             @PathVariable("page") int page,
@@ -192,16 +213,22 @@ public class TravelNoteApiController {
                 travelNoteService.checkNextMyTravelNote(member, page, limit));
     }
 
-    @GetMapping("/my/public/{memberId}/{page}/{limit}")
+    @GetMapping("/public/{memberId}/{page}/{limit}")
     public PageResult<List<PublicTravelNoteDto>> callMyPublicTravelNotes(
             @PathVariable("memberId") Long memberId,
             @PathVariable("page") int page,
-            @PathVariable("limit") int limit) {
-        Member member = memberService.getMemberById(memberId);
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        Member targetMember = memberService.getMemberById(memberId);
+
+        List<TravelNote> travelNoteList = travelNoteService.getPublicNotes(targetMember, page, limit);
 
         return new PageResult<>(
-                travelNoteService.getMyPublicNotes(member, page, limit),
-                travelNoteService.checkNextPublicMyNote(member, page, limit));
+                travelNoteList
+                        .stream()
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                        .toList(),
+                travelNoteService.checkNextPublicMyNote(targetMember, page, limit));
     }
 
     @GetMapping("/all")

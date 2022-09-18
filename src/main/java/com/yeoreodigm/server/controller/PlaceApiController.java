@@ -12,6 +12,7 @@ import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceStringIdDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
+import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,8 @@ public class PlaceApiController {
 
     private final PlaceService placeService;
 
+    private final MemberService memberService;
+
     @GetMapping("/like/list/{page}/{limit}")
     public PageResult<List<PlaceLikeDto>> callPlaceLikeList(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member,
@@ -37,6 +40,30 @@ public class PlaceApiController {
         List<Places> placeList = placeService.getPlacesByPlaceLikes(placeLikeList);
 
         int next = placeService.checkNextPlaceLikePage(member, page, limit);
+
+        List<PlaceLikeDto> response = new ArrayList<>();
+        for (Places place : placeList) {
+            LikeItemDto likeInfo = placeService.getLikeInfo(place, member);
+            response.add(new PlaceLikeDto(place, likeInfo));
+        }
+
+        return new PageResult<>(response, next);
+    }
+
+    @GetMapping("/like/list/{memberId}/{page}/{limit}")
+    public PageResult<List<PlaceLikeDto>> callMemberPlaceLikeList(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member,
+            @PathVariable("memberId") Long memberId,
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit) {
+        Member targetMember = memberService.getMemberById(memberId);
+
+        List<PlaceLike> placeLikeList
+                = placeService.getPlaceLikesByMemberPaging(targetMember, page, limit);
+
+        List<Places> placeList = placeService.getPlacesByPlaceLikes(placeLikeList);
+
+        int next = placeService.checkNextPlaceLikePage(targetMember, page, limit);
 
         List<PlaceLikeDto> response = new ArrayList<>();
         for (Places place : placeList) {

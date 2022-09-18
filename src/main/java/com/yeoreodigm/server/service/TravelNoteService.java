@@ -419,14 +419,8 @@ public class TravelNoteService {
                 .toList();
     }
 
-    public List<PublicTravelNoteDto> getMyPublicNotes(Member member, int page, int limit) {
-        List<TravelNote> travelNoteList
-                = travelNoteRepository.findPublicByMember(member, limit * (page - 1), limit);
-
-        return travelNoteList
-                .stream()
-                .map(travelNote -> getPublicTravelNoteDto(travelNote, member))
-                .toList();
+    public List<TravelNote> getPublicNotes(Member member, int page, int limit) {
+        return travelNoteRepository.findPublicByMember(member, limit * (page - 1), limit);
     }
 
     public PublicTravelNoteDto getPublicTravelNoteDto(TravelNote travelNote, Member member) {
@@ -444,7 +438,7 @@ public class TravelNoteService {
     }
 
     public int checkNextPublicMyNote(Member member, int page, int limit) {
-        return getMyPublicNotes(member, page + 1, limit).size() > 0 ? page + 1 : 0;
+        return getPublicNotes(member, page + 1, limit).size() > 0 ? page + 1 : 0;
     }
 
 }
