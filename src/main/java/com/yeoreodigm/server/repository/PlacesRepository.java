@@ -20,6 +20,12 @@ public class PlacesRepository {
 
     private final JPAQueryFactory queryFactory;
 
+    public List<Places> findAll() {
+        return queryFactory
+                .selectFrom(places)
+                .orderBy(places.id.asc())
+                .fetch();
+    }
     public Places findByPlaceId(Long placeId) {
         try {
             return queryFactory

@@ -96,10 +96,11 @@ public class RouteInfoService {
         }
     }
 
-    public List<RouteData> getRouteData(List<RouteInfo> routeInfoList) {
+    public List<RouteData> getRouteData(List<RouteInfo> routeInfoList, List<String> routeSearchUrlList) {
         List<RouteData> result = new ArrayList<>();
 
-        for (RouteInfo routeInfo : routeInfoList) {
+        for (int i = 0; i < routeInfoList.size(); i++) {
+            RouteInfo routeInfo = routeInfoList.get(i);
             int distanceInt = routeInfo.getDistance();
             String distance;
             if (distanceInt < 1000) {
@@ -129,7 +130,7 @@ public class RouteInfoService {
                     walk = (walkInt / 60) + "시간 " + (walkInt % 60) + "분";
                 }
             }
-            result.add(new RouteData(distance, car, walk));
+            result.add(new RouteData(distance, car, walk, routeSearchUrlList.get(i)));
         }
 
         return result;

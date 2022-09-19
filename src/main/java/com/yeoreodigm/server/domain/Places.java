@@ -40,4 +40,8 @@ public class Places {
 
     private String tag;
 
+    private short children;
+
+    private short pet;
+
 }

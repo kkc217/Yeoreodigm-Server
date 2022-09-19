@@ -3,7 +3,9 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
+import com.yeoreodigm.server.dto.constraint.AWSConst;
 import com.yeoreodigm.server.dto.constraint.EmailConst;
+import com.yeoreodigm.server.dto.constraint.MemberConst;
 import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -28,12 +31,26 @@ public class MemberService {
 
     private final SurveyRepository surveyRepository;
 
+    private final TravelNoteService travelNoteService;
+
     private final PasswordEncoder passwordEncoder;
 
     private final EmailService emailService;
 
+    private final AwsS3Service awsS3Service;
+
     public Member getMemberByEmail(String email) {
         Member member = memberRepository.findByEmail(email);
+
+        if (member != null) {
+            return member;
+        } else {
+            throw new BadRequestException("일치하는 회원 정보가 없습니다.");
+        }
+    }
+
+    public Member getMemberById(Long memberId) {
+        Member member = memberRepository.findById(memberId);
 
         if (member != null) {
             return member;
@@ -124,6 +141,22 @@ public class MemberService {
         return passwordEncoder.encode(password);
     }
 
+    public void checkPassword(String password, Member member) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        if (!passwordEncoder.matches(password, member.getPassword()))
+            throw new BadRequestException("비밀번호가 일치하지 않습니다.");
+    }
+
+    @Transactional
+    public void changePassword(String password, Member member) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        member.changePassword(encodePassword(password));
+        memberRepository.merge(member);
+        memberRepository.flush();
+    }
+
     public Member searchMember(String content) {
         Member member = Pattern.matches(EmailConst.EMAIL_PATTERN, content) ?
                 memberRepository.findByEmail(content) :
@@ -135,10 +168,53 @@ public class MemberService {
         }
     }
 
+    @Transactional
     public void changeIntroduction(Member member, String newIntroduction) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
 
         member.changeIntroduction(newIntroduction);
         memberRepository.merge(member);
+        memberRepository.flush();
     }
+
+    @Transactional
+    public void changeProfileImage(Member member, MultipartFile multipartFile) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        String newProfileImageUrl
+                = awsS3Service.uploadFile(AWSConst.AWS_S3_PROFILE_URI, member.getId().toString(), multipartFile);
+
+        member.changeProfileImage(newProfileImageUrl);
+        memberRepository.merge(member);
+        memberRepository.flush();
+    }
+
+    @Transactional
+    public void deleteProfileImage(Member member) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        member.changeProfileImage(MemberConst.DEFAULT_PROFILE_IMAGE_URL);
+        memberRepository.merge(member);
+        memberRepository.flush();
+    }
+
+    @Transactional
+    public void deleteMember(Member member) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다");
+
+        travelNoteService.resetTitle(member);
+        memberRepository.deleteMember(member);
+    }
+
+    @Transactional
+    public void changeNickname(Member member, String nickname) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        checkDuplicateNickname(nickname);
+
+        member.changeNickname(nickname);
+        memberRepository.merge(member);
+        memberRepository.flush();
+    }
+
 }

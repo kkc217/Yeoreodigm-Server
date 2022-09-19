@@ -10,6 +10,7 @@ import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -91,6 +92,13 @@ public class MemberApiController {
         memberService.checkDuplicateNickname(request.get("nickname"));
     }
 
+    @PatchMapping("/nickname")
+    public void changeNickname(
+            @RequestBody HashMap<String, String> request,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        memberService.changeNickname(member, request.get("nickname"));
+    }
+
     @PostMapping("/auth")
     public void submitAuth(
             @RequestBody HashMap<String, String> request,
@@ -121,10 +129,24 @@ public class MemberApiController {
         }
     }
 
+    @PostMapping("/password")
+    public void checkPassword(
+            @RequestBody HashMap<String, String> request,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        memberService.checkPassword(request.get("password"), member);
+    }
+
     @PutMapping("/password")
     public void passwordReset(
             @RequestBody HashMap<String, String> request) {
         memberService.resetPassword(request.get("email"));
+    }
+
+    @PatchMapping("/password")
+    public void changePassword(
+            @RequestBody HashMap<String, String> request,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        memberService.changePassword(request.get("password"), member);
     }
 
     @GetMapping("/profile")
@@ -137,11 +159,44 @@ public class MemberApiController {
         }
     }
 
+    @GetMapping("/profile/{memberId}")
+    public ProfileDto callMemberProfileInfo(
+            @PathVariable("memberId") Long memberId) {
+        return new ProfileDto(memberService.getMemberById(memberId));
+    }
+
     @PatchMapping("/profile/introduction")
     public void changeIntroduction(
             @RequestBody HashMap<String, String> request,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         memberService.changeIntroduction(member, request.get("introduction"));
+    }
+
+    @PatchMapping("/profile/image")
+    public void changeProfileImage(
+            @RequestPart(value = "file") MultipartFile multipartFile,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        memberService.changeProfileImage(member, multipartFile);
+    }
+
+    @DeleteMapping("/profile/image")
+    public void deleteProfileImage(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        memberService.deleteProfileImage(member);
+    }
+
+    @DeleteMapping("")
+    public void deleteMember(
+            HttpServletRequest httpServletRequest) {
+        HttpSession session = httpServletRequest.getSession(false);
+
+        if (session != null) {
+            Member member = (Member) session.getAttribute(SessionConst.LOGIN_MEMBER);
+            memberService.deleteMember(member);
+            session.invalidate();
+        } else {
+            throw new BadRequestException("로그인이 필요합니다.");
+        }
     }
 
 }

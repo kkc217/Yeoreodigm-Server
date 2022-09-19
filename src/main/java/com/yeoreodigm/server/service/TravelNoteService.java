@@ -2,9 +2,7 @@ package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
-import com.yeoreodigm.server.dto.travelnote.NewTravelNoteRequestDto;
-import com.yeoreodigm.server.dto.travelnote.TravelNoteDetailInfo;
-import com.yeoreodigm.server.dto.travelnote.TravelNoteItemDto;
+import com.yeoreodigm.server.dto.travelnote.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -33,6 +30,8 @@ public class TravelNoteService {
 
     private final TravelNoteLogRepository travelNoteLogRepository;
 
+    private final NoteCommentRepository noteCommentRepository;
+
     private final CourseRepository courseRepository;
 
     private final MemberRepository memberRepository;
@@ -42,6 +41,10 @@ public class TravelNoteService {
     private final CourseService courseService;
 
     private final PlaceService placeService;
+
+    public List<TravelNote> getAll() {
+        return travelNoteRepository.findAll();
+    }
 
     public TravelNote getTravelNoteById(Long travelNoteId) {
         TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
@@ -63,10 +66,7 @@ public class TravelNoteService {
             throw new BadRequestException("100일 이하의 일정만 생성 가능합니다.");
         }
 
-        String title = member.getNickname() +
-                "님의 " +
-                TITLE_LIST[(int) (Math.random() * TITLE_LIST.length)] +
-                " 제주여행";
+        String title = getMemberTitle(member);
 
         TravelNote travelNote = TravelNote.builder()
                 .id(getRandomId())
@@ -91,6 +91,8 @@ public class TravelNoteService {
         if (recommendedCourseList != null) {
             courseService.saveNewCoursesByRecommend(travelNote, recommendedCourseList);
 
+            courseService.optimizeCourse(travelNote);
+
             return travelNote.getId();
         } else {
             throw new BadRequestException("코스 생성 중 에러가 발생하였습니다.");
@@ -101,10 +103,7 @@ public class TravelNoteService {
     public Long createTravelNoteFromOther(TravelNote originTravelNote, Member member) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
 
-        String title = member.getNickname() +
-                "님의 " +
-                TITLE_LIST[(int) (Math.random() * TITLE_LIST.length)] +
-                " 제주여행";
+        String title = getMemberTitle(member);
 
         long between = ChronoUnit.DAYS.between(originTravelNote.getDayStart(), originTravelNote.getDayEnd());
         LocalDate dayStart = LocalDate.now(ZoneId.of("Asia/Seoul"));
@@ -143,6 +142,14 @@ public class TravelNoteService {
         }
 
         return travelNote.getId();
+    }
+
+    private String getMemberTitle(Member member) {
+        return member.getNickname() + "님의 " + getRandomTitle();
+    }
+
+    private String getRandomTitle() {
+        return TITLE_LIST[(int) (Math.random() * TITLE_LIST.length)] + " 제주여행";
     }
 
     private long getRandomId() {
@@ -260,7 +267,7 @@ public class TravelNoteService {
                 .toList();
     }
 
-    public List<TravelNoteItemDto> getWeekNotes(int limit, Member member) {
+    public List<TravelNoteLikeDto> getWeekNotes(int limit, Member member) {
         List<TravelNote> travelNoteList = travelNoteLogRepository
                 .findMostNoteIdLimiting(limit)
                 .stream()
@@ -270,10 +277,10 @@ public class TravelNoteService {
         return getTravelNoteItemList(travelNoteList, member);
     }
 
-    public List<TravelNoteItemDto> getTravelNoteItemList(List<TravelNote> travelNoteList, Member member) {
-        List<TravelNoteItemDto> result = new ArrayList<>();
+    public List<TravelNoteLikeDto> getTravelNoteItemList(List<TravelNote> travelNoteList, Member member) {
+        List<TravelNoteLikeDto> result = new ArrayList<>();
         for (TravelNote travelNote : travelNoteList) {
-            result.add(new TravelNoteItemDto(travelNote, getLikeInfo(travelNote, member)));
+            result.add(new TravelNoteLikeDto(travelNote, getLikeInfo(travelNote, member)));
         }
         return result;
     }
@@ -281,14 +288,14 @@ public class TravelNoteService {
     public TravelNoteDetailInfo getTravelNoteDetailInfo(TravelNote travelNote) {
         if (!travelNote.isPublicShare()) throw new BadRequestException("이 여행 메이킹 노트는 볼 수 없습니다.");
 
-        StringBuilder period = getPeriod(travelNote);
+        String period = getPeriod(travelNote);
 
         List<String> theme = getThemeFromComposition(travelNote);
         theme.addAll(travelNote.getTheme());
 
         return new TravelNoteDetailInfo(
                 travelNote.getTitle(),
-                period.toString(),
+                period,
                 travelNote.getRegion(),
                 theme,
                 travelNote.getThumbnail());
@@ -304,7 +311,7 @@ public class TravelNoteService {
         return theme;
     }
 
-    private StringBuilder getPeriod(TravelNote travelNote) {
+    private String getPeriod(TravelNote travelNote) {
         long between = ChronoUnit.DAYS.between(travelNote.getDayStart(), travelNote.getDayEnd());
 
         StringBuilder period = new StringBuilder();
@@ -317,7 +324,7 @@ public class TravelNoteService {
         } else {
             period.append(between).append("박 ").append(between + 1).append("일");
         }
-        return period;
+        return period.toString();
     }
 
     @Transactional
@@ -366,6 +373,72 @@ public class TravelNoteService {
         } else if (travelNoteLike != null) {
             travelNoteLikeRepository.deleteById(travelNoteLike.getId());
         }
+    }
+
+    public List<MyTravelNoteDto> getMyTravelNote(Member member, int page, int limit) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        List<TravelNote> travelNoteList = travelNoteRepository.findByMember(member, limit * (page - 1), limit);
+
+        List<MyTravelNoteDto> result = new ArrayList<>();
+
+        for (TravelNote travelNote : travelNoteList) {
+            result.add(new MyTravelNoteDto(travelNote, getPeriod(travelNote)));
+        }
+        return result;
+    }
+
+    public int checkNextMyTravelNote(Member member, int page, int limit) {
+        return travelNoteRepository.findByMember(member, page * limit, limit).size() > 0 ? page + 1 : 0;
+    }
+
+    public void resetTitle(Member member) {
+        List<TravelNote> travelNoteList = travelNoteRepository.findAllByMember(member);
+
+        for (TravelNote travelNote : travelNoteList) {
+            travelNote.changeTitle(getRandomTitle());
+        }
+
+        travelNoteRepository.flush();
+    }
+
+    public List<TravelNoteLike> getNoteLikes(Member member, int page, int limit) {
+        if (member == null) return new ArrayList<>();
+
+        return travelNoteLikeRepository
+                .findByMemberPaging(member, limit * (page - 1), limit);
+    }
+
+    public int checkNextNoteLikePage(Member member, int page, int limit) {
+        return getNoteLikes(member, page + 1, limit).size() > 0 ? page + 1 : 0;
+    }
+
+    public List<TravelNote> getNotesByNoteLikes(List<TravelNoteLike> noteLikeList) {
+        return noteLikeList
+                .stream()
+                .map(travelNoteLike -> this.getTravelNoteById(travelNoteLike.getTravelNoteId()))
+                .toList();
+    }
+
+    public List<TravelNote> getPublicNotes(Member member, int page, int limit) {
+        return travelNoteRepository.findPublicByMember(member, limit * (page - 1), limit);
+    }
+
+    public PublicTravelNoteDto getPublicTravelNoteDto(TravelNote travelNote, Member member) {
+        long placeCount = 0L;
+        for (Course course : travelNote.getCourses()) {
+            placeCount += course.getPlaces().size();
+        }
+
+        return new PublicTravelNoteDto(
+                travelNote,
+                getPeriod(travelNote),
+                getLikeInfo(travelNote, member),
+                placeCount,
+                noteCommentRepository.countByTravelNoteId(travelNote.getId()));
+    }
+
+    public int checkNextPublicMyNote(Member member, int page, int limit) {
+        return getPublicNotes(member, page + 1, limit).size() > 0 ? page + 1 : 0;
     }
 
 }

@@ -35,6 +35,10 @@ public class PlaceService {
 
     private final static int RANDOM_PAGING = 1000;
 
+    public List<Places> getAll() {
+        return placesRepository.findAll();
+    }
+
     public Places getPlaceById(Long placeId) {
         Places place = placesRepository.findByPlaceId(placeId);
 
@@ -79,9 +83,8 @@ public class PlaceService {
         RouteInfo routeInfo = routeInfoRepository.findRouteInfoByPlaceIds(start, goal);
         if (routeInfo != null) {
             return routeInfo;
-        } else {
-            return routeInfoService.updateRouteInfo(start, goal);
         }
+       return routeInfoService.updateRouteInfo(start, goal);
     }
 
     public List<Places> getPopularPlaces(int limit) {
@@ -125,7 +128,7 @@ public class PlaceService {
         if (member == null) return new ArrayList<>();
 
         return placeLikeRepository
-                .findByMemberPaging(member, limit * (page - 1), limit);
+                .findByMemberIdPaging(member.getId(), limit * (page - 1), limit);
     }
 
     public int checkNextPlaceLikePage(Member member, int page, int limit) {

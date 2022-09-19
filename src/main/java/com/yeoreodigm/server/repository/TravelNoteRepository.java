@@ -25,9 +25,20 @@ public class TravelNoteRepository {
         em.persist(travelNote);
     }
 
+    public void flush() {
+        em.flush();
+    }
+
     public void saveAndFlush(TravelNote travelNote) {
         save(travelNote);
         em.flush();
+    }
+
+    public List<TravelNote> findAll() {
+        return queryFactory
+                .selectFrom(travelNote)
+                .orderBy(travelNote.id.asc())
+                .fetch();
     }
 
     public TravelNote findById(Long id) {
@@ -52,20 +63,48 @@ public class TravelNoteRepository {
         }
     }
 
-    public List<TravelNote> findByPublicLimiting(int limit) {
+    public List<TravelNote> findPublicLimiting(int limit) {
         return queryFactory
                 .selectFrom(travelNote)
                 .where(travelNote.publicShare.eq(true))
+                .orderBy(travelNote.id.asc())
                 .limit(limit)
                 .fetch();
     }
 
-    public List<TravelNote> findByPublicPagingAndLimiting(int page, int limit) {
+    public List<TravelNote> findPublicPagingAndLimiting(int page, int limit) {
         return queryFactory
                 .selectFrom(travelNote)
                 .where(travelNote.publicShare.eq(true))
+                .orderBy(travelNote.id.asc())
                 .offset(page)
                 .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByMember(Member member, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.member.id.eq(member.getId()), travelNote.publicShare.eq(true))
+                .orderBy(travelNote.id.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findByMember(Member member, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.member.id.eq(member.getId()))
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findAllByMember(Member member) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.member.id.eq(member.getId()))
                 .fetch();
     }
 

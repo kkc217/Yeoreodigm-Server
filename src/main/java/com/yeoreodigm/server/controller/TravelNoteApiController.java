@@ -1,10 +1,8 @@
 package com.yeoreodigm.server.controller;
 
-import com.yeoreodigm.server.domain.CourseComment;
-import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.NoteAuthority;
-import com.yeoreodigm.server.domain.TravelNote;
+import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.ContentRequestDto;
+import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
 import com.yeoreodigm.server.dto.comment.CourseCommentRequestDto;
@@ -144,7 +142,7 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/week")
-    public Result<List<TravelNoteItemDto>> callWeekTravelNote(
+    public Result<List<TravelNoteLikeDto>> callWeekTravelNote(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new Result<>(travelNoteService.getWeekNotes(MainPageConst.NUMBER_OF_WEEK_NOTES, member));
     }
@@ -162,6 +160,83 @@ public class TravelNoteApiController {
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         travelNoteService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
+    }
+
+    @GetMapping("/like/list/{page}/{limit}")
+    public PageResult<List<PublicTravelNoteDto>> callTravelNoteLikeList(
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        List<TravelNoteLike> noteLikeList = travelNoteService.getNoteLikes(member, page, limit);
+
+        List<TravelNote> travelNoteList = travelNoteService.getNotesByNoteLikes(noteLikeList);
+
+        int next = travelNoteService.checkNextNoteLikePage(member, page, limit);
+
+        return new PageResult<>(
+                travelNoteList
+                        .stream()
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                        .toList(),
+                next);
+    }
+
+    @GetMapping("/like/list/{memberId}/{page}/{limit}")
+    public PageResult<List<PublicTravelNoteDto>> callMemberTravelNoteLikeList(
+            @PathVariable("memberId") Long memberId,
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        Member targetMember = memberService.getMemberById(memberId);
+
+        List<TravelNoteLike> noteLikeList = travelNoteService.getNoteLikes(targetMember, page, limit);
+
+        List<TravelNote> travelNoteList = travelNoteService.getNotesByNoteLikes(noteLikeList);
+
+        int next = travelNoteService.checkNextNoteLikePage(targetMember, page, limit);
+
+        return new PageResult<>(
+                travelNoteList
+                        .stream()
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                        .toList(),
+                next);
+    }
+
+    @GetMapping("/my/{page}/{limit}")
+    public PageResult<List<MyTravelNoteDto>> callMyTravelNotes(
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new PageResult<>(
+                travelNoteService.getMyTravelNote(member, page, limit),
+                travelNoteService.checkNextMyTravelNote(member, page, limit));
+    }
+
+    @GetMapping("/public/{memberId}/{page}/{limit}")
+    public PageResult<List<PublicTravelNoteDto>> callMyPublicTravelNotes(
+            @PathVariable("memberId") Long memberId,
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        Member targetMember = memberService.getMemberById(memberId);
+
+        List<TravelNote> travelNoteList = travelNoteService.getPublicNotes(targetMember, page, limit);
+
+        return new PageResult<>(
+                travelNoteList
+                        .stream()
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                        .toList(),
+                travelNoteService.checkNextPublicMyNote(targetMember, page, limit));
+    }
+
+    @GetMapping("/all")
+    public Result<List<TravelNoteStringIdDto>> callAllTravelNoteId() {
+        return new Result<>(travelNoteService.getAll()
+                .stream()
+                .map(TravelNoteStringIdDto::new)
+                .toList());
     }
 
 }

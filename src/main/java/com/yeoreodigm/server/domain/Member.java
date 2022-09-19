@@ -82,5 +82,13 @@ public class Member implements Serializable {
     public void changeIntroduction(String introduction) {
         this.introduction = introduction;
     }
+
+    public void changeProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }
 

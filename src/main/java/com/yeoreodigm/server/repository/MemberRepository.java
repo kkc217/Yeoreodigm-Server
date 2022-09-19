@@ -2,6 +2,7 @@ package com.yeoreodigm.server.repository;
 
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 
+import static com.yeoreodigm.server.domain.QCourse.course;
 import static com.yeoreodigm.server.domain.QMember.member;
 
 @Repository
@@ -21,6 +23,10 @@ public class MemberRepository {
 
     public void save(Member member) {
         em.persist(member);
+    }
+
+    public void flush() {
+        em.flush();
     }
 
     public void saveAndFlush(Member member) {
@@ -58,4 +64,10 @@ public class MemberRepository {
         }
     }
 
+    public void deleteMember(Member target) {
+        queryFactory
+                .delete(member)
+                .where(member.id.eq(target.getId()))
+                .execute();
+    }
 }

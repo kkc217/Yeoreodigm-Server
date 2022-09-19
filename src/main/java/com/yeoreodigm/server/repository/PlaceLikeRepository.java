@@ -35,10 +35,10 @@ public class PlaceLikeRepository {
                 .fetch();
     }
 
-    public List<PlaceLike> findByMemberPaging(Member member, int page, int limit) {
+    public List<PlaceLike> findByMemberIdPaging(Long memberId, int page, int limit) {
         return queryFactory
                 .selectFrom(placeLike)
-                .where(placeLike.memberId.eq(member.getId()))
+                .where(placeLike.memberId.eq(memberId))
                 .offset(page)
                 .limit(limit)
                 .fetch();

@@ -19,17 +19,11 @@ public class TravelNoteItemDto {
 
     private List<String> theme;
 
-    private boolean hasLiked;
-
-    private Long likeCount;
-
-    public TravelNoteItemDto(TravelNote travelNote, LikeItemDto likeItemDto) {
+    public TravelNoteItemDto(TravelNote travelNote) {
         this.travelNoteId = travelNote.getId();
         this.title = travelNote.getTitle();
         this.imageUrl = travelNote.getThumbnail();
         this.theme = travelNote.getTheme();
-        this.hasLiked = likeItemDto.isHasLiked();
-        this.likeCount = likeItemDto.getLikeCount();
     }
 
 }
