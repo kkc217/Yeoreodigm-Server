@@ -92,6 +92,16 @@ public class TravelNoteRepository {
                 .fetch();
     }
 
+    public List<TravelNote> findPublicByKeywordPaging(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.publicShare.eq(true), travelNote.title.contains(keyword))
+                .orderBy(travelNote.id.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
     public List<TravelNote> findByMember(Member member, int page, int limit) {
         return queryFactory
                 .selectFrom(travelNote)

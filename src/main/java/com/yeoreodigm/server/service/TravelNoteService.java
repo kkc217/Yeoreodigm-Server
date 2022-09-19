@@ -441,4 +441,13 @@ public class TravelNoteService {
         return getPublicNotes(member, page + 1, limit).size() > 0 ? page + 1 : 0;
     }
 
+    public List<TravelNote> searchTravelNote(String content, int page, int limit) {
+        return travelNoteRepository.findPublicByKeywordPaging(content, limit * (page - 1), limit);
+    }
+
+    public int checkNextSearchTravelNote(String content, int page, int limit) {
+        return travelNoteRepository.findPublicByKeywordPaging(
+                content, limit * page, limit).size() > 0 ? page + 1 : 0;
+    }
+
 }
