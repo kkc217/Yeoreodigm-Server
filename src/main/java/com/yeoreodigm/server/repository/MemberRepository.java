@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 
+import java.util.List;
+
 import static com.yeoreodigm.server.domain.QCourse.course;
 import static com.yeoreodigm.server.domain.QMember.member;
 
@@ -63,6 +65,17 @@ public class MemberRepository {
             throw new BadRequestException("일치하는 닉네임이 둘 이상입니다.");
         }
     }
+
+    public List<Member> findMembersByNickname(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(member)
+                .where(member.nickname.contains(keyword))
+                .orderBy(member.id.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
 
     public void deleteMember(Member target) {
         queryFactory

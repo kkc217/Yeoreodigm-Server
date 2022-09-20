@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -166,6 +167,14 @@ public class MemberService {
         } else {
             throw new BadRequestException("일치하는 사용자가 없습니다.");
         }
+    }
+
+    public List<Member> searchMembersByNickname(String content, int page, int limit) {
+        return memberRepository.findMembersByNickname(content, limit * (page - 1), limit);
+    }
+
+    public int checkNextSearchMembersByNickname(String content, int page, int limit) {
+        return searchMembersByNickname(content, page + 1, limit).size() > 0 ? page + 1 : 0;
     }
 
     @Transactional

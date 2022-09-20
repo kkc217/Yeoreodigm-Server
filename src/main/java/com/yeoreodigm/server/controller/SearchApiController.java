@@ -6,7 +6,6 @@ import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.member.MemberItemDto;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
@@ -19,11 +18,9 @@ import com.yeoreodigm.server.service.TravelNoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.yeoreodigm.server.dto.constraint.SearchConst.NUMBER_OF_RELATED_PLACES;
-import static com.yeoreodigm.server.dto.constraint.SearchConst.NUMBER_OF_RELATED_TRAVELNOTES;
+import static com.yeoreodigm.server.dto.constraint.SearchConst.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,6 +66,7 @@ public class SearchApiController {
         List<Places> placeList = placeService.searchPlaces(content, 1, NUMBER_OF_RELATED_PLACES);
         List<TravelNote> travelNoteList
                 = travelNoteService.searchTravelNote(content, 1, NUMBER_OF_RELATED_TRAVELNOTES);
+        List<Member> memberList = memberService.searchMembersByNickname(content, 1, NUMBER_OF_RELATED_MEMBERS);
 
         if (NUMBER_OF_RELATED_TRAVELNOTES > travelNoteList.size()) {
             placeList.addAll(
@@ -83,7 +81,7 @@ public class SearchApiController {
                             NUMBER_OF_RELATED_PLACES - placeList.size()));
         }
 
-        return new RelatedSearchDto(placeList, travelNoteList);
+        return new RelatedSearchDto(placeList, travelNoteList, memberList);
     }
 
     @GetMapping("/place/{content}/{page}/{limit}")
@@ -113,6 +111,20 @@ public class SearchApiController {
                         .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
                         .toList(),
                 travelNoteService.checkNextSearchTravelNote(content, page, limit));
+    }
+
+    @GetMapping("/member/{content}/{page}/{limit}")
+    public PageResult<List<MemberItemDto>> searchMembers(
+            @PathVariable("content") String content,
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new PageResult<>(
+                memberService.searchMembersByNickname(content, page, limit)
+                        .stream()
+                        .map(MemberItemDto::new)
+                        .toList(),
+                memberService.checkNextSearchMembersByNickname(content, page, limit));
     }
 
 }
