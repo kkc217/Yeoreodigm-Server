@@ -95,7 +95,7 @@ public class TravelNoteRepository {
     public List<TravelNote> findPublicByKeywordPaging(String keyword, int page, int limit) {
         return queryFactory
                 .selectFrom(travelNote)
-                .where(travelNote.publicShare.eq(true), travelNote.title.contains(keyword))
+                .where(travelNote.publicShare.eq(true), travelNote.title.lower().contains(keyword.toLowerCase()))
                 .orderBy(travelNote.id.asc())
                 .offset(page)
                 .limit(limit)

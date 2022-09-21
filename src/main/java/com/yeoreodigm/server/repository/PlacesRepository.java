@@ -40,7 +40,7 @@ public class PlacesRepository {
     public List<Places> findPlacesByKeywordPaging(String keyword, int page, int limit) {
         return queryFactory
                 .selectFrom(places)
-                .where(places.title.contains(keyword))
+                .where(places.title.lower().contains(keyword.toLowerCase()))
                 .orderBy(places.id.asc())
                 .offset(page)
                 .limit(limit)
