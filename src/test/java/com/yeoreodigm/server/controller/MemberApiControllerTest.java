@@ -3,9 +3,7 @@ package com.yeoreodigm.server.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yeoreodigm.server.domain.Gender;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
-import com.yeoreodigm.server.service.EmailService;
-import com.yeoreodigm.server.service.MemberService;
-import com.yeoreodigm.server.service.SurveyService;
+import com.yeoreodigm.server.service.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +32,13 @@ public class MemberApiControllerTest {
     private SurveyService surveyService;
 
     @Mock
+    private TravelNoteService travelNoteService;
+
+    @Mock
     private EmailService emailService;
+
+    @Mock
+    private AwsS3Service awsS3Service;
 
     @InjectMocks
     private MemberApiController memberApiController;
@@ -48,7 +52,8 @@ public class MemberApiControllerTest {
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        memberApiController = new MemberApiController(memberService, surveyService, emailService);
+        memberApiController
+                = new MemberApiController(memberService, surveyService, travelNoteService, emailService, awsS3Service);
         mockMvc = MockMvcBuilders.standaloneSetup(memberApiController).build();
         objectMapper = new ObjectMapper();
 
