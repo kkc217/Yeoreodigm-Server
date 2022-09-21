@@ -1,7 +1,6 @@
 package com.yeoreodigm.server.dto.member;
 
 import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.dto.constraint.MemberConst;
 import lombok.Data;
 
 import java.util.Objects;

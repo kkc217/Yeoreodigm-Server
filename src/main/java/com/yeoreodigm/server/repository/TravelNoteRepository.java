@@ -41,6 +41,13 @@ public class TravelNoteRepository {
                 .fetch();
     }
 
+    public Long countAll() {
+        return queryFactory
+                .select(travelNote.count())
+                .from(travelNote)
+                .fetchOne();
+    }
+
     public TravelNote findById(Long id) {
         try {
             return queryFactory

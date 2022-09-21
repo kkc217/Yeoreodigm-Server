@@ -1,7 +1,6 @@
 package com.yeoreodigm.server.dto.course;
 
 import com.yeoreodigm.server.domain.Places;
-import com.yeoreodigm.server.dto.constraint.PlaceConst;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;

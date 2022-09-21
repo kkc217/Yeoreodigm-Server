@@ -1,14 +1,13 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Course;
+import com.yeoreodigm.server.domain.RouteInfo;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.course.*;
 import com.yeoreodigm.server.dto.route.RouteItemDto;
-import com.yeoreodigm.server.service.CourseService;
-import com.yeoreodigm.server.service.MapMarkerService;
-import com.yeoreodigm.server.service.PlaceService;
-import com.yeoreodigm.server.service.TravelNoteService;
+import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +26,8 @@ public class CourseApiController {
     private final TravelNoteService travelNoteService;
 
     private final PlaceService placeService;
+
+    private final RouteInfoService routeInfoService;
 
     private final MapMarkerService mapMarkerService;
 
@@ -53,8 +54,21 @@ public class CourseApiController {
     @GetMapping("/route/{travelNoteId}")
     public Result<List<RouteItemDto>> callRouteInfos(
             @PathVariable("travelNoteId") Long travelNoteId) {
-        return new Result<>(
-                courseService.getRouteInfosByTravelNote(travelNoteService.getTravelNoteById(travelNoteId)));
+        List<Course> courseList
+                = courseService.getCoursesByTravelNote(travelNoteService.getTravelNoteById(travelNoteId));
+
+        List<RouteItemDto> response = new ArrayList<>();
+        for (Course course : courseList) {
+            if (course == null) throw new BadRequestException("일치하는 일차의 정보가 없습니다.");
+
+            List<Long> placeIdList = course.getPlaces();
+            List<RouteInfo> routeInfoList = new ArrayList<>();
+            for (int i = 0; i < placeIdList.size() - 1; i++) {
+                routeInfoList.add(routeInfoService.getRouteInfo(placeIdList.get(i), placeIdList.get(i + 1)));
+            }
+            response.add(new RouteItemDto(course.getDay(), routeInfoService.getRouteData(routeInfoList)));
+        }
+        return new Result<>(response);
     }
 
     @GetMapping("/{travelNoteId}/{day}")
@@ -64,7 +78,14 @@ public class CourseApiController {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
         Course course = courseService.getCourseByTravelNoteAndDay(travelNote, day);
 
-        RouteItemDto routeItemDto = courseService.getRouteInfoByTravelNoteAndDay(travelNote, day);
+        if (course == null) throw new BadRequestException("일치하는 코스 정보가 없습니다.");
+
+        List<Long> placeIdList = course.getPlaces();
+        List<RouteInfo> routeInfoList = new ArrayList<>();
+        for (int i = 0; i < placeIdList.size() - 1; i++) {
+            routeInfoList.add(routeInfoService.getRouteInfo(placeIdList.get(i), placeIdList.get(i + 1)));
+        }
+        RouteItemDto routeItemDto = new RouteItemDto(course.getDay(), routeInfoService.getRouteData(routeInfoList));
 
         return new Result<>(new CourseRouteDto(
                 0, course.getDay(), placeService.getPlacesByCourse(course), routeItemDto.getRouteInfos()));

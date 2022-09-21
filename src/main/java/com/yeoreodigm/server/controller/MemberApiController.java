@@ -2,12 +2,11 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.dto.constraint.AWSConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.member.*;
 import com.yeoreodigm.server.exception.BadRequestException;
-import com.yeoreodigm.server.service.EmailService;
-import com.yeoreodigm.server.service.MemberService;
-import com.yeoreodigm.server.service.SurveyService;
+import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +25,11 @@ public class MemberApiController {
 
     private final SurveyService surveyService;
 
+    private final TravelNoteService travelNoteService;
+
     private final EmailService emailService;
+
+    private final AwsS3Service awsS3Service;
 
     @PostMapping("/new")
     public void join(@RequestBody @Valid MemberJoinRequestDto requestDto) {
@@ -139,7 +142,8 @@ public class MemberApiController {
     @PutMapping("/password")
     public void passwordReset(
             @RequestBody HashMap<String, String> request) {
-        memberService.resetPassword(request.get("email"));
+        String email = request.get("email");
+        emailService.sendResetMail(email, memberService.resetPassword(email));
     }
 
     @PatchMapping("/password")
@@ -176,7 +180,11 @@ public class MemberApiController {
     public void changeProfileImage(
             @RequestPart(value = "file") MultipartFile multipartFile,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        memberService.changeProfileImage(member, multipartFile);
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+
+        memberService.changeProfileImage(
+                member,
+                awsS3Service.uploadFile(AWSConst.AWS_S3_PROFILE_URI, member.getId().toString(), multipartFile));
     }
 
     @DeleteMapping("/profile/image")
@@ -193,6 +201,7 @@ public class MemberApiController {
         if (session != null) {
             Member member = (Member) session.getAttribute(SessionConst.LOGIN_MEMBER);
             memberService.deleteMember(member);
+            travelNoteService.resetTitle(member);
             session.invalidate();
         } else {
             throw new BadRequestException("로그인이 필요합니다.");

@@ -4,7 +4,10 @@ import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.exception.BadRequestException;
-import com.yeoreodigm.server.repository.*;
+import com.yeoreodigm.server.repository.LogRepository;
+import com.yeoreodigm.server.repository.PlaceLikeRepository;
+import com.yeoreodigm.server.repository.PlacesLogRepository;
+import com.yeoreodigm.server.repository.PlacesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +28,7 @@ public class PlaceService {
 
     private final PlacesLogRepository placesLogRepository;
 
-    private final RouteInfoRepository routeInfoRepository;
-
-    private final RouteInfoService routeInfoService;
-
     private final LogRepository logRepository;
-
-    private final RecommendService recommendService;
 
     private final static int RANDOM_PAGING = 1000;
 
@@ -71,22 +68,6 @@ public class PlaceService {
         return searchPlaces(content, page + 1, limit).size() > 0 ? page + 1 : 0;
     }
 
-    @Transactional
-    public RouteInfo getRouteInfo(Long start, Long goal) {
-        if (start.equals(goal)) return new RouteInfo(start, goal, 0, 0, 0);
-        if (start > goal) {
-            Long tmp = start;
-            start = goal;
-            goal = tmp;
-        }
-
-        RouteInfo routeInfo = routeInfoRepository.findRouteInfoByPlaceIds(start, goal);
-        if (routeInfo != null) {
-            return routeInfo;
-        }
-       return routeInfoService.updateRouteInfo(start, goal);
-    }
-
     public List<Places> getPopularPlaces(int limit) {
         return logRepository
                 .findMostPlaceIdLimiting(limit)
@@ -104,18 +85,7 @@ public class PlaceService {
         return placesRepository.findOneImageUrl((int) (Math.random() * 1000));
     }
 
-    public List<PlaceLikeDto> getRecommendedPlaces(int limit, Member member) {
-        List<Places> placeList;
-        if (member != null) {
-            placeList = recommendService.getRecommendedPlaces(member, new ArrayList<>(), limit);
-        } else {
-            placeList = getRandomPlaces(limit);
-        }
-
-        return getMainPageItemList(placeList, member);
-    }
-
-    private List<PlaceLikeDto> getMainPageItemList(List<Places> placeList, Member member) {
+    public List<PlaceLikeDto> getPlaceLikeDtoList(List<Places> placeList, Member member) {
         List<PlaceLikeDto> result = new ArrayList<>();
         for (Places place : placeList) {
             result.add(new PlaceLikeDto(place, getLikeInfo(place, member)));

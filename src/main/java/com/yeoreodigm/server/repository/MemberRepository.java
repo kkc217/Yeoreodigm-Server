@@ -2,17 +2,14 @@ package com.yeoreodigm.server.repository;
 
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-
 import java.util.List;
 
-import static com.yeoreodigm.server.domain.QCourse.course;
 import static com.yeoreodigm.server.domain.QMember.member;
 
 @Repository

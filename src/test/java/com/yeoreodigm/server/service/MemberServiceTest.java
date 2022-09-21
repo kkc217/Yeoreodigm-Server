@@ -32,16 +32,7 @@ public class MemberServiceTest {
     private SurveyRepository surveyRepository;
 
     @Mock
-    private TravelNoteService travelNoteService;
-
-    @Mock
     private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private EmailService emailService;
-
-    @Mock
-    private AwsS3Service awsS3Service;
 
     @InjectMocks
     private MemberService memberService;
@@ -65,10 +56,7 @@ public class MemberServiceTest {
         memberService = new MemberService(
                 mockMemberRepository,
                 surveyRepository,
-                travelNoteService,
-                passwordEncoder,
-                emailService,
-                awsS3Service);
+                passwordEncoder);
     }
 
     @Test(expected = BadRequestException.class)

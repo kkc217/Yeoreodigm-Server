@@ -1,16 +1,11 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.Course;
-import com.yeoreodigm.server.domain.Places;
-import com.yeoreodigm.server.domain.RouteInfo;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.constraint.EnvConst;
-import com.yeoreodigm.server.dto.constraint.RouteInfoConst;
 import com.yeoreodigm.server.dto.course.OptimizedCourseDto;
-import com.yeoreodigm.server.dto.route.RouteItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
-import com.yeoreodigm.server.repository.PlacesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,12 +24,6 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
 
-    private final PlacesRepository placesRepository;
-
-    private final PlaceService placeService;
-
-    private final RouteInfoService routeInfoService;
-
     @Transactional
     public void saveNewCourse(TravelNote travelNote, int day, List<Long> places) {
         Course course = new Course(travelNote, day, places);
@@ -50,13 +39,7 @@ public class CourseService {
     }
 
     public Course getCourseByTravelNoteAndDay(TravelNote travelNote, int day) {
-        Course course = courseRepository.findByTravelNoteIdAndDay(travelNote.getId(), day);
-
-        if (course != null) {
-            return course;
-        } else {
-            throw new BadRequestException("일치하는 코스 정보가 없습니다.");
-        }
+        return courseRepository.findByTravelNoteIdAndDay(travelNote.getId(), day);
     }
 
     public List<Course> getCoursesByTravelNote(TravelNote travelNote) {
@@ -75,67 +58,6 @@ public class CourseService {
         } else {
             throw new BadRequestException("일치하는 코스 정보가 없습니다.");
         }
-    }
-
-    @Transactional
-    public RouteItemDto getRouteInfoByCourse(Course course) {
-        if (course == null) throw new BadRequestException("일치하는 일차 정보가 없습니다.");
-
-        List<Long> placeIdList = course.getPlaces();
-
-        List<RouteInfo> routeInfoList = new ArrayList<>();
-        List<String> routeSearchUrlList = new ArrayList<>();
-        for (int i = 0; i < placeIdList.size() - 1; i++) {
-            Long startId = placeIdList.get(i);
-            Long goalId = placeIdList.get(i + 1);
-            routeInfoList.add(placeService.getRouteInfo(startId, goalId));
-
-            Places start = placesRepository.findByPlaceId(startId);
-            Places goal = placesRepository.findByPlaceId(goalId);
-            routeSearchUrlList.add(getRouteSearchUrl(start, goal));
-        }
-
-        return new RouteItemDto(course.getDay(), routeInfoService.getRouteData(routeInfoList, routeSearchUrlList));
-    }
-
-    public String getRouteSearchUrl(Places start, Places goal) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder
-                .append(RouteInfoConst.ROUTE_SEARCH_BASE_URL)
-                .append("?menu=route")
-                .append("&sname=")
-                .append(start.getTitle())
-                .append("&sx=")
-                .append(start.getLongitude())
-                .append("&sy=")
-                .append(start.getLatitude())
-                .append("&ename=")
-                .append(goal.getTitle())
-                .append("&ex=")
-                .append(goal.getLongitude())
-                .append("&ey=")
-                .append(goal.getLatitude())
-                .append("&pathType=0&showMap=true");
-
-        return stringBuilder.toString();
-    }
-
-    @Transactional
-    public List<RouteItemDto> getRouteInfosByTravelNote(TravelNote travelNote) {
-        List<RouteItemDto> result = new ArrayList<>();
-
-        List<Course> courseList = getCoursesByTravelNote(travelNote);
-
-        for (Course course : courseList) {
-            result.add(getRouteInfoByCourse(course));
-        }
-
-        return result;
-    }
-
-    @Transactional
-    public RouteItemDto getRouteInfoByTravelNoteAndDay(TravelNote travelNote, int day) {
-        return getRouteInfoByCourse(getCourseByTravelNoteAndDay(travelNote, day));
     }
 
     @Transactional

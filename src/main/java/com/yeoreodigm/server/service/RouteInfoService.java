@@ -31,6 +31,22 @@ public class RouteInfoService {
     private final PlacesRepository placesRepository;
 
     @Transactional
+    public RouteInfo getRouteInfo(Long startPlaceId, Long goalPlaceId) {
+        if (startPlaceId.equals(goalPlaceId)) return new RouteInfo(startPlaceId, goalPlaceId, 0, 0, 0);
+        if (startPlaceId > goalPlaceId) {
+            Long tmp = startPlaceId;
+            startPlaceId = goalPlaceId;
+            goalPlaceId = tmp;
+        }
+
+        RouteInfo routeInfo = routeInfoRepository.findRouteInfoByPlaceIds(startPlaceId, goalPlaceId);
+        if (routeInfo != null)
+            return routeInfo;
+
+        return updateRouteInfo(startPlaceId, goalPlaceId);
+    }
+
+    @Transactional
     public RouteInfo updateRouteInfo(Long start, Long goal) {
         RouteInfo routeInfo = getRouteInfoFromApi(start, goal);
         routeInfoRepository.save(routeInfo);
@@ -96,11 +112,10 @@ public class RouteInfoService {
         }
     }
 
-    public List<RouteData> getRouteData(List<RouteInfo> routeInfoList, List<String> routeSearchUrlList) {
+    public List<RouteData> getRouteData(List<RouteInfo> routeInfoList) {
         List<RouteData> result = new ArrayList<>();
 
-        for (int i = 0; i < routeInfoList.size(); i++) {
-            RouteInfo routeInfo = routeInfoList.get(i);
+        for (RouteInfo routeInfo : routeInfoList) {
             int distanceInt = routeInfo.getDistance();
             String distance;
             if (distanceInt < 1000) {
@@ -130,7 +145,7 @@ public class RouteInfoService {
                     walk = (walkInt / 60) + "시간 " + (walkInt % 60) + "분";
                 }
             }
-            result.add(new RouteData(distance, car, walk, routeSearchUrlList.get(i)));
+            result.add(new RouteData(distance, car, walk));
         }
 
         return result;
