@@ -145,10 +145,39 @@ public class RouteInfoService {
                     walk = (walkInt / 60) + "시간 " + (walkInt % 60) + "분";
                 }
             }
-            result.add(new RouteData(distance, car, walk));
+
+            result.add(new RouteData(
+                    distance,
+                    car,
+                    walk,
+                    getRouteSearchUrl(placesRepository.findByPlaceId(routeInfo.getStart())
+                            , placesRepository.findByPlaceId(routeInfo.getGoal()))));
         }
 
         return result;
     }
+
+    public String getRouteSearchUrl(Places start, Places goal) {
+        StringBuilder 정stringBuilder = new StringBuilder();
+        stringBuilder
+                .append(RouteInfoConst.ROUTE_SEARCH_BASE_URL)
+                .append("?menu=route")
+                .append("&sname=")
+                .append(start.getTitle())
+                .append("&sx=")
+                .append(start.getLongitude())
+                .append("&sy=")
+                .append(start.getLatitude())
+                .append("&ename=")
+                .append(goal.getTitle())
+                .append("&ex=")
+                .append(goal.getLongitude())
+                .append("&ey=")
+                .append(goal.getLatitude())
+                .append("&pathType=0&showMap=true");
+
+        return stringBuilder.toString();
+    }
+
 
 }
