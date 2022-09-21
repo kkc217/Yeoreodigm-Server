@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.controller;
 
+import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.ContentRequestDto;
@@ -10,6 +11,8 @@ import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.travelnote.NoteDetailInfoResponseDto;
 import com.yeoreodigm.server.dto.travelnote.TravelNoteIdDto;
+import com.yeoreodigm.server.service.CourseService;
+import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.TravelNoteCommentService;
 import com.yeoreodigm.server.service.TravelNoteService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,10 @@ import java.util.List;
 public class TravelNoteDetailApiController {
 
     private final TravelNoteService travelNoteService;
+
+    private final CourseService courseService;
+
+    private final PlaceService placeService;
 
     private final TravelNoteCommentService travelNoteCommentService;
 
@@ -84,7 +91,14 @@ public class TravelNoteDetailApiController {
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(request.get("travelNoteId"));
 
-        return new TravelNoteIdDto(travelNoteService.createTravelNoteFromOther(travelNote, member));
+
+        TravelNote newTravelNote = travelNoteService.createTravelNoteFromOther(travelNote, member, placeService.getRandomImageUrl());
+
+        List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
+        for (Course course : courseList)
+            courseService.saveNewCourse(newTravelNote, course.getDay(), course.getPlaces());
+
+        return new TravelNoteIdDto(newTravelNote.getId());
     }
 
 }

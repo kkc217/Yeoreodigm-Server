@@ -1,7 +1,6 @@
 package com.yeoreodigm.server.dto.place;
 
 import com.yeoreodigm.server.domain.Places;
-import com.yeoreodigm.server.dto.constraint.PlaceConst;
 import lombok.Data;
 
 import java.util.Objects;

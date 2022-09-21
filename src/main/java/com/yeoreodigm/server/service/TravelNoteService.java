@@ -36,12 +36,6 @@ public class TravelNoteService {
 
     private final MemberRepository memberRepository;
 
-    private final RecommendService recommendService;
-
-    private final CourseService courseService;
-
-    private final PlaceService placeService;
-
     public List<TravelNote> getAll() {
         return travelNoteRepository.findAll();
     }
@@ -56,7 +50,7 @@ public class TravelNoteService {
     }
 
     @Transactional
-    public Long createTravelNote(Member member, NewTravelNoteRequestDto requestDto) {
+    public TravelNote createTravelNote(Member member, NewTravelNoteRequestDto requestDto, String thumbnail) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
 
         long days = ChronoUnit.DAYS.between(requestDto.getDayStart(), requestDto.getDayEnd());
@@ -81,26 +75,16 @@ public class TravelNoteService {
                 .theme(requestDto.getTheme())
                 .placesInput(requestDto.getPlaces())
                 .publicShare(PUBLIC_SHARE_DEFAULT_VALUE)
-                .thumbnail(placeService.getRandomImageUrl())
+                .thumbnail(thumbnail)
                 .build();
 
         travelNoteRepository.saveAndFlush(travelNote);
 
-        List<List<Long>> recommendedCourseList = recommendService.getRecommendedCourses(travelNote);
-
-        if (recommendedCourseList != null) {
-            courseService.saveNewCoursesByRecommend(travelNote, recommendedCourseList);
-
-            courseService.optimizeCourse(travelNote);
-
-            return travelNote.getId();
-        } else {
-            throw new BadRequestException("코스 생성 중 에러가 발생하였습니다.");
-        }
+        return travelNote;
     }
 
     @Transactional
-    public Long createTravelNoteFromOther(TravelNote originTravelNote, Member member) {
+    public TravelNote createTravelNoteFromOther(TravelNote originTravelNote, Member member, String thumbnail) {
         if (member == null) throw new BadRequestException("로그인이 필요합니다.");
 
         String title = getMemberTitle(member);
@@ -130,18 +114,12 @@ public class TravelNoteService {
                 .theme(originTravelNote.getTheme())
                 .placesInput(new ArrayList<>())
                 .publicShare(PUBLIC_SHARE_DEFAULT_VALUE)
-                .thumbnail(placeService.getRandomImageUrl())
+                .thumbnail(thumbnail)
                 .build();
 
         travelNoteRepository.saveAndFlush(travelNote);
 
-        List<Course> courseList = courseService.getCoursesByTravelNote(originTravelNote);
-
-        for (Course course : courseList) {
-            courseService.saveNewCourse(travelNote, course.getDay(), course.getPlaces());
-        }
-
-        return travelNote.getId();
+        return travelNote;
     }
 
     private String getMemberTitle(Member member) {

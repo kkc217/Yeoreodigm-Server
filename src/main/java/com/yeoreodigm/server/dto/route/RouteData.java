@@ -13,6 +13,4 @@ public class RouteData {
 
     private String walk;
 
-    private String searchUrl;
-
 }

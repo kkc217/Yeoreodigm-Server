@@ -17,7 +17,10 @@ import com.yeoreodigm.server.service.TravelNoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.yeoreodigm.server.dto.constraint.MainPageConst.NUMBER_OF_RECOMMENDED_PLACES;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,8 +45,15 @@ public class RecommendApiController {
     @GetMapping("/place")
     public Result<List<PlaceLikeDto>> getRecommendedPlaces(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (member != null)
+            return new Result<>(
+                    placeService.getPlaceLikeDtoList(
+                            recommendService.getRecommendedPlaces(
+                                    member, new ArrayList<>(), NUMBER_OF_RECOMMENDED_PLACES), member));
+
         return new Result<>(
-                placeService.getRecommendedPlaces(MainPageConst.NUMBER_OF_RECOMMENDED_PLACES, member));
+                placeService.getPlaceLikeDtoList(
+                        placeService.getRandomPlaces(NUMBER_OF_RECOMMENDED_PLACES), null));
     }
 
     @GetMapping("/note")

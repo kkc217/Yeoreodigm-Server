@@ -1,11 +1,9 @@
 package com.yeoreodigm.server.dto.comment;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yeoreodigm.server.domain.CourseComment;
 import com.yeoreodigm.server.domain.Member;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Data

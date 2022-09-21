@@ -1,7 +1,6 @@
 package com.yeoreodigm.server.dto.travelnote;
 
 import com.yeoreodigm.server.domain.TravelNote;
-import com.yeoreodigm.server.dto.like.LikeItemDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

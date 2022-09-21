@@ -12,9 +12,8 @@ import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.member.MemberItemDto;
 import com.yeoreodigm.server.dto.travelnote.*;
-import com.yeoreodigm.server.service.CourseCommentService;
-import com.yeoreodigm.server.service.MemberService;
-import com.yeoreodigm.server.service.TravelNoteService;
+import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,11 +31,27 @@ public class TravelNoteApiController {
 
     private final MemberService memberService;
 
+    private final CourseService courseService;
+
+    private final PlaceService placeService;
+
+    private final RecommendService recommendService;
+
     @PostMapping("/new")
     public TravelNoteIdDto createNewTravelNote(
             @RequestBody @Valid NewTravelNoteRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return new TravelNoteIdDto(travelNoteService.createTravelNote(member, requestDto));
+        TravelNote travelNote
+                = travelNoteService.createTravelNote(member, requestDto, placeService.getRandomImageUrl());
+
+        List<List<Long>> recommendCourseList = recommendService.getRecommendedCourses(travelNote);
+
+        if (recommendCourseList == null) throw new BadRequestException("코스 생성 중 에러가 발생하였습니다.");
+
+        courseService.saveNewCoursesByRecommend(travelNote, recommendCourseList);
+        courseService.optimizeCourse(travelNote);
+
+        return new TravelNoteIdDto(travelNote.getId());
     }
 
     @GetMapping("/{travelNoteId}")
