@@ -158,7 +158,7 @@ public class RouteInfoService {
     }
 
     public String getRouteSearchUrl(Places start, Places goal) {
-        StringBuilder 정stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
                 .append(RouteInfoConst.ROUTE_SEARCH_BASE_URL)
                 .append("?menu=route")
