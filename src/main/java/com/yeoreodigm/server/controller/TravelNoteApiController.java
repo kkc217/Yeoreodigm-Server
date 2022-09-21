@@ -254,4 +254,9 @@ public class TravelNoteApiController {
                 .toList());
     }
 
+    @GetMapping("/all/count")
+    public TravelNoteCountDto callAllTravelNoteCount() {
+        return new TravelNoteCountDto(travelNoteService.countAll());
+    }
+
 }

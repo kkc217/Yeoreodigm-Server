@@ -40,6 +40,10 @@ public class TravelNoteService {
         return travelNoteRepository.findAll();
     }
 
+    public Long countAll() {
+        return travelNoteRepository.countAll();
+    }
+
     public TravelNote getTravelNoteById(Long travelNoteId) {
         TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
         if (travelNote != null) {
