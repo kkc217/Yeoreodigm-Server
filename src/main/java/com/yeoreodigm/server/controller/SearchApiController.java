@@ -60,9 +60,9 @@ public class SearchApiController {
         }
     }
 
-    @GetMapping("/{content}")
+    @GetMapping("")
     public RelatedSearchDto relatedSearch(
-            @PathVariable("content") String content) {
+            @RequestParam("content") String content) {
         List<Places> placeList = placeService.searchPlaces(content, 1, NUMBER_OF_RELATED_PLACES);
         List<TravelNote> travelNoteList
                 = travelNoteService.searchTravelNote(content, 1, NUMBER_OF_RELATED_TRAVELNOTES);
@@ -84,11 +84,11 @@ public class SearchApiController {
         return new RelatedSearchDto(placeList, travelNoteList, memberList);
     }
 
-    @GetMapping("/place/{content}/{page}/{limit}")
+    @GetMapping("/place")
     public PageResult<List<PlaceLikeDto>> searchPlaces(
-            @PathVariable("content") String content,
-            @PathVariable("page") int page,
-            @PathVariable("limit") int limit,
+            @RequestParam("content") String content,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new PageResult<>(
                 placeService.searchPlaces(content, page, limit)
@@ -99,11 +99,11 @@ public class SearchApiController {
                 placeService.checkNextSearchPage(content, page, limit));
     }
 
-    @GetMapping("/note/{content}/{page}/{limit}")
+    @GetMapping("/note")
     public PageResult<List<PublicTravelNoteDto>> searchTravelNotes(
-            @PathVariable("content") String content,
-            @PathVariable("page") int page,
-            @PathVariable("limit") int limit,
+            @RequestParam("content") String content,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new PageResult<>(
                 travelNoteService.searchTravelNote(content, page, limit)
@@ -113,11 +113,11 @@ public class SearchApiController {
                 travelNoteService.checkNextSearchTravelNote(content, page, limit));
     }
 
-    @GetMapping("/member/{content}/{page}/{limit}")
+    @GetMapping("/member")
     public PageResult<List<MemberItemDto>> searchMembers(
-            @PathVariable("content") String content,
-            @PathVariable("page") int page,
-            @PathVariable("limit") int limit,
+            @RequestParam("content") String content,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new PageResult<>(
                 memberService.searchMembersByNickname(content, page, limit)
