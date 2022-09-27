@@ -1,12 +1,10 @@
 package com.yeoreodigm.server.domain;
 
-import com.vladmihalcea.hibernate.type.array.ListArrayType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -17,10 +15,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@TypeDef(
-        name = "list-array",
-        typeClass = ListArrayType.class
-)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TravelNote {
 
@@ -60,9 +54,6 @@ public class TravelNote {
     private boolean publicShare;
 
     private String thumbnail;
-
-    @Type(type = "list-array")
-    private List<Long> companion = new ArrayList<>();
 
     @OneToMany(mappedBy = "travelNote", cascade = CascadeType.ALL)
     private List<Course> courses = new ArrayList<>();
@@ -110,10 +101,6 @@ public class TravelNote {
 
     public void changePublicShare(boolean publicShare) {
         this.publicShare = publicShare;
-    }
-
-    public void changeCompanion(List<Long> companion) {
-        this.companion = companion;
     }
 
     public void changeThumbnail(String thumbnail) {

@@ -15,6 +15,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.TravelNoteConst.*;
 
@@ -34,7 +35,7 @@ public class TravelNoteService {
 
     private final CourseRepository courseRepository;
 
-    private final MemberRepository memberRepository;
+    private final CompanionRepository companionRepository;
 
     public List<TravelNote> getAll() {
         return travelNoteRepository.findAll();
@@ -154,7 +155,7 @@ public class TravelNoteService {
         Long memberId = member.getId();
         if (memberId.equals(travelNote.getMember().getId())) {
             return NoteAuthority.ROLE_OWNER;
-        } else if (travelNote.getCompanion().contains(memberId)) {
+        } else if (Objects.nonNull(companionRepository.findByTravelNoteAndMember(travelNote, member))) {
             return NoteAuthority.ROLE_COMPANION;
         } else {
             throw new BadRequestException("여행 메이킹 노트에 접근 권한이 없습니다.");
@@ -218,34 +219,29 @@ public class TravelNoteService {
             throw new BadRequestException("여행 메이킹 노트의 소유자입니다.");
         }
 
-        List<Long> companionList = travelNote.getCompanion();
+        List<Long> companionList = companionRepository.findMemberIdsByTravelNote(travelNote);
         if (companionList.contains(newCompanion.getId())) {
             throw new BadRequestException("이미 추가된 사용자입니다.");
         } else {
-            companionList.add(newCompanion.getId());
-            travelNote.changeCompanion(companionList);
-            travelNoteRepository.saveAndFlush(travelNote);
+            Companion companion = new Companion(travelNote, newCompanion);
+            companionRepository.saveAndFlush(companion);
         }
     }
 
     @Transactional
     public void deleteCompanion(TravelNote travelNote, Member member, Long companionId) {
         if (member == null || !member.getId().equals(travelNote.getMember().getId())) {
-            throw new BadRequestException("여행 메이킹 노트 소유자만 동행자를 추가할 수 있습니다.");
+            throw new BadRequestException("여행 메이킹 노트 소유자만 동행자를 변경할 수 있습니다.");
         }
 
-        List<Long> companion = travelNote.getCompanion();
-
-        companion.remove(companionId);
-        travelNote.changeCompanion(companion);
-        travelNoteRepository.saveAndFlush(travelNote);
+        Companion companion = companionRepository.findByTravelNoteAndMemberId(travelNote, companionId);
+        companionRepository.deleteCompanion(companion);
     }
 
     public List<Member> getCompanionMember(TravelNote travelNote) {
-        return travelNote
-                .getCompanion()
+        return companionRepository.findCompanionsByTravelNote(travelNote)
                 .stream()
-                .map(memberRepository::findById)
+                .map(Companion::getMember)
                 .toList();
     }
 

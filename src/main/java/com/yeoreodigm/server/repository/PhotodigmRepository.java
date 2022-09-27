@@ -9,10 +9,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-
 import java.util.List;
 
-import static com.yeoreodigm.server.domain.QPhotodigm.*;
+import static com.yeoreodigm.server.domain.QPhotodigm.photodigm;
 
 @Repository
 @AllArgsConstructor

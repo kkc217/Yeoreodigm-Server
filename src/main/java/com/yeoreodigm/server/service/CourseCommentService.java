@@ -5,6 +5,7 @@ import com.yeoreodigm.server.domain.CourseComment;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.repository.CompanionRepository;
 import com.yeoreodigm.server.repository.CourseCommentRepository;
 import com.yeoreodigm.server.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,8 @@ public class CourseCommentService {
 
     private final CourseRepository courseRepository;
 
+    private final CompanionRepository companionRepository;
+
     public List<CourseComment> getCourseCommentsByTravelNoteAndDay(TravelNote travelNote, int day) {
         Course course = courseRepository.findByTravelNoteIdAndDay(travelNote.getId(), day);
         if (course != null) {
@@ -42,7 +45,7 @@ public class CourseCommentService {
         if (course == null) {
             throw new BadRequestException("일치하는 일차 정보가 없습니다.");
         } else if (!Objects.equals(member.getId(), course.getTravelNote().getMember().getId())
-                && !course.getTravelNote().getCompanion().contains(member.getId())) {
+                && Objects.isNull(companionRepository.findByTravelNoteAndMember(travelNote, member))) {
             throw new BadRequestException("댓글을 작성할 수 있는 권한이 없습니다.");
         }
 
