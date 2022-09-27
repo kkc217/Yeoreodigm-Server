@@ -48,16 +48,17 @@ public class CourseService {
 
     @Transactional
     public void addPlaces(TravelNote travelNote, int day, List<Long> placeIdList) {
+        if (Objects.equals(day, 0)) throw new BadRequestException("일차를 선택해주세요.");
+
         Course course = courseRepository.findByTravelNoteIdAndDay(travelNote.getId(), day);
 
-        if (course != null) {
-            List<Long> places = course.getPlaces();
-            places.addAll(placeIdList);
-            course.changePlaces(places);
-            courseRepository.saveAndFlush(course);
-        } else {
-            throw new BadRequestException("일치하는 코스 정보가 없습니다.");
-        }
+        if (course == null) throw new BadRequestException("일치하는 코스 정보가 없습니다.");
+
+        List<Long> places = course.getPlaces();
+        places.addAll(placeIdList);
+        course.changePlaces(places);
+
+        courseRepository.saveAndFlush(course);
     }
 
     @Transactional
