@@ -7,6 +7,7 @@ import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.dto.comment.CommentLikeDto;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.repository.PlaceCommentLikeRepository;
 import com.yeoreodigm.server.repository.PlaceCommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class PlaceCommentService {
 
     @Transactional
     public void addPlaceComment(Member member, Places place, String text) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         PlaceComment placeComment = new PlaceComment(place.getId(), member, text);
         placeCommentRepository.saveAndFlush(placeComment);
@@ -76,7 +77,7 @@ public class PlaceCommentService {
 
     @Transactional
     public void changeLike(Member member, Long placeCommentId, boolean like) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         PlaceCommentLike placeCommentLike
                 = placeCommentLikeRepository.findByPlaceCommentIdAndMemberId(placeCommentId, member.getId());

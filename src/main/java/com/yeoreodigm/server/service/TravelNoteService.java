@@ -4,6 +4,7 @@ import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.travelnote.*;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,7 @@ public class TravelNoteService {
 
     @Transactional
     public TravelNote createTravelNote(Member member, NewTravelNoteRequestDto requestDto, String thumbnail) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         long days = ChronoUnit.DAYS.between(requestDto.getDayStart(), requestDto.getDayEnd());
         if (days < 0) {
@@ -90,7 +91,7 @@ public class TravelNoteService {
 
     @Transactional
     public TravelNote createTravelNoteFromOther(TravelNote originTravelNote, Member member, String thumbnail) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         String title = getMemberTitle(member);
 
@@ -150,7 +151,7 @@ public class TravelNoteService {
     }
 
     public NoteAuthority checkNoteAuthority(Member member, TravelNote travelNote) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         Long memberId = member.getId();
         if (memberId.equals(travelNote.getMember().getId())) {
@@ -338,7 +339,7 @@ public class TravelNoteService {
 
     @Transactional
     public void changeTravelNoteLike(Member member, Long travelNoteId, boolean like) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         TravelNoteLike travelNoteLike
                 = travelNoteLikeRepository.findByTravelNoteIdAndMemberId(travelNoteId, member.getId());
@@ -354,7 +355,7 @@ public class TravelNoteService {
     }
 
     public List<MyTravelNoteDto> getMyTravelNote(Member member, int page, int limit) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
         List<TravelNote> travelNoteList = travelNoteRepository.findByMember(member, limit * (page - 1), limit);
 
         List<MyTravelNoteDto> result = new ArrayList<>();

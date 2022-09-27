@@ -6,6 +6,7 @@ import com.yeoreodigm.server.dto.constraint.AWSConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.member.*;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -70,7 +71,7 @@ public class MemberApiController {
 
             return responseDto;
         } else {
-            throw new BadRequestException("다시 로그인해주시기 바랍니다.");
+            throw new LoginRequiredException("다시 로그인해주시기 바랍니다.");
         }
     }
 
@@ -157,7 +158,7 @@ public class MemberApiController {
     public ProfileDto callProfileInfo(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         if (member == null) {
-            throw new BadRequestException("로그인이 필요합니다.");
+            throw new LoginRequiredException("로그인이 필요합니다.");
         } else {
             return new ProfileDto(member);
         }
@@ -180,7 +181,7 @@ public class MemberApiController {
     public void changeProfileImage(
             @RequestPart(value = "file") MultipartFile multipartFile,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         memberService.changeProfileImage(
                 member,
@@ -204,7 +205,7 @@ public class MemberApiController {
             travelNoteService.resetTitle(member);
             session.invalidate();
         } else {
-            throw new BadRequestException("로그인이 필요합니다.");
+            throw new LoginRequiredException("로그인이 필요합니다.");
         }
     }
 

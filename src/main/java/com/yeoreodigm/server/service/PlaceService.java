@@ -4,6 +4,7 @@ import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.repository.LogRepository;
 import com.yeoreodigm.server.repository.PlaceLikeRepository;
 import com.yeoreodigm.server.repository.PlacesLogRepository;
@@ -124,7 +125,7 @@ public class PlaceService {
 
     @Transactional
     public void changePlaceLike(Member member, Long placeId, boolean like) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         PlaceLike placeLike = placeLikeRepository.findByPlaceIdAndMemberId(placeId, member.getId());
 

@@ -8,6 +8,7 @@ import com.yeoreodigm.server.dto.constraint.MemberConst;
 import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
@@ -135,7 +136,7 @@ public class MemberService {
     }
 
     public void checkPassword(String password, Member member) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         if (!passwordEncoder.matches(password, member.getPassword()))
             throw new BadRequestException("비밀번호가 일치하지 않습니다.");
@@ -143,7 +144,7 @@ public class MemberService {
 
     @Transactional
     public void changePassword(String password, Member member) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         member.changePassword(encodePassword(password));
         memberRepository.merge(member);
@@ -171,7 +172,7 @@ public class MemberService {
 
     @Transactional
     public void changeIntroduction(Member member, String newIntroduction) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         member.changeIntroduction(newIntroduction);
         memberRepository.merge(member);
@@ -187,7 +188,7 @@ public class MemberService {
 
     @Transactional
     public void deleteProfileImage(Member member) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         member.changeProfileImage(MemberConst.DEFAULT_PROFILE_IMAGE_URL);
         memberRepository.merge(member);
@@ -196,14 +197,14 @@ public class MemberService {
 
     @Transactional
     public void deleteMember(Member member) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다");
 
         memberRepository.deleteMember(member);
     }
 
     @Transactional
     public void changeNickname(Member member, String nickname) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         checkDuplicateNickname(nickname);
 
