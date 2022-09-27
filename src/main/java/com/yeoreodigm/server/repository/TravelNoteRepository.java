@@ -29,6 +29,10 @@ public class TravelNoteRepository {
         em.flush();
     }
 
+    public void merge(TravelNote travelNote) {
+        em.merge(travelNote);
+    }
+
     public void saveAndFlush(TravelNote travelNote) {
         save(travelNote);
         em.flush();
@@ -113,6 +117,7 @@ public class TravelNoteRepository {
         return queryFactory
                 .selectFrom(travelNote)
                 .where(travelNote.member.id.eq(member.getId()))
+                .orderBy(travelNote.modifiedTime.desc())
                 .offset(page)
                 .limit(limit)
                 .fetch();

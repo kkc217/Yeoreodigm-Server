@@ -120,4 +120,7 @@ public class TravelNote {
         this.thumbnail = thumbnail;
     }
 
+    public void changeModified(LocalDateTime modifiedTime) {
+        this.modifiedTime = modifiedTime;
+    }
 }

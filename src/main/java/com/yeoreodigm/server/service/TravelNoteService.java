@@ -432,4 +432,9 @@ public class TravelNoteService {
                 content, limit * page, limit).size() > 0 ? page + 1 : 0;
     }
 
+    @Transactional
+    public void updateModified(TravelNote travelNote) {
+        travelNote.changeModified(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
+        travelNoteRepository.merge(travelNote);
+    }
 }

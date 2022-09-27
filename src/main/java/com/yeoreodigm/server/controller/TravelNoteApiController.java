@@ -62,6 +62,8 @@ public class TravelNoteApiController {
 
         NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(member, travelNote);
 
+        travelNoteService.updateModified(travelNote);
+
         return new TravelNoteInfoDto(noteAuthority, travelNote);
     }
 
