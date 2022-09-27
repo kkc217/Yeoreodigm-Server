@@ -104,8 +104,10 @@ public class RouteInfoService {
 
                 return new RouteInfo(start, goal, distance, duration, walk);
 
+            } else if (code == 1) {
+                return new RouteInfo(start, goal, 0, 0, 0);
             } else {
-                throw new BadRequestException("경로 검색에 실패하였습니다.");
+                throw new BadRequestException("경로 검색에 실패하였습니다.(code: " + code + ")");
             }
         } catch (ParseException e) {
             throw new BadRequestException("API 통신 중 에러가 발생하였습니다. 다시 시도해주시기 바랍니다.");
