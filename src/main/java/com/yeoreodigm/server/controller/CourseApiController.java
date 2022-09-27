@@ -15,6 +15,7 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -88,7 +89,11 @@ public class CourseApiController {
         RouteItemDto routeItemDto = new RouteItemDto(course.getDay(), routeInfoService.getRouteData(routeInfoList));
 
         return new Result<>(new CourseRouteDto(
-                0, course.getDay(), placeService.getPlacesByCourse(course), routeItemDto.getRouteInfos()));
+                0,
+                course.getDay(),
+                travelNote.getCourses().size(),
+                placeService.getPlacesByCourse(course),
+                routeItemDto.getRouteInfos()));
     }
 
     @GetMapping("/coordinate/{travelNoteId}")

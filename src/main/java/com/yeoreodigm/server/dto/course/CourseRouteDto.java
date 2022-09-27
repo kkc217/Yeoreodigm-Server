@@ -8,16 +8,20 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 public class CourseRouteDto {
 
     private int day;
 
+    private boolean hasNext;
+
     private List<PlaceInfo> places = new ArrayList<>();
 
-    public CourseRouteDto(int countStart, int day, List<Places> placeList, List<RouteData> routeInfos) {
+    public CourseRouteDto(int countStart, int day, int totalDayCount, List<Places> placeList, List<RouteData> routeInfos) {
         this.day = day;
+        this.hasNext = !Objects.equals(day, totalDayCount);
 
         for (int i = 0; i < placeList.size(); i++) {
             Places place = placeList.get(i);
