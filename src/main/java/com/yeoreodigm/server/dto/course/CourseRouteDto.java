@@ -15,12 +15,15 @@ public class CourseRouteDto {
 
     private int day;
 
+    private boolean hasPrev;
+
     private boolean hasNext;
 
     private List<PlaceInfo> places = new ArrayList<>();
 
     public CourseRouteDto(int countStart, int day, int totalDayCount, List<Places> placeList, List<RouteData> routeInfos) {
         this.day = day;
+        this.hasPrev = !Objects.equals(day, 1);
         this.hasNext = !Objects.equals(day, totalDayCount);
 
         for (int i = 0; i < placeList.size(); i++) {
