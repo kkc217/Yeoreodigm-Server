@@ -48,7 +48,14 @@ public class PhotodigmApiController {
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
 
-        return new PhotodigmDto(photodigm);
+        if (Objects.isNull(member) && Objects.isNull(photodigm.getMember())) {
+            return new PhotodigmDto(photodigm);
+        } else if ((Objects.nonNull(member) && Objects.nonNull(photodigm.getMember()))
+                && Objects.equals(member.getId(), photodigm.getMember().getId())) {
+            return new PhotodigmDto(photodigm);
+        }
+
+        throw new BadRequestException("포토다임 접근 권한이 없습니다.");
     }
 
     @GetMapping("/{page}/{limit}")
