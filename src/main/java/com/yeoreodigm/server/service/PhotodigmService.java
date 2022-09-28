@@ -119,4 +119,14 @@ public class PhotodigmService {
         return getPhotodigmByMember(member, page + 1, limit).size() > 0 ? page + 1 : 0;
     }
 
+    @Transactional
+    public void changePhotodigmTitle(Photodigm photodigm, String title) {
+        photodigm.changeTitle(title);
+        photodigmRepository.merge(photodigm);
+    }
+
+    public void changePhotodigmPublicShare(Photodigm photodigm, boolean publicShare) {
+        photodigm.changePublicShare(publicShare);
+        photodigmRepository.merge(photodigm);
+    }
 }

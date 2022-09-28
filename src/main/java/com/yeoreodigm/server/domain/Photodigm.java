@@ -69,4 +69,11 @@ public class Photodigm {
         this.pictures = pictures;
     }
 
+    public void changeTitle(String title) {
+        this.title = title;
+    }
+
+    public void changePublicShare(boolean publicShare) {
+        this.publicShare = publicShare;
+    }
 }

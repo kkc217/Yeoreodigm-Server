@@ -34,6 +34,10 @@ public class PhotodigmRepository {
         flush();
     }
 
+    public void merge(Photodigm photodigm) {
+        em.merge(photodigm);
+    }
+
     public Photodigm findById(Long photodigmId) {
         try {
             return queryFactory
