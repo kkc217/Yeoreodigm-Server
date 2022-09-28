@@ -5,7 +5,6 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
 import com.yeoreodigm.server.dto.constraint.SurveyConst;
 import com.yeoreodigm.server.dto.survey.SurveyItemDto;
-import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;

@@ -1,8 +1,6 @@
 package com.yeoreodigm.server.dto.photodigm;
 
-import com.yeoreodigm.server.domain.Frame;
 import com.yeoreodigm.server.domain.Photodigm;
-import com.yeoreodigm.server.dto.constraint.AWSConst;
 import lombok.Data;
 
 import java.time.LocalDateTime;

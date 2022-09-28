@@ -2,7 +2,6 @@ package com.yeoreodigm.server.dto.photodigm;
 
 import com.yeoreodigm.server.domain.Frame;
 import com.yeoreodigm.server.dto.constraint.AWSConst;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data

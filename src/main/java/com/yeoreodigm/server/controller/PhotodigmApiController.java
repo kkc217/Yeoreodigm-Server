@@ -7,11 +7,12 @@ import com.yeoreodigm.server.domain.Picture;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.photodigm.*;
-import com.yeoreodigm.server.dto.travelnote.NoteTitleRequestDto;
+import com.yeoreodigm.server.dto.photodigm.ChangePhotodigmTitleDto;
+import com.yeoreodigm.server.dto.photodigm.FrameDto;
+import com.yeoreodigm.server.dto.photodigm.PhotodigmDto;
+import com.yeoreodigm.server.dto.photodigm.PhotodigmIdDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
-import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PhotodigmService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +27,6 @@ import java.util.Objects;
 public class PhotodigmApiController {
 
     private final PhotodigmService photodigmService;
-
-    private final MemberService memberService;
 
     @PostMapping("/new")
     public PhotodigmIdDto createPhotodigm(
