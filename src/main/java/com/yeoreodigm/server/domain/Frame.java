@@ -30,8 +30,10 @@ public class Frame {
 
     private String address;
 
+    @Column(name = "size_x")
     private int sizeX;
 
+    @Column(name = "size_y")
     private int sizeY;
 
     @Type(type = "list-array")

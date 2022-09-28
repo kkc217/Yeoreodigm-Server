@@ -7,16 +7,16 @@ import javax.persistence.*;
 @Entity
 @Getter
 @SequenceGenerator(
-        name = "MEMBER_PICTURE_ID_SEQ_GENERATOR",
+        name = "PICTURE_ID_SEQ_GENERATOR",
         sequenceName = "member_picture_id_seq",
         allocationSize = 1)
-public class MemberPicture {
+public class Picture {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "MEMBER_PICTURE_ID_SEQ_GENERATOR")
-    @Column(name = "member_picture_id")
+            generator = "PICTURE_ID_SEQ_GENERATOR")
+    @Column(name = "picture_id")
     private Long id;
 
     private String address;

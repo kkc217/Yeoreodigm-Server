@@ -25,9 +25,13 @@ public class PhotodigmRepository {
         em.persist(photodigm);
     }
 
+    public void flush() {
+        em.flush();
+    }
+
     public void saveAndFlush(Photodigm photodigm) {
         save(photodigm);
-        em.flush();
+        flush();
     }
 
     public Photodigm findById(Long photodigmId) {
