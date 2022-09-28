@@ -52,4 +52,14 @@ public class PhotodigmRepository {
                 .fetch();
     }
 
+    public List<Photodigm> findByMemberPaging(Member member, int page, int limit) {
+        return queryFactory
+                .selectFrom(photodigm)
+                .where(photodigm.member.id.eq(member.getId()))
+                .orderBy(photodigm.modified.desc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
 }

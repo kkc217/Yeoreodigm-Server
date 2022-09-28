@@ -4,9 +4,13 @@ import com.yeoreodigm.server.domain.Frame;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.Photodigm;
 import com.yeoreodigm.server.domain.Picture;
+import com.yeoreodigm.server.dto.PageResult;
+import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
+import com.yeoreodigm.server.dto.photodigm.FrameDto;
 import com.yeoreodigm.server.dto.photodigm.PhotodigmDto;
 import com.yeoreodigm.server.dto.photodigm.PhotodigmIdDto;
+import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.service.PhotodigmService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +45,29 @@ public class PhotodigmApiController {
         Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
 
         return new PhotodigmDto(photodigm);
+    }
+
+    @GetMapping("/{page}/{limit}")
+    public PageResult<List<PhotodigmDto>> callMyPhotodigmInfos(
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
+
+        return new PageResult<>(
+                photodigmService.getPhotodigmByMember(member, page, limit)
+                        .stream()
+                        .map(PhotodigmDto::new)
+                        .toList(),
+                photodigmService.checkNextPhotodigmByMember(member, page, limit));
+    }
+
+    @GetMapping("/frame")
+    public Result<List<FrameDto>> callFrames() {
+        return new Result<>(photodigmService.getAllFrame()
+                .stream()
+                .map(FrameDto::new)
+                .toList());
     }
 
 }

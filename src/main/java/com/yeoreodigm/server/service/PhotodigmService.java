@@ -103,7 +103,20 @@ public class PhotodigmService {
         return frame;
     }
 
+    public List<Frame> getAllFrame() {
+        return frameRepository.findAll();
+    }
+
     public List<Picture> getPictureList(List<Long> pictureIdList) {
         return pictureIdList.stream().map(pictureRepository::findById).toList();
     }
+
+    public List<Photodigm> getPhotodigmByMember(Member member, int page, int limit) {
+        return photodigmRepository.findByMemberPaging(member, limit * (page - 1), limit);
+    }
+
+    public int checkNextPhotodigmByMember(Member member, int page, int limit) {
+        return getPhotodigmByMember(member, page + 1, limit).size() > 0 ? page + 1 : 0;
+    }
+
 }
