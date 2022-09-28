@@ -11,6 +11,7 @@ import com.yeoreodigm.server.dto.photodigm.*;
 import com.yeoreodigm.server.dto.travelnote.NoteTitleRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
+import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PhotodigmService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,8 @@ import java.util.Objects;
 public class PhotodigmApiController {
 
     private final PhotodigmService photodigmService;
+
+    private final MemberService memberService;
 
     @PostMapping("/new")
     public PhotodigmIdDto createPhotodigm(
@@ -88,20 +91,6 @@ public class PhotodigmApiController {
         }
 
         throw new BadRequestException("포토다임 제목을 수정할 수 없습니다.");
-    }
-
-    @PatchMapping("/public-share")
-    public void changePhotodigmPublicShare(
-            @RequestBody @Valid ChangePhotodigmPublicShareDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        Photodigm photodigm = photodigmService.getPhotodigm(requestDto.getPhotodigmId());
-
-        if (Objects.isNull(member)
-                || Objects.isNull(photodigm.getMember())
-                || !Objects.equals(photodigm.getMember().getId(), member.getId()))
-            throw new BadRequestException("포토다임 공유 여부를 수정할 수 없습니다.");
-
-        photodigmService.changePhotodigmPublicShare(photodigm, requestDto.isPublicShare());
     }
 
 }

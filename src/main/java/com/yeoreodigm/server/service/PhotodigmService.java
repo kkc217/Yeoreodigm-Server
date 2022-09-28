@@ -125,8 +125,4 @@ public class PhotodigmService {
         photodigmRepository.merge(photodigm);
     }
 
-    public void changePhotodigmPublicShare(Photodigm photodigm, boolean publicShare) {
-        photodigm.changePublicShare(publicShare);
-        photodigmRepository.merge(photodigm);
-    }
 }

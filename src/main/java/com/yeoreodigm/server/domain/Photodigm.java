@@ -46,8 +46,6 @@ public class Photodigm {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private boolean publicShare;
-
     @Type(type = "list-array")
     @Column(columnDefinition = "bigint []")
     private List<Long> pictures;
@@ -65,7 +63,6 @@ public class Photodigm {
         this.created = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         this.modified = this.created;
         this.member = member;
-        this.publicShare = false;
         this.pictures = pictures;
     }
 
@@ -73,7 +70,4 @@ public class Photodigm {
         this.title = title;
     }
 
-    public void changePublicShare(boolean publicShare) {
-        this.publicShare = publicShare;
-    }
 }
