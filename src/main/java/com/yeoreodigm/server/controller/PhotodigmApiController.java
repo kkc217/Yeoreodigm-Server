@@ -7,19 +7,22 @@ import com.yeoreodigm.server.domain.Picture;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.photodigm.ChangePhotodigmTitleDto;
-import com.yeoreodigm.server.dto.photodigm.FrameDto;
-import com.yeoreodigm.server.dto.photodigm.PhotodigmDto;
-import com.yeoreodigm.server.dto.photodigm.PhotodigmIdDto;
+import com.yeoreodigm.server.dto.photodigm.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
+import com.yeoreodigm.server.service.AwsS3Service;
 import com.yeoreodigm.server.service.PhotodigmService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.yeoreodigm.server.dto.constraint.AWSConst.*;
+import static com.yeoreodigm.server.dto.constraint.PhotodigmConst.PHOTODIGM_NUMBER_OF_PICTURE;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,6 +30,8 @@ import java.util.Objects;
 public class PhotodigmApiController {
 
     private final PhotodigmService photodigmService;
+
+    private final AwsS3Service awsS3Service;
 
     @PostMapping("/new")
     public PhotodigmIdDto createPhotodigm(
@@ -71,6 +76,52 @@ public class PhotodigmApiController {
                         .map(PhotodigmDto::new)
                         .toList(),
                 photodigmService.checkNextPhotodigmByMember(member, page, limit));
+    }
+
+    @PutMapping("/picture")
+    public void changePhotodigmImages(
+            @RequestPart(value = "photodigmId") Long photodigmId,
+            @RequestPart(value = "picture1") MultipartFile picture1,
+            @RequestPart(value = "picture2") MultipartFile picture2,
+            @RequestPart(value = "picture3") MultipartFile picture3,
+            @RequestPart(value = "picture4") MultipartFile picture4,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
+
+        if (Objects.isNull(member)) {
+            if (Objects.nonNull(photodigm.getMember()))
+                throw new BadRequestException("포토다임 수정 권한이 없습니다.");
+        } else {
+            if (Objects.isNull(photodigm.getMember())
+                    || !Objects.equals(member.getId(), photodigm.getMember().getId()))
+                throw new BadRequestException("포토다임 수정 권한이 없습니다.");
+        }
+
+        List<MultipartFile> fileList = new ArrayList<>();
+        fileList.add(picture1);
+        fileList.add(picture2);
+        fileList.add(picture3);
+        fileList.add(picture4);
+        photodigmService.checkPictureListContentType(fileList);
+
+        List<String> pictureAddressList = new ArrayList<>();
+        for (int i = 0; i < PHOTODIGM_NUMBER_OF_PICTURE; i++) {
+            pictureAddressList.add(photodigmService.getRandomFileName());
+        }
+
+        awsS3Service.uploadFiles(AWS_S3_PICTURE_URI, pictureAddressList, fileList);
+
+        List<Picture> pictureList = new ArrayList<>();
+        for (String pictureAddress : pictureAddressList) {
+            pictureList.add(photodigmService.savePicture(pictureAddress, member));
+        }
+
+        photodigmService.changePhotodigmPictures(photodigm, pictureList);
+        photodigmService.createPhotodigmImage(
+                pictureList,
+                photodigmService.getFrame(photodigm.getFrameId()),
+                photodigm.getAddress());
+        photodigmService.savePhotodigm(photodigm);
     }
 
     @GetMapping("/frame")

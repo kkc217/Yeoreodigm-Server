@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.domain;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -8,8 +9,9 @@ import javax.persistence.*;
 @Getter
 @SequenceGenerator(
         name = "PICTURE_ID_SEQ_GENERATOR",
-        sequenceName = "member_picture_id_seq",
+        sequenceName = "picture_id_seq",
         allocationSize = 1)
+@NoArgsConstructor
 public class Picture {
 
     @Id
@@ -24,5 +26,10 @@ public class Picture {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public Picture(String address, Member member) {
+        this.address = address;
+        this.member = member;
+    }
 
 }
