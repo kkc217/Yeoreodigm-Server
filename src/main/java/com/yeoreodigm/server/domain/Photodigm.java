@@ -70,4 +70,8 @@ public class Photodigm {
         this.title = title;
     }
 
+    public void changePictures(List<Long> pictureList) {
+        this.pictures = pictureList;
+    }
+
 }
