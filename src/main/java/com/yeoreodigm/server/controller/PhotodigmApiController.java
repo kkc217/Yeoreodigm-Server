@@ -7,7 +7,10 @@ import com.yeoreodigm.server.domain.Picture;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.photodigm.*;
+import com.yeoreodigm.server.dto.photodigm.ChangePhotodigmTitleDto;
+import com.yeoreodigm.server.dto.photodigm.FrameDto;
+import com.yeoreodigm.server.dto.photodigm.PhotodigmDto;
+import com.yeoreodigm.server.dto.photodigm.PhotodigmIdDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.service.AwsS3Service;
@@ -22,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import static com.yeoreodigm.server.dto.constraint.AWSConst.*;
+import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_PICTURE_URI;
 import static com.yeoreodigm.server.dto.constraint.PhotodigmConst.PHOTODIGM_NUMBER_OF_PICTURE;
 
 @RestController

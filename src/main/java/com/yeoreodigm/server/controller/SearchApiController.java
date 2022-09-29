@@ -39,12 +39,13 @@ public class SearchApiController {
             @PathVariable("page") int page) {
         List<PlaceCoordinateDto> responseDtoList =
                 placeService
-                        .searchPlaces(content, page, QueryConst.SEARCH_PAGING_LIMIT)
+                        .searchPlaces(content, page, QueryConst.SEARCH_PAGING_LIMIT, SEARCH_OPTION_DEFAULT)
                         .stream()
                         .map(PlaceCoordinateDto::new)
                         .toList();
 
-        int next = placeService.checkNextSearchPage(content, page, QueryConst.SEARCH_PAGING_LIMIT);
+        int next = placeService.checkNextSearchPage(
+                content, page, QueryConst.SEARCH_PAGING_LIMIT, SEARCH_OPTION_DEFAULT);
 
         return new PageResult<>(responseDtoList, next);
     }
@@ -63,7 +64,8 @@ public class SearchApiController {
     @GetMapping("")
     public RelatedSearchDto relatedSearch(
             @RequestParam("content") String content) {
-        List<Places> placeList = placeService.searchPlaces(content, 1, NUMBER_OF_RELATED_PLACES);
+        List<Places> placeList = placeService.searchPlaces(
+                content, 1, NUMBER_OF_RELATED_PLACES, SEARCH_OPTION_DEFAULT);
         List<TravelNote> travelNoteList = travelNoteService.searchTravelNote(
                 content, 1, NUMBER_OF_RELATED_TRAVELNOTES, SEARCH_OPTION_DEFAULT);
         List<Member> memberList = memberService.searchMembersByNickname(content, 1, NUMBER_OF_RELATED_MEMBERS);
@@ -73,7 +75,8 @@ public class SearchApiController {
                     placeService.searchPlaces(
                             content,
                             2,
-                            NUMBER_OF_RELATED_TRAVELNOTES - travelNoteList.size()));
+                            NUMBER_OF_RELATED_TRAVELNOTES - travelNoteList.size(),
+                            SEARCH_OPTION_DEFAULT));
         } else if (NUMBER_OF_RELATED_PLACES > placeList.size()) {
             travelNoteList.addAll(
                     travelNoteService.searchTravelNote(content,
@@ -90,14 +93,15 @@ public class SearchApiController {
             @RequestParam("content") String content,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
+            @RequestParam(value = "option", required = false, defaultValue = "0") int option,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new PageResult<>(
-                placeService.searchPlaces(content, page, limit)
+                placeService.searchPlaces(content, page, limit, option)
                         .stream()
                         .map(place -> new PlaceLikeDto(
                                 place, placeService.getLikeInfo(place, member)))
                         .toList(),
-                placeService.checkNextSearchPage(content, page, limit));
+                placeService.checkNextSearchPage(content, page, limit, option));
     }
 
     @GetMapping("/note")
@@ -113,10 +117,6 @@ public class SearchApiController {
                         .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
                         .toList(),
                 travelNoteService.checkNextSearchTravelNote(content, page, limit, option));
-    }
-    @GetMapping("/test")
-    public void test(){
-        travelNoteService.test();
     }
 
     @GetMapping("/member")

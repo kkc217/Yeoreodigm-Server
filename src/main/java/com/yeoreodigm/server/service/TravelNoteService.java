@@ -1,7 +1,6 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
-import com.yeoreodigm.server.dto.constraint.SearchConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.travelnote.*;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -19,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.yeoreodigm.server.dto.constraint.SearchConst.*;
 import static com.yeoreodigm.server.dto.constraint.TravelNoteConst.*;
 
 
@@ -422,16 +422,16 @@ public class TravelNoteService {
     }
 
     public List<TravelNote> searchTravelNote(String content, int page, int limit, int option) {
-        if (Objects.equals(SearchConst.SEARCH_OPTION_MODIFIED_ASC, option)) {
+        if (Objects.equals(SEARCH_OPTION_MODIFIED_ASC, option)) {
             return travelNoteRepository.findPublicByKeywordOrderByModifiedAsc(
                     content, limit * (page - 1), limit);
-        } else if (Objects.equals(SearchConst.SEARCH_OPTION_MODIFIED_DESC, option)) {
+        } else if (Objects.equals(SEARCH_OPTION_MODIFIED_DESC, option)) {
             return travelNoteRepository.findPublicByKeywordOrderByModifiedDesc(
                     content, limit * (page - 1), limit);
-        } else if (Objects.equals(SearchConst.SEARCH_OPTION_LIKE_ASC, option)) {
+        } else if (Objects.equals(SEARCH_OPTION_LIKE_ASC, option)) {
             return travelNoteRepository.findPublicByKeywordOrderByLikeAsc(
                     content, limit * (page - 1), limit);
-        } else if (Objects.equals(SearchConst.SEARCH_OPTION_LIKE_DESC, option)) {
+        } else if (Objects.equals(SEARCH_OPTION_LIKE_DESC, option)) {
             return travelNoteRepository.findPublicByKeywordOrderByLikeDesc(
                     content, limit * (page - 1), limit);
         }
@@ -449,11 +449,4 @@ public class TravelNoteService {
         travelNoteRepository.merge(travelNote);
     }
 
-    public void test() {
-        List<TravelNote> travelNoteList = travelNoteRepository.findPublicByKeywordOrderByLikeAsc("직접", 0, 10);
-
-        for (TravelNote travelNote : travelNoteList) {
-            System.out.println(travelNote.getTitle());
-        }
-    }
 }

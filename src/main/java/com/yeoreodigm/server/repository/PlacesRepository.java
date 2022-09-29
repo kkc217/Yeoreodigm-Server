@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.List;
 
+import static com.yeoreodigm.server.domain.QPlaceLike.placeLike;
 import static com.yeoreodigm.server.domain.QPlaces.places;
 
 @Repository
@@ -42,6 +43,32 @@ public class PlacesRepository {
                 .selectFrom(places)
                 .where(places.title.lower().contains(keyword.toLowerCase()))
                 .orderBy(places.id.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<Places> findPublicByKeywordOrderByLikeAsc(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(places)
+                .leftJoin(placeLike)
+                .on(placeLike.placeId.eq(places.id))
+                .where(places.title.lower().contains(keyword.toLowerCase()))
+                .groupBy(places.id, placeLike.placeId)
+                .orderBy(places.count().asc(), placeLike.placeId.asc().nullsFirst())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<Places> findPublicByKeywordOrderByLikeDesc(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(places)
+                .leftJoin(placeLike)
+                .on(placeLike.placeId.eq(places.id))
+                .where(places.title.lower().contains(keyword.toLowerCase()))
+                .groupBy(places.id, placeLike.placeId)
+                .orderBy(places.count().desc(), placeLike.placeId.desc().nullsLast())
                 .offset(page)
                 .limit(limit)
                 .fetch();
