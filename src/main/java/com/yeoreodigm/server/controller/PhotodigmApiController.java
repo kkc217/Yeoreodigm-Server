@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -130,6 +131,32 @@ public class PhotodigmApiController {
                 .stream()
                 .map(FrameDto::new)
                 .toList());
+    }
+
+    @PutMapping("/frame")
+    public void changePhotodigmFrame(
+            @RequestBody HashMap<String, Long> request,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        Photodigm photodigm = photodigmService.getPhotodigm(request.get("photodigmId"));
+
+        if (Objects.isNull(member)) {
+            if (Objects.nonNull(photodigm.getMember()))
+                throw new BadRequestException("포토다임 수정 권한이 없습니다.");
+        } else {
+            if (Objects.isNull(photodigm.getMember())
+                    || !Objects.equals(member.getId(), photodigm.getMember().getId()))
+                throw new BadRequestException("포토다임 수정 권한이 없습니다.");
+        }
+
+        Frame frame = photodigmService.getFrame(request.get("frameId"));
+        photodigmService.changePhotodigmFrame(photodigm, frame);
+
+        List<Picture> pictureList = photodigmService.getPictureList(photodigm.getPictures());
+        photodigmService.createPhotodigmImage(
+                pictureList,
+                frame,
+                photodigm.getAddress());
+        photodigmService.savePhotodigm(photodigm);
     }
 
     @PatchMapping("/title")

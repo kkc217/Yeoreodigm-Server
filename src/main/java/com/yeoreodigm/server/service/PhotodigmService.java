@@ -57,6 +57,10 @@ public class PhotodigmService {
         photodigm.changePictures(pictureList.stream().map(Picture::getId).toList());
     }
 
+    public void changePhotodigmFrame(Photodigm photodigm, Frame frame) {
+        photodigm.changeFrame(frame.getId());
+    }
+
     public void createPhotodigmImage(List<Picture> pictureList, Frame frame, String fileName) {
         if (pictureList.size() < 4) throw new BadRequestException("첨부된 사진을 확인해주세요.");
 
