@@ -74,4 +74,7 @@ public class Photodigm {
         this.pictures = pictureList;
     }
 
+    public void changeFrame(Long frameId) {
+        this.frameId = frameId;
+    }
 }
