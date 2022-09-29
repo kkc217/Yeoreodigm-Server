@@ -17,6 +17,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static com.yeoreodigm.server.dto.constraint.SearchConst.SEARCH_OPTION_LIKE_ASC;
+import static com.yeoreodigm.server.dto.constraint.SearchConst.SEARCH_OPTION_LIKE_DESC;
 
 @Service
 @Transactional(readOnly = true)
@@ -61,12 +65,20 @@ public class PlaceService {
                 .toList();
     }
 
-    public List<Places> searchPlaces(String content, int page, int limit) {
+    public List<Places> searchPlaces(String content, int page, int limit, int option) {
+        if (Objects.equals(SEARCH_OPTION_LIKE_ASC, option)) {
+            return placesRepository.findPublicByKeywordOrderByLikeAsc(
+                    content, limit * (page - 1), limit);
+        } else if (Objects.equals(SEARCH_OPTION_LIKE_DESC, option)) {
+            return placesRepository.findPublicByKeywordOrderByLikeDesc(
+                    content, limit * (page - 1), limit);
+        }
+
         return placesRepository.findPlacesByKeywordPaging(content, limit * (page - 1), limit);
     }
 
-    public int checkNextSearchPage(String content, int page, int limit) {
-        return searchPlaces(content, page + 1, limit).size() > 0 ? page + 1 : 0;
+    public int checkNextSearchPage(String content, int page, int limit, int option) {
+        return searchPlaces(content, page + 1, limit, option).size() > 0 ? page + 1 : 0;
     }
 
     public List<Places> getPopularPlaces(int limit) {

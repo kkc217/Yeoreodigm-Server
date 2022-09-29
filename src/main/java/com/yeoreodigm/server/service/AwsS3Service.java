@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BUCKET;
