@@ -123,8 +123,7 @@ public class SearchApiController {
     public PageResult<List<MemberItemDto>> searchMembers(
             @RequestParam("content") String content,
             @RequestParam("page") int page,
-            @RequestParam("limit") int limit,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @RequestParam("limit") int limit) {
         return new PageResult<>(
                 memberService.searchMembersByNickname(content, page, limit)
                         .stream()

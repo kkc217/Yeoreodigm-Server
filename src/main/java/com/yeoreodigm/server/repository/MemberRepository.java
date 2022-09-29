@@ -66,7 +66,7 @@ public class MemberRepository {
     public List<Member> findMembersByNickname(String keyword, int page, int limit) {
         return queryFactory
                 .selectFrom(member)
-                .where(member.nickname.contains(keyword))
+                .where(member.nickname.lower().contains(keyword.toLowerCase()))
                 .orderBy(member.id.asc())
                 .offset(page)
                 .limit(limit)
