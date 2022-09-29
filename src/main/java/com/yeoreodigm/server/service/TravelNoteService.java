@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
+import com.yeoreodigm.server.dto.constraint.SearchConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.travelnote.*;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -420,18 +421,39 @@ public class TravelNoteService {
         return getPublicNotes(member, page + 1, limit).size() > 0 ? page + 1 : 0;
     }
 
-    public List<TravelNote> searchTravelNote(String content, int page, int limit) {
+    public List<TravelNote> searchTravelNote(String content, int page, int limit, int option) {
+        if (Objects.equals(SearchConst.SEARCH_OPTION_MODIFIED_ASC, option)) {
+            return travelNoteRepository.findPublicByKeywordOrderByModifiedAsc(
+                    content, limit * (page - 1), limit);
+        } else if (Objects.equals(SearchConst.SEARCH_OPTION_MODIFIED_DESC, option)) {
+            return travelNoteRepository.findPublicByKeywordOrderByModifiedDesc(
+                    content, limit * (page - 1), limit);
+        } else if (Objects.equals(SearchConst.SEARCH_OPTION_LIKE_ASC, option)) {
+            return travelNoteRepository.findPublicByKeywordOrderByLikeAsc(
+                    content, limit * (page - 1), limit);
+        } else if (Objects.equals(SearchConst.SEARCH_OPTION_LIKE_DESC, option)) {
+            return travelNoteRepository.findPublicByKeywordOrderByLikeDesc(
+                    content, limit * (page - 1), limit);
+        }
+
         return travelNoteRepository.findPublicByKeywordPaging(content, limit * (page - 1), limit);
     }
 
-    public int checkNextSearchTravelNote(String content, int page, int limit) {
-        return travelNoteRepository.findPublicByKeywordPaging(
-                content, limit * page, limit).size() > 0 ? page + 1 : 0;
+    public int checkNextSearchTravelNote(String content, int page, int limit, int option) {
+        return searchTravelNote(content, limit * page, limit, option).size() > 0 ? page + 1 : 0;
     }
 
     @Transactional
     public void updateModified(TravelNote travelNote) {
         travelNote.changeModified(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
         travelNoteRepository.merge(travelNote);
+    }
+
+    public void test() {
+        List<TravelNote> travelNoteList = travelNoteRepository.findPublicByKeywordOrderByLikeAsc("직접", 0, 10);
+
+        for (TravelNote travelNote : travelNoteList) {
+            System.out.println(travelNote.getTitle());
+        }
     }
 }

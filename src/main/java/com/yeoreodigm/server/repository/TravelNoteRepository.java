@@ -3,6 +3,7 @@ package com.yeoreodigm.server.repository;
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.domain.QTravelNoteLike;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 import static com.yeoreodigm.server.domain.QTravelNote.travelNote;
+import static com.yeoreodigm.server.domain.QTravelNoteLike.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -111,6 +113,56 @@ public class TravelNoteRepository {
                 .offset(page)
                 .limit(limit)
                 .fetch();
+    }
+
+    public List<TravelNote> findPublicByKeywordOrderByModifiedAsc(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.publicShare.eq(true), travelNote.title.lower().contains(keyword.toLowerCase()))
+                .orderBy(travelNote.modifiedTime.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByKeywordOrderByModifiedDesc(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.publicShare.eq(true), travelNote.title.lower().contains(keyword.toLowerCase()))
+                .orderBy(travelNote.modifiedTime.desc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByKeywordOrderByLikeAsc(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .leftJoin(travelNoteLike)
+                .on(travelNoteLike.travelNoteId.eq(travelNote.id))
+                .where(travelNote.publicShare.eq(true), travelNote.title.lower().contains(keyword.toLowerCase()))
+                .groupBy(travelNote.id, travelNoteLike.travelNoteId)
+                .orderBy(travelNote.count().asc(), travelNoteLike.travelNoteId.asc().nullsFirst())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByKeywordOrderByLikeDesc(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .leftJoin(travelNoteLike)
+                .on(travelNoteLike.travelNoteId.eq(travelNote.id))
+                .where(travelNote.publicShare.eq(true), travelNote.title.lower().contains(keyword.toLowerCase()))
+                .groupBy(travelNote.id, travelNoteLike.travelNoteId)
+                .orderBy(travelNote.count().desc(), travelNoteLike.travelNoteId.desc().nullsLast())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByKeywordNonLike(String keyword, int page, int limit) {
+        return null;
     }
 
     public List<TravelNote> findByMember(Member member, int page, int limit) {
