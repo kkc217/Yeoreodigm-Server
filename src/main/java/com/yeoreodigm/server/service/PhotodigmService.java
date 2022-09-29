@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -45,11 +46,15 @@ public class PhotodigmService {
     public Photodigm createPhotodigm(Member member) {
         return Photodigm.builder()
                 .title("제목을 입력해주세요.")
-                .address(createRandomFileName() + PHOTODIGM_EXTENSION)
+                .address(getRandomFileName() + PHOTODIGM_EXTENSION)
                 .frameId(DEFAULT_FRAME_ID)
                 .member(member)
                 .pictures(Arrays.asList(PHOTODIGM_DEFAULT_PICTURE_ID_LIST))
                 .build();
+    }
+
+    public void changePhotodigmPictures(Photodigm photodigm, List<Picture> pictureList) {
+        photodigm.changePictures(pictureList.stream().map(Picture::getId).toList());
     }
 
     public void createPhotodigmImage(List<Picture> pictureList, Frame frame, String fileName) {
@@ -85,7 +90,7 @@ public class PhotodigmService {
         }
     }
 
-    private String createRandomFileName() {
+    public String getRandomFileName() {
         return UUID.randomUUID().toString();
     }
 
@@ -123,6 +128,26 @@ public class PhotodigmService {
     public void changePhotodigmTitle(Photodigm photodigm, String title) {
         photodigm.changeTitle(title);
         photodigmRepository.merge(photodigm);
+    }
+
+    public void checkPictureContentType(MultipartFile file) {
+        if (file.isEmpty()) throw new BadRequestException("업로드한 이미지 파일을 확인해주시기 바랍니다.");
+
+        if (!Arrays.asList(PICTURE_CONTENT_TYPE_LIST)
+                .contains(Objects.requireNonNull(file.getContentType()).toLowerCase()))
+            throw new BadRequestException("jpg, png, peng 파일만 업로드 가능합니다.");
+    }
+
+    public void checkPictureListContentType(List<MultipartFile> fileList) {
+        for (MultipartFile file : fileList)
+            checkPictureContentType(file);
+    }
+
+    @Transactional
+    public Picture savePicture(String address, Member member) {
+        Picture picture = new Picture(address, member);
+        pictureRepository.save(picture);
+        return picture;
     }
 
 }

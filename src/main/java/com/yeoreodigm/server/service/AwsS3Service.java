@@ -12,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BUCKET;
 
@@ -22,15 +24,15 @@ public class AwsS3Service {
 
     private final AmazonS3Client amazonS3Client;
 
-    public String uploadFile(String directory, String fileName, MultipartFile multipartFile) {
-        validateFileExists(multipartFile);
+    public String uploadFile(String directory, String fileName, MultipartFile file) {
+        validateFileExists(file);
 
         String targetUrl = AWS_S3_BUCKET + directory;
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(multipartFile.getContentType());
+        objectMetadata.setContentType(file.getContentType());
 
-        try (InputStream inputStream = multipartFile.getInputStream()) {
+        try (InputStream inputStream = file.getInputStream()) {
             amazonS3Client.putObject(new PutObjectRequest(targetUrl, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e) {
@@ -38,6 +40,12 @@ public class AwsS3Service {
         }
 
         return amazonS3Client.getUrl(targetUrl, fileName).toString();
+    }
+
+    public void uploadFiles(String directory, List<String> fileNameList, List<MultipartFile> fileList) {
+        for (int i = 0; i < fileList.size(); i++) {
+            uploadFile(directory, fileNameList.get(i), fileList.get(i));
+        }
     }
 
     private void validateFileExists(MultipartFile multipartFile) {
