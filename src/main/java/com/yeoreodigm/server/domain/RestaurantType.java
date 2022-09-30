@@ -1,13 +1,13 @@
 package com.yeoreodigm.server.domain;
 
 public enum RestaurantType {
-    CLOSURE("폐업", 0),
-    WESTERN("양식", 1),
-    CHINESE("중식", 2),
-    BUNSIK("분식", 3),
-    CAFE("카페/베이커리", 4),
-    KOREAN("한식", 5),
-    JAPANESE("일식", 6);
+    CLOSURE("폐업", 1),
+    WESTERN("양식", 2),
+    CHINESE("중식", 3),
+    BUNSIK("분식", 4),
+    CAFE("카페/베이커리", 5),
+    KOREAN("한식", 6),
+    JAPANESE("일식", 7);
 
     private final String kName;
 
