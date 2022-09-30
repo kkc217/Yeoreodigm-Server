@@ -5,9 +5,7 @@ import lombok.Getter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -29,6 +27,7 @@ public class Restaurant {
 
     private String dialNum;
 
+    @Enumerated(EnumType.STRING)
     private RestaurantType type;
 
     private String imageUrl;
