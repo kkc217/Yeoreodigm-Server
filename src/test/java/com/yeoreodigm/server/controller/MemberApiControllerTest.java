@@ -58,7 +58,7 @@ public class MemberApiControllerTest {
         objectMapper = new ObjectMapper();
 
         memberJoinRequestDto = new MemberJoinRequestDto();
-        memberJoinRequestDto.setGender(Gender.male);
+        memberJoinRequestDto.setGender(Gender.MALE);
         memberJoinRequestDto.setYear(2000);
         memberJoinRequestDto.setMonth(1);
         memberJoinRequestDto.setDay(1);
