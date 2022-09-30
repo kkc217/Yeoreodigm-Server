@@ -32,75 +32,51 @@ public class NearRestaurantRepository {
     }
 
     public List<Long> findByPlaceIdKorean(Long placeId) {
-        try {
-            return queryFactory
-                    .select(nearRestaurant.korean)
-                    .from(nearRestaurant)
-                    .where(nearRestaurant.placeId.eq(placeId))
-                    .fetchOne();
-        } catch (NonUniqueResultException e) {
-            throw new BadRequestException("근처 음식점이 둘 이상입니다.");
-        }
+        return queryFactory
+                .select(nearRestaurant.korean)
+                .from(nearRestaurant)
+                .where(nearRestaurant.placeId.eq(placeId))
+                .fetchOne();
     }
 
     public List<Long> findByPlaceIdChinese(Long placeId) {
-        try {
-            return queryFactory
-                    .select(nearRestaurant.chinese)
-                    .from(nearRestaurant)
-                    .where(nearRestaurant.placeId.eq(placeId))
-                    .fetchOne();
-        } catch (NonUniqueResultException e) {
-            throw new BadRequestException("근처 음식점이 둘 이상입니다.");
-        }
+        return queryFactory
+                .select(nearRestaurant.chinese)
+                .from(nearRestaurant)
+                .where(nearRestaurant.placeId.eq(placeId))
+                .fetchOne();
     }
 
     public List<Long> findByPlaceIdJapanese(Long placeId) {
-        try {
-            return queryFactory
-                    .select(nearRestaurant.japanese)
-                    .from(nearRestaurant)
-                    .where(nearRestaurant.placeId.eq(placeId))
-                    .fetchOne();
-        } catch (NonUniqueResultException e) {
-            throw new BadRequestException("근처 음식점이 둘 이상입니다.");
-        }
+        return queryFactory
+                .select(nearRestaurant.japanese)
+                .from(nearRestaurant)
+                .where(nearRestaurant.placeId.eq(placeId))
+                .fetchOne();
     }
 
     public List<Long> findByPlaceIdWestern(Long placeId) {
-        try {
-            return queryFactory
-                    .select(nearRestaurant.western)
-                    .from(nearRestaurant)
-                    .where(nearRestaurant.placeId.eq(placeId))
-                    .fetchOne();
-        } catch (NonUniqueResultException e) {
-            throw new BadRequestException("근처 음식점이 둘 이상입니다.");
-        }
+        return queryFactory
+                .select(nearRestaurant.western)
+                .from(nearRestaurant)
+                .where(nearRestaurant.placeId.eq(placeId))
+                .fetchOne();
     }
 
     public List<Long> findByPlaceIdBunsik(Long placeId) {
-        try {
-            return queryFactory
-                    .select(nearRestaurant.bunsik)
-                    .from(nearRestaurant)
-                    .where(nearRestaurant.placeId.eq(placeId))
-                    .fetchOne();
-        } catch (NonUniqueResultException e) {
-            throw new BadRequestException("근처 음식점이 둘 이상입니다.");
-        }
+        return queryFactory
+                .select(nearRestaurant.bunsik)
+                .from(nearRestaurant)
+                .where(nearRestaurant.placeId.eq(placeId))
+                .fetchOne();
     }
 
     public List<Long> findByPlaceIdCafe(Long placeId) {
-        try {
-            return queryFactory
-                    .select(nearRestaurant.cafe)
-                    .from(nearRestaurant)
-                    .where(nearRestaurant.placeId.eq(placeId))
-                    .fetchOne();
-        } catch (NonUniqueResultException e) {
-            throw new BadRequestException("근처 음식점이 둘 이상입니다.");
-        }
+        return queryFactory
+                .select(nearRestaurant.cafe)
+                .from(nearRestaurant)
+                .where(nearRestaurant.placeId.eq(placeId))
+                .fetchOne();
     }
 
 }

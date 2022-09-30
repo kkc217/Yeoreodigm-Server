@@ -20,6 +20,8 @@ public enum RestaurantType {
 
     public String getKName() { return kName; }
 
+    public int getIndex() { return index; }
+
     public static RestaurantType getEnum(int index) {
         return switch (index) {
             case 1 -> WESTERN;

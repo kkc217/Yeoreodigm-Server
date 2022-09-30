@@ -1,0 +1,50 @@
+package com.yeoreodigm.server.dto.restaurant;
+
+import com.yeoreodigm.server.domain.Restaurant;
+import com.yeoreodigm.server.domain.RestaurantType;
+import lombok.Data;
+import org.hibernate.annotations.Type;
+
+import javax.persistence.Column;
+import java.util.List;
+
+@Data
+public class RestaurantDto {
+
+    private Long restaurantId;
+
+    private String title;
+
+    private String address;
+
+    private String introduction;
+
+    private String dialNum;
+
+    private String type;
+
+    private String imageUrl;
+
+    private int score;
+
+    private List<String> tag;
+
+    private double latitude;
+
+    private double longitude;
+
+    public RestaurantDto(Restaurant restaurant) {
+        this.restaurantId = restaurant.getId();
+        this.title = restaurant.getTitle();
+        this.address = restaurant.getAddress();
+        this.introduction = restaurant.getIntroduction();
+        this.dialNum = restaurant.getDialNum();
+        this.type = restaurant.getType().getKName();
+        this.imageUrl = restaurant.getImageUrl();
+        this.score = restaurant.getScore();
+        this.tag = restaurant.getTag();
+        this.latitude = restaurant.getLatitude();
+        this.longitude = restaurant.getLongitude();
+    }
+
+}

@@ -3,6 +3,7 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.PlaceLike;
 import com.yeoreodigm.server.domain.Places;
+import com.yeoreodigm.server.domain.Restaurant;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
@@ -12,8 +13,10 @@ import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.dto.place.PlaceStringIdDto;
+import com.yeoreodigm.server.dto.restaurant.RestaurantDto;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceService;
+import com.yeoreodigm.server.service.RestaurantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +31,8 @@ public class PlaceApiController {
     private final PlaceService placeService;
 
     private final MemberService memberService;
+
+    private final RestaurantService restaurantService;
 
     @GetMapping("/like/list/{page}/{limit}")
     public PageResult<List<PlaceLikeDto>> callPlaceLikeList(
@@ -102,6 +107,22 @@ public class PlaceApiController {
                 .stream()
                 .map(PlaceStringIdDto::new)
                 .toList());
+    }
+
+    @GetMapping("/restaurant")
+    public PageResult<List<RestaurantDto>> callNearRestaurant(
+            @RequestParam("placeId") Long placeId,
+            @RequestParam(value = "type", required = false, defaultValue = "0") int type,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) {
+        List<Long> restaurantIdList = restaurantService.getNearRestaurantId(placeId, type);
+
+        return new PageResult<>(
+                restaurantService.getRestaurantsPaging(restaurantIdList, page, limit)
+                        .stream()
+                        .map(RestaurantDto::new)
+                        .toList(),
+                restaurantService.checkNextRestaurants(restaurantIdList, page, limit));
     }
 
 }
