@@ -44,7 +44,7 @@ public class MemberServiceTest {
                 "qwer1234!",
                 "여러다임",
                 LocalDate.now(),
-                Gender.male,
+                Gender.MALE,
                 "경기",
                 true);
 
@@ -65,7 +65,7 @@ public class MemberServiceTest {
         memberJoinRequestDto.setEmail("yeoreodigm@naver.com");
         memberJoinRequestDto.setNickname("여러다임2");
         memberJoinRequestDto.setPassword("qwer1234!");
-        memberJoinRequestDto.setGender(Gender.male);
+        memberJoinRequestDto.setGender(Gender.MALE);
         memberJoinRequestDto.setYear(2000);
         memberJoinRequestDto.setMonth(1);
         memberJoinRequestDto.setDay(1);
