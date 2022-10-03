@@ -1,18 +1,11 @@
 package com.yeoreodigm.server.domain;
 
-import com.vladmihalcea.hibernate.type.array.ListArrayType;
 import lombok.Getter;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Getter
-@TypeDef(
-        name = "list-array",
-        typeClass = ListArrayType.class)
 @SequenceGenerator(
         name = "FRAME_ID_SEQ_GENERATOR",
         sequenceName = "frame_id_seq",
@@ -30,26 +23,10 @@ public class Frame {
 
     private String address;
 
-    @Column(name = "size_x")
+    @Column(name = "x_size")
     private int sizeX;
 
-    @Column(name = "size_y")
+    @Column(name = "y_size")
     private int sizeY;
-
-    @Type(type = "list-array")
-    @Column(columnDefinition = "integer []")
-    private List<Integer> coordinate1;
-
-    @Type(type = "list-array")
-    @Column(columnDefinition = "integer []")
-    private List<Integer> coordinate2;
-
-    @Type(type = "list-array")
-    @Column(columnDefinition = "integer []")
-    private List<Integer> coordinate3;
-
-    @Type(type = "list-array")
-    @Column(columnDefinition = "integer []")
-    private List<Integer> coordinate4;
 
 }
