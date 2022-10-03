@@ -88,7 +88,7 @@ public class PhotodigmApiController {
     }
 
     @PutMapping("/picture")
-    public PhotodigmImageDto changePhotodigmImages(
+    public void changePhotodigmImages(
             @RequestPart(value = "photodigmId") Long photodigmId,
             @RequestPart(value = "picture1", required = false) MultipartFile picture1,
             @RequestPart(value = "picture2", required = false) MultipartFile picture2,
@@ -132,8 +132,6 @@ public class PhotodigmApiController {
                 photodigmService.getFrame(photodigm.getFrameId()),
                 photodigm.getAddress());
         photodigmService.savePhotodigm(photodigm);
-
-        return new PhotodigmImageDto(photodigm, pictureList);
     }
 
     @GetMapping("/frame")
@@ -145,7 +143,7 @@ public class PhotodigmApiController {
     }
 
     @PutMapping("/frame")
-    public PhotodigmImageDto changePhotodigmFrame(
+    public void changePhotodigmFrame(
             @RequestBody HashMap<String, Long> request,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         Photodigm photodigm = photodigmService.getPhotodigm(request.get("photodigmId"));
@@ -168,8 +166,6 @@ public class PhotodigmApiController {
                 frame,
                 photodigm.getAddress());
         photodigmService.savePhotodigm(photodigm);
-
-        return new PhotodigmImageDto(photodigm, pictureList);
     }
 
     @PatchMapping("/title")
