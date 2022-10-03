@@ -138,7 +138,7 @@ public class PhotodigmApiController {
     }
 
     @PutMapping("/frame")
-    public void changePhotodigmFrame(
+    public PhotodigmImageUrlDto changePhotodigmFrame(
             @RequestBody HashMap<String, Long> request,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         Photodigm photodigm = photodigmService.getPhotodigm(request.get("photodigmId"));
@@ -161,6 +161,8 @@ public class PhotodigmApiController {
                 frame,
                 photodigm.getAddress());
         photodigmService.savePhotodigm(photodigm);
+
+        return new PhotodigmImageUrlDto(photodigm, pictureList);
     }
 
     @PatchMapping("/title")
