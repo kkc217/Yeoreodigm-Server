@@ -116,6 +116,14 @@ public class PhotodigmService {
         return frameRepository.findAll();
     }
 
+    public Picture getPicture(Long pictureId) {
+        Picture picture = pictureRepository.findById(pictureId);
+
+        if (picture == null) throw new BadRequestException("사진을 불러올 수 없습니다.");
+
+        return picture;
+    }
+
     public List<Picture> getPictureList(List<Long> pictureIdList) {
         return pictureIdList.stream().map(pictureRepository::findById).toList();
     }

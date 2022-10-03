@@ -7,10 +7,7 @@ import com.yeoreodigm.server.domain.Picture;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.photodigm.ChangePhotodigmTitleDto;
-import com.yeoreodigm.server.dto.photodigm.FrameDto;
-import com.yeoreodigm.server.dto.photodigm.PhotodigmDto;
-import com.yeoreodigm.server.dto.photodigm.PhotodigmIdDto;
+import com.yeoreodigm.server.dto.photodigm.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.service.AwsS3Service;
@@ -26,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_PICTURE_URI;
+import static com.yeoreodigm.server.dto.constraint.PhotodigmConst.PHOTODIGM_DEFAULT_PICTURE_ID_LIST;
 import static com.yeoreodigm.server.dto.constraint.PhotodigmConst.PHOTODIGM_NUMBER_OF_PICTURE;
 
 @RestController
@@ -83,12 +81,12 @@ public class PhotodigmApiController {
     }
 
     @PutMapping("/picture")
-    public void changePhotodigmImages(
+    public PhotodigmImageUrlDto changePhotodigmImages(
             @RequestPart(value = "photodigmId") Long photodigmId,
-            @RequestPart(value = "picture1") MultipartFile picture1,
-            @RequestPart(value = "picture2") MultipartFile picture2,
-            @RequestPart(value = "picture3") MultipartFile picture3,
-            @RequestPart(value = "picture4") MultipartFile picture4,
+            @RequestPart(value = "picture1", required = false) MultipartFile picture1,
+            @RequestPart(value = "picture2", required = false) MultipartFile picture2,
+            @RequestPart(value = "picture3", required = false) MultipartFile picture3,
+            @RequestPart(value = "picture4", required = false) MultipartFile picture4,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
 
@@ -106,17 +104,18 @@ public class PhotodigmApiController {
         fileList.add(picture2);
         fileList.add(picture3);
         fileList.add(picture4);
-        photodigmService.checkPictureListContentType(fileList);
-
-        List<String> pictureAddressList = new ArrayList<>();
-        for (int i = 0; i < PHOTODIGM_NUMBER_OF_PICTURE; i++) {
-            pictureAddressList.add(photodigmService.getRandomFileName());
-        }
-
-        awsS3Service.uploadFiles(AWS_S3_PICTURE_URI, pictureAddressList, fileList);
 
         List<Picture> pictureList = new ArrayList<>();
-        for (String pictureAddress : pictureAddressList) {
+        for (int i = 0; i < fileList.size(); i++) {
+            MultipartFile file = fileList.get(i);
+            if (Objects.isNull(file)) {
+                pictureList.add(photodigmService.getPicture(photodigm.getPictures().get(i)));
+                continue;
+            }
+
+            photodigmService.checkPictureContentType(file);
+            String pictureAddress = photodigmService.getRandomFileName();
+            awsS3Service.uploadFile(AWS_S3_PICTURE_URI, pictureAddress, file);
             pictureList.add(photodigmService.savePicture(pictureAddress, member));
         }
 
@@ -126,6 +125,8 @@ public class PhotodigmApiController {
                 photodigmService.getFrame(photodigm.getFrameId()),
                 photodigm.getAddress());
         photodigmService.savePhotodigm(photodigm);
+
+        return new PhotodigmImageUrlDto(photodigm, pictureList);
     }
 
     @GetMapping("/frame")
