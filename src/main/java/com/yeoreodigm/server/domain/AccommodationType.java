@@ -20,6 +20,8 @@ public enum AccommodationType {
 
     public String getKName() { return kName; }
 
+    public int getIndex() { return index; }
+
     public static AccommodationType getEnum(int index) {
         return switch (index) {
             case 1 -> PENSION;

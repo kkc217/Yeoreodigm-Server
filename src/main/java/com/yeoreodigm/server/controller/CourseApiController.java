@@ -3,7 +3,9 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.RouteInfo;
 import com.yeoreodigm.server.domain.TravelNote;
+import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
+import com.yeoreodigm.server.dto.accommodation.AccommodationDto;
 import com.yeoreodigm.server.dto.course.*;
 import com.yeoreodigm.server.dto.route.RouteItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -30,6 +32,8 @@ public class CourseApiController {
     private final RouteInfoService routeInfoService;
 
     private final MapMarkerService mapMarkerService;
+
+    private final AccommodationService accommodationService;
 
     @GetMapping("/{travelNoteId}")
     public Result<List<CourseItemDto>> callCourseInfos(
@@ -132,6 +136,31 @@ public class CourseApiController {
     public void optimizeCourse(
             @RequestBody HashMap<String, Long> request) {
         courseService.optimizeCourse(travelNoteService.getTravelNoteById(request.get("travelNoteId")));
+    }
+
+    @GetMapping("/accommodation")
+    public PageResult<List<AccommodationDto>> callNearAccommodation(
+            @RequestParam("travelNoteId") Long travelNoteId,
+            @RequestParam(value = "day", required = false, defaultValue = "1") int day,
+            @RequestParam(value = "type", required = false, defaultValue = "0") int type,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) {
+        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
+        Course course = courseService.getCourseByTravelNoteAndDay(travelNote, day);
+
+        List<Long> placeIdList = course.getPlaces();
+
+        if (placeIdList.size() == 0) return new PageResult<>(new ArrayList<>(), 0);
+
+        List<Long> accommodationIdList = accommodationService.getNearAccommodationId(
+                placeIdList.get(placeIdList.size() - 1), type);
+
+        return new PageResult<>(
+                accommodationService.getAccommodationPaging(accommodationIdList, page, limit)
+                        .stream()
+                        .map(AccommodationDto::new)
+                        .toList(),
+                accommodationService.checkNextAccommodations(accommodationIdList, page, limit));
     }
 
 }
