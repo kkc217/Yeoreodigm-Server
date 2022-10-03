@@ -1,13 +1,8 @@
 package com.yeoreodigm.server.dto.accommodation;
 
 import com.yeoreodigm.server.domain.Accommodation;
-import com.yeoreodigm.server.domain.AccommodationType;
 import lombok.Data;
-import org.hibernate.annotations.Type;
 
-import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import java.util.List;
 
 @Data

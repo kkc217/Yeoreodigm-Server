@@ -1,11 +1,8 @@
 package com.yeoreodigm.server.dto.restaurant;
 
 import com.yeoreodigm.server.domain.Restaurant;
-import com.yeoreodigm.server.domain.RestaurantType;
 import lombok.Data;
-import org.hibernate.annotations.Type;
 
-import javax.persistence.Column;
 import java.util.List;
 
 @Data

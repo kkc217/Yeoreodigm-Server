@@ -1,7 +1,6 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.Accommodation;
-import com.yeoreodigm.server.domain.AccommodationType;
 import com.yeoreodigm.server.domain.NearAccommodation;
 import com.yeoreodigm.server.repository.AccommodationRepository;
 import com.yeoreodigm.server.repository.NearAccommodationRepository;

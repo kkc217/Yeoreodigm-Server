@@ -3,7 +3,6 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.PlaceLike;
 import com.yeoreodigm.server.domain.Places;
-import com.yeoreodigm.server.domain.Restaurant;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
