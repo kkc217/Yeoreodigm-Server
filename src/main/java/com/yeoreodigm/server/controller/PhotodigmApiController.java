@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_PICTURE_URI;
-import static com.yeoreodigm.server.dto.constraint.PhotodigmConst.PHOTODIGM_DEFAULT_PICTURE_ID_LIST;
-import static com.yeoreodigm.server.dto.constraint.PhotodigmConst.PHOTODIGM_NUMBER_OF_PICTURE;
 
 @RestController
 @RequiredArgsConstructor
@@ -80,8 +78,17 @@ public class PhotodigmApiController {
                 photodigmService.checkNextPhotodigmByMember(member, page, limit));
     }
 
+    @GetMapping("/picture/{photodigmId}")
+    public PhotodigmImageDto callPhotodigmImageInfos(
+            @PathVariable("photodigmId") Long photodigmId) {
+        Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
+        List<Picture> pictureList = photodigmService.getPictureList(photodigm.getPictures());
+
+        return new PhotodigmImageDto(photodigm, pictureList);
+    }
+
     @PutMapping("/picture")
-    public PhotodigmImageUrlDto changePhotodigmImages(
+    public PhotodigmImageDto changePhotodigmImages(
             @RequestPart(value = "photodigmId") Long photodigmId,
             @RequestPart(value = "picture1", required = false) MultipartFile picture1,
             @RequestPart(value = "picture2", required = false) MultipartFile picture2,
@@ -126,7 +133,7 @@ public class PhotodigmApiController {
                 photodigm.getAddress());
         photodigmService.savePhotodigm(photodigm);
 
-        return new PhotodigmImageUrlDto(photodigm, pictureList);
+        return new PhotodigmImageDto(photodigm, pictureList);
     }
 
     @GetMapping("/frame")
@@ -138,7 +145,7 @@ public class PhotodigmApiController {
     }
 
     @PutMapping("/frame")
-    public PhotodigmImageUrlDto changePhotodigmFrame(
+    public PhotodigmImageDto changePhotodigmFrame(
             @RequestBody HashMap<String, Long> request,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         Photodigm photodigm = photodigmService.getPhotodigm(request.get("photodigmId"));
@@ -162,7 +169,7 @@ public class PhotodigmApiController {
                 photodigm.getAddress());
         photodigmService.savePhotodigm(photodigm);
 
-        return new PhotodigmImageUrlDto(photodigm, pictureList);
+        return new PhotodigmImageDto(photodigm, pictureList);
     }
 
     @PatchMapping("/title")
