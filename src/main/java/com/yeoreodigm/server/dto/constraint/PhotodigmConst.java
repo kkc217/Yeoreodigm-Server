@@ -12,6 +12,6 @@ public class PhotodigmConst {
     public final static int PHOTODIGM_NUMBER_OF_PICTURE = 4;
 
     public final static String[] PICTURE_CONTENT_TYPE_LIST
-            = {"image/jpg", "image/png", "image/peng"};
+            = {"image/jpg", "image/jpeg", "image/png", "image/peng"};
 
 }

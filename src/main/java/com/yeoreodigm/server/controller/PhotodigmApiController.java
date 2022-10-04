@@ -40,7 +40,7 @@ public class PhotodigmApiController {
 
         List<Picture> pictureList = photodigmService.getPictureList(photodigm.getPictures());
         Frame frame = photodigmService.getFrame(photodigm.getFrameId());
-        photodigmService.createPhotodigmImage(pictureList, frame, photodigm.getAddress());
+        photodigmService.createPhotodigmImage(pictureList, frame.getAddress(), photodigm.getAddress());
 
         photodigmService.savePhotodigm(photodigm);
 
@@ -53,14 +53,16 @@ public class PhotodigmApiController {
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
 
-        if (Objects.isNull(member) && Objects.isNull(photodigm.getMember())) {
-            return new PhotodigmDto(photodigm);
-        } else if ((Objects.nonNull(member) && Objects.nonNull(photodigm.getMember()))
-                && Objects.equals(member.getId(), photodigm.getMember().getId())) {
-            return new PhotodigmDto(photodigm);
+        if (Objects.isNull(member)) {
+            if (Objects.nonNull(photodigm.getMember()))
+                throw new BadRequestException("포토다임 수정 권한이 없습니다.");
+        } else {
+            if (Objects.isNull(photodigm.getMember())
+                    || !Objects.equals(member.getId(), photodigm.getMember().getId()))
+                throw new BadRequestException("포토다임 수정 권한이 없습니다.");
         }
 
-        throw new BadRequestException("포토다임 접근 권한이 없습니다.");
+        return new PhotodigmDto(photodigm, photodigmService.getFrame(photodigm.getFrameId()));
     }
 
     @GetMapping("/{page}/{limit}")
@@ -73,7 +75,7 @@ public class PhotodigmApiController {
         return new PageResult<>(
                 photodigmService.getPhotodigmByMember(member, page, limit)
                         .stream()
-                        .map(PhotodigmDto::new)
+                        .map(photodigm -> new PhotodigmDto(photodigm, photodigmService.getFrame(photodigm.getFrameId())))
                         .toList(),
                 photodigmService.checkNextPhotodigmByMember(member, page, limit));
     }
@@ -89,11 +91,11 @@ public class PhotodigmApiController {
 
     @PutMapping("/picture")
     public void changePhotodigmImages(
-            @RequestPart(value = "photodigmId") Long photodigmId,
-            @RequestPart(value = "picture1", required = false) MultipartFile picture1,
-            @RequestPart(value = "picture2", required = false) MultipartFile picture2,
-            @RequestPart(value = "picture3", required = false) MultipartFile picture3,
-            @RequestPart(value = "picture4", required = false) MultipartFile picture4,
+            @RequestPart(name = "photodigmId") Long photodigmId,
+            @RequestPart(name = "picture1", required = false) MultipartFile picture1,
+            @RequestPart(name = "picture2", required = false) MultipartFile picture2,
+            @RequestPart(name = "picture3", required = false) MultipartFile picture3,
+            @RequestPart(name = "picture4", required = false) MultipartFile picture4,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
 
@@ -115,13 +117,16 @@ public class PhotodigmApiController {
         List<Picture> pictureList = new ArrayList<>();
         for (int i = 0; i < fileList.size(); i++) {
             MultipartFile file = fileList.get(i);
-            if (Objects.isNull(file)) {
-                pictureList.add(photodigmService.getPicture(photodigm.getPictures().get(i)));
+            if (Objects.isNull(file) || file.isEmpty()) {
+                if (Objects.isNull(photodigm.getPictures().get(i)))
+                    pictureList.add(null);
+                else
+                    pictureList.add(photodigmService.getPicture(photodigm.getPictures().get(i)));
                 continue;
             }
 
-            photodigmService.checkPictureContentType(file);
-            String pictureAddress = photodigmService.getRandomFileName();
+            String extension = photodigmService.checkPictureContentType(file);
+            String pictureAddress = photodigmService.getRandomFileName() + "." + extension;
             awsS3Service.uploadFile(AWS_S3_PICTURE_URI, pictureAddress, file);
             pictureList.add(photodigmService.savePicture(pictureAddress, member));
         }
@@ -129,7 +134,7 @@ public class PhotodigmApiController {
         photodigmService.changePhotodigmPictures(photodigm, pictureList);
         photodigmService.createPhotodigmImage(
                 pictureList,
-                photodigmService.getFrame(photodigm.getFrameId()),
+                photodigmService.getFrame(photodigm.getFrameId()).getAddress(),
                 photodigm.getAddress());
         photodigmService.savePhotodigm(photodigm);
     }
@@ -163,7 +168,7 @@ public class PhotodigmApiController {
         List<Picture> pictureList = photodigmService.getPictureList(photodigm.getPictures());
         photodigmService.createPhotodigmImage(
                 pictureList,
-                frame,
+                frame.getAddress(),
                 photodigm.getAddress());
         photodigmService.savePhotodigm(photodigm);
     }

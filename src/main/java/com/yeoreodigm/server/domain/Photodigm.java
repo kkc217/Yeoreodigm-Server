@@ -11,7 +11,10 @@ import org.hibernate.annotations.TypeDef;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.yeoreodigm.server.dto.constraint.PhotodigmConst.PHOTODIGM_NUMBER_OF_PICTURE;
 
 @Entity
 @Getter
@@ -48,22 +51,23 @@ public class Photodigm {
 
     @Type(type = "list-array")
     @Column(columnDefinition = "bigint []")
-    private List<Long> pictures;
+    private List<Long> pictures = new ArrayList<>();
 
     @Builder
     public Photodigm(
             String title,
             String address,
             Long frameId,
-            Member member,
-            List<Long> pictures) {
+            Member member) {
         this.title = title;
         this.address = address;
         this.frameId = frameId;
         this.created = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         this.modified = this.created;
         this.member = member;
-        this.pictures = pictures;
+        for (int i = 0; i < PHOTODIGM_NUMBER_OF_PICTURE; i++) {
+            this.pictures.add(null);
+        }
     }
 
     public void changeTitle(String title) {
