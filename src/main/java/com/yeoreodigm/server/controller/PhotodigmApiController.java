@@ -212,6 +212,7 @@ public class PhotodigmApiController {
     public void changePhotodigmTitle(
             @RequestBody @Valid ChangePhotodigmTitleDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (requestDto.getTitle().length() > 30) throw new BadRequestException("포토다임 제목은 30자 이하만 가능합니다.");
         Photodigm photodigm = photodigmService.getPhotodigm(requestDto.getPhotodigmId());
 
         if (Objects.isNull(member) && Objects.isNull(photodigm.getMember())) {
