@@ -6,6 +6,7 @@ import com.yeoreodigm.server.domain.Photodigm;
 import com.yeoreodigm.server.domain.Picture;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
+import com.yeoreodigm.server.dto.constraint.PhotodigmConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.photodigm.*;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_PICTURE_URI;
+import static com.yeoreodigm.server.dto.constraint.PhotodigmConst.PHOTODIGM_NUMBER_OF_PICTURE;
 
 @RestController
 @RequiredArgsConstructor
@@ -129,6 +131,39 @@ public class PhotodigmApiController {
             String pictureAddress = photodigmService.getRandomFileName() + "." + extension;
             awsS3Service.uploadFile(AWS_S3_PICTURE_URI, pictureAddress, file);
             pictureList.add(photodigmService.savePicture(pictureAddress, member));
+        }
+
+        photodigmService.changePhotodigmPictures(photodigm, pictureList);
+        photodigmService.createPhotodigmImage(
+                pictureList,
+                photodigm.getAddress(),
+                photodigm.getAddress());
+        photodigmService.savePhotodigm(photodigm);
+    }
+
+    @DeleteMapping("/picture/{photodigmId}/{target}")
+    public void deletePhotodigmImage(
+            @PathVariable(name = "photodigmId") Long photodigmId,
+            @PathVariable(name = "target") int target,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
+
+        if (Objects.isNull(member)) {
+            if (Objects.nonNull(photodigm.getMember()))
+                throw new BadRequestException("포토다임 수정 권한이 없습니다.");
+        } else {
+            if (Objects.isNull(photodigm.getMember())
+                    || !Objects.equals(member.getId(), photodigm.getMember().getId()))
+                throw new BadRequestException("포토다임 수정 권한이 없습니다.");
+        }
+
+        List<Picture> pictureList = new ArrayList<>();
+        for (int i = 0; i < PHOTODIGM_NUMBER_OF_PICTURE; i++) {
+            if (target - 1 == i || Objects.isNull(photodigm.getPictures().get(i))) {
+                pictureList.add(null);
+                continue;
+            }
+            pictureList.add(photodigmService.getPicture(photodigm.getPictures().get(i)));
         }
 
         photodigmService.changePhotodigmPictures(photodigm, pictureList);
