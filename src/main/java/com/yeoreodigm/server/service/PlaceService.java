@@ -67,10 +67,10 @@ public class PlaceService {
 
     public List<Places> searchPlaces(String content, int page, int limit, int option) {
         if (Objects.equals(SEARCH_OPTION_LIKE_ASC, option)) {
-            return placesRepository.findPublicByKeywordOrderByLikeAsc(
+            return placesRepository.findByKeywordOrderByLikeAsc(
                     content, limit * (page - 1), limit);
         } else if (Objects.equals(SEARCH_OPTION_LIKE_DESC, option)) {
-            return placesRepository.findPublicByKeywordOrderByLikeDesc(
+            return placesRepository.findByKeywordOrderByLikeDesc(
                     content, limit * (page - 1), limit);
         }
 
