@@ -1,6 +1,7 @@
-package com.yeoreodigm.server.domain;
+package com.yeoreodigm.server.domain.board;
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
+import com.yeoreodigm.server.domain.Member;
 import lombok.Getter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;

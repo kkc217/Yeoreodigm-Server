@@ -1,4 +1,4 @@
-package com.yeoreodigm.server.domain;
+package com.yeoreodigm.server.domain.board;
 
 import lombok.Getter;
 

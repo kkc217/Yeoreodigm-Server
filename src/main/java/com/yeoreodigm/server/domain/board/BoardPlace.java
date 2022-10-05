@@ -1,5 +1,6 @@
-package com.yeoreodigm.server.domain;
+package com.yeoreodigm.server.domain.board;
 
+import com.yeoreodigm.server.domain.Places;
 import lombok.Getter;
 
 import javax.persistence.*;
