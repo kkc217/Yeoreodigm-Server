@@ -39,6 +39,27 @@ public class PlaceLikeRepository {
         return queryFactory
                 .selectFrom(placeLike)
                 .where(placeLike.memberId.eq(memberId))
+                .orderBy(placeLike.id.desc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<Long> findPlaceIdByMemberId(Long memberId) {
+        return queryFactory
+                .select(placeLike.placeId)
+                .from(placeLike)
+                .where(placeLike.memberId.eq(memberId))
+                .fetch();
+    }
+
+    public List<Long> findPlaceIdOrderByLikePaging(List<Long> placeIdList, int page, int limit) {
+        return queryFactory
+                .select(placeLike.placeId)
+                .from(placeLike)
+                .where(placeLike.placeId.in(placeIdList))
+                .groupBy(placeLike.placeId)
+                .orderBy(placeLike.placeId.count().desc())
                 .offset(page)
                 .limit(limit)
                 .fetch();

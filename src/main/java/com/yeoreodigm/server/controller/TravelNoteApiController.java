@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
+
+import static com.yeoreodigm.server.dto.constraint.SearchConst.SEARCH_OPTION_LIKE;
 
 @RestController
 @RequiredArgsConstructor
@@ -196,6 +199,29 @@ public class TravelNoteApiController {
                         .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
                         .toList(),
                 next);
+    }
+
+    @GetMapping("/like/list")
+    public PageResult<List<PublicTravelNoteDto>> callTravelNoteLikeListV2(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "option", required = false, defaultValue = "0") int option,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (Objects.equals(SEARCH_OPTION_LIKE, option)) {
+            return new PageResult<>(
+                    travelNoteService.getTravelNotesOrderByLike(member, page, limit)
+                            .stream()
+                            .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                            .toList(),
+                    travelNoteService.checkNextNoteLikePage(member, page, limit));
+        }
+
+        return new PageResult<>(
+                travelNoteService.getNotesByNoteLikes(travelNoteService.getNoteLikes(member, page, limit))
+                        .stream()
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                        .toList(),
+                travelNoteService.checkNextNoteLikePage(member, page, limit));
     }
 
     @GetMapping("/like/list/{memberId}/{page}/{limit}")

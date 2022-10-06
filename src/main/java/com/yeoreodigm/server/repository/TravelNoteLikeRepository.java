@@ -54,6 +54,27 @@ public class TravelNoteLikeRepository {
         return queryFactory
                 .selectFrom(travelNoteLike)
                 .where(travelNoteLike.memberId.eq(member.getId()))
+                .orderBy(travelNoteLike.id.desc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<Long> findTravelNoteIdByMemberId(Long memberId) {
+        return queryFactory
+                .select(travelNoteLike.travelNoteId)
+                .from(travelNoteLike)
+                .where(travelNoteLike.memberId.eq(memberId))
+                .fetch();
+    }
+
+    public List<Long> findTravelNoteIdOrderByLikePaging(List<Long> travelNoteIdList, int page, int limit) {
+        return queryFactory
+                .select(travelNoteLike.travelNoteId)
+                .from(travelNoteLike)
+                .where(travelNoteLike.travelNoteId.in(travelNoteIdList))
+                .groupBy(travelNoteLike.travelNoteId)
+                .orderBy(travelNoteLike.travelNoteId.count().desc())
                 .offset(page)
                 .limit(limit)
                 .fetch();

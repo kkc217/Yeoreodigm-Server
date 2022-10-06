@@ -114,6 +114,16 @@ public class PlaceService {
                 .findByMemberIdPaging(member.getId(), limit * (page - 1), limit);
     }
 
+    public List<Places> getPlacesOrderByLike(Member member, int page, int limit) {
+        if (member == null) return new ArrayList<>();
+
+        return placeLikeRepository.findPlaceIdOrderByLikePaging(
+                placeLikeRepository.findPlaceIdByMemberId(member.getId()), limit * (page - 1), limit)
+                .stream()
+                .map(placesRepository::findByPlaceId)
+                .toList();
+    }
+
     public int checkNextPlaceLikePage(Member member, int page, int limit) {
         List<PlaceLike> placeLikeList = this.getPlaceLikesByMemberPaging(member, page + 1, limit);
 

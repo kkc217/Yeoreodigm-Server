@@ -13,6 +13,7 @@ import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.dto.place.PlaceStringIdDto;
 import com.yeoreodigm.server.dto.restaurant.RestaurantDto;
+import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.RestaurantService;
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static com.yeoreodigm.server.dto.constraint.SearchConst.SEARCH_OPTION_LIKE;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,6 +56,29 @@ public class PlaceApiController {
         }
 
         return new PageResult<>(response, next);
+    }
+
+    @GetMapping("/like/list")
+    public PageResult<List<PlaceLikeDto>> callPlaceLikeListV2(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "option", required = false, defaultValue = "0") int option,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (Objects.equals(SEARCH_OPTION_LIKE, option)) {
+            return new PageResult<>(
+                    placeService.getPlacesOrderByLike(member, page, limit)
+                            .stream()
+                            .map(place -> new PlaceLikeDto(place, placeService.getLikeInfo(place, member)))
+                            .toList(),
+                    placeService.checkNextPlaceLikePage(member, page, limit));
+        }
+
+        return new PageResult<>(
+                placeService.getPlacesByPlaceLikes(placeService.getPlaceLikesByMemberPaging(member, page, limit))
+                        .stream()
+                        .map(place -> new PlaceLikeDto(place, placeService.getLikeInfo(place, member)))
+                        .toList(),
+                placeService.checkNextPlaceLikePage(member, page, limit));
     }
 
     @GetMapping("/like/list/{memberId}/{page}/{limit}")
