@@ -2,7 +2,6 @@ package com.yeoreodigm.server.repository.board;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoreodigm.server.domain.board.BoardComment;
-import com.yeoreodigm.server.domain.board.QBoardComment;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 

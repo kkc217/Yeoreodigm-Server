@@ -6,7 +6,6 @@ import com.yeoreodigm.server.domain.Photodigm;
 import com.yeoreodigm.server.domain.Picture;
 import com.yeoreodigm.server.dto.constraint.EnvConst;
 import com.yeoreodigm.server.dto.photodigm.CreatePhotodigmImageDto;
-import com.yeoreodigm.server.dto.photodigm.PhotodigmImageResponseDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.FrameRepository;
 import com.yeoreodigm.server.repository.PhotodigmRepository;
@@ -17,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
-import springfox.documentation.spring.web.json.Json;
 
 import java.util.*;
 

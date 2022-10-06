@@ -4,7 +4,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoreodigm.server.domain.board.Board;
 import com.yeoreodigm.server.domain.board.BoardTag;
 import com.yeoreodigm.server.domain.board.HashTag;
-import com.yeoreodigm.server.domain.board.QBoardTag;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 

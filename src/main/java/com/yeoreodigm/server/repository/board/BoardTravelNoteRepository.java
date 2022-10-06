@@ -4,7 +4,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.domain.board.Board;
 import com.yeoreodigm.server.domain.board.BoardTravelNote;
-import com.yeoreodigm.server.domain.board.QBoardTravelNote;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 

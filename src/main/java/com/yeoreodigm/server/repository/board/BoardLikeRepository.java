@@ -1,15 +1,12 @@
 package com.yeoreodigm.server.repository.board;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.board.Board;
 import com.yeoreodigm.server.domain.board.BoardLike;
-import com.yeoreodigm.server.domain.board.QBoardLike;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-
 import java.util.List;
 
 import static com.yeoreodigm.server.domain.board.QBoardLike.boardLike;

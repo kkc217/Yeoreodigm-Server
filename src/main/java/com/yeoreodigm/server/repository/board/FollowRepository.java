@@ -4,7 +4,6 @@ import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.board.Follow;
-import com.yeoreodigm.server.domain.board.QFollow;
 import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;

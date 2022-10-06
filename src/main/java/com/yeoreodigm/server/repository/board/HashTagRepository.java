@@ -3,13 +3,11 @@ package com.yeoreodigm.server.repository.board;
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoreodigm.server.domain.board.HashTag;
-import com.yeoreodigm.server.domain.board.QHashTag;
 import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-
 import java.util.List;
 
 import static com.yeoreodigm.server.domain.board.QHashTag.hashTag;
