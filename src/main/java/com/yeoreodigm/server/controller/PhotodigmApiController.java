@@ -6,7 +6,6 @@ import com.yeoreodigm.server.domain.Photodigm;
 import com.yeoreodigm.server.domain.Picture;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
-import com.yeoreodigm.server.dto.constraint.PhotodigmConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.photodigm.*;
 import com.yeoreodigm.server.exception.BadRequestException;

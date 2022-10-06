@@ -13,7 +13,6 @@ import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.dto.place.PlaceStringIdDto;
 import com.yeoreodigm.server.dto.restaurant.RestaurantDto;
-import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.RestaurantService;
@@ -24,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.yeoreodigm.server.dto.constraint.SearchConst.SEARCH_OPTION_LIKE;
+import static com.yeoreodigm.server.dto.constraint.SearchConst.SEARCH_OPTION_LIKE_DESC;
 
 @RestController
 @RequiredArgsConstructor
@@ -64,7 +63,7 @@ public class PlaceApiController {
             @RequestParam("limit") int limit,
             @RequestParam(value = "option", required = false, defaultValue = "0") int option,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (Objects.equals(SEARCH_OPTION_LIKE, option)) {
+        if (Objects.equals(SEARCH_OPTION_LIKE_DESC, option)) {
             return new PageResult<>(
                     placeService.getPlacesOrderByLike(member, page, limit)
                             .stream()

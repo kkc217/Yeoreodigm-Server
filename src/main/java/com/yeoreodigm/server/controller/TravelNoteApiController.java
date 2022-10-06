@@ -21,7 +21,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
 
-import static com.yeoreodigm.server.dto.constraint.SearchConst.SEARCH_OPTION_LIKE;
+import static com.yeoreodigm.server.dto.constraint.SearchConst.SEARCH_OPTION_LIKE_DESC;
 
 @RestController
 @RequiredArgsConstructor
@@ -207,7 +207,7 @@ public class TravelNoteApiController {
             @RequestParam("limit") int limit,
             @RequestParam(value = "option", required = false, defaultValue = "0") int option,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (Objects.equals(SEARCH_OPTION_LIKE, option)) {
+        if (Objects.equals(SEARCH_OPTION_LIKE_DESC, option)) {
             return new PageResult<>(
                     travelNoteService.getTravelNotesOrderByLike(member, page, limit)
                             .stream()
