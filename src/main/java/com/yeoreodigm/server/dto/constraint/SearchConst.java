@@ -10,6 +10,8 @@ public class SearchConst {
 
     public static int SEARCH_OPTION_DEFAULT = 0;
 
+    public static int SEARCH_OPTION_LIKE = 1;
+
     public static int SEARCH_OPTION_LIKE_ASC = 10;
 
     public static int SEARCH_OPTION_LIKE_DESC = 11;
