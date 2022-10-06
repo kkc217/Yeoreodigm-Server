@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.dto.accommodation;
 
+import com.yeoreodigm.server.dto.PageResult;
 import lombok.Data;
 
 import java.util.List;
@@ -14,9 +15,9 @@ public class AccommodationListDto {
 
     private int totalDay;
 
-    private List<AccommodationDto> accommodations;
+    private PageResult<List<AccommodationDto>> accommodations;
 
-    public AccommodationListDto(int day, int totalDay, List<AccommodationDto> accommodations) {
+    public AccommodationListDto(int day, int totalDay, PageResult<List<AccommodationDto>> accommodations) {
         this.hasPrev = !Objects.equals(day, 1);
         this.hasNext = !Objects.equals(day, totalDay);
         this.totalDay = totalDay;

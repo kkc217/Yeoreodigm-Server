@@ -154,7 +154,8 @@ public class CourseApiController {
         List<Long> placeIdList = course.getPlaces();
 
         if (placeIdList.size() == 0)
-            return new AccommodationListDto(day, travelNote.getCourses().size(), new ArrayList<>());
+            return new AccommodationListDto(
+                    day, travelNote.getCourses().size(), new PageResult<>(new ArrayList<>(), 0));
 
         List<Long> accommodationIdList = accommodationService.getNearAccommodationId(
                 placeIdList.get(placeIdList.size() - 1), type);
@@ -162,10 +163,12 @@ public class CourseApiController {
         return new AccommodationListDto(
                 day,
                 travelNote.getCourses().size(),
-                accommodationService.getAccommodationPaging(accommodationIdList, page, limit)
-                        .stream()
-                        .map(AccommodationDto::new)
-                        .toList());
+                new PageResult<>(
+                        accommodationService.getAccommodationPaging(accommodationIdList, page, limit)
+                                .stream()
+                                .map(AccommodationDto::new)
+                                .toList(),
+                        accommodationService.checkNextAccommodations(accommodationIdList, page, limit)));
     }
 
 }
