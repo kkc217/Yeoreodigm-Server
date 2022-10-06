@@ -59,7 +59,7 @@ public class PlaceApiController {
     }
 
     @GetMapping("/like/list")
-    public PageResult<List<PlaceLikeDto>> callPlaceLikeList(
+    public PageResult<List<PlaceLikeDto>> callPlaceLikeListV2(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
             @RequestParam(value = "option", required = false, defaultValue = "0") int option,
