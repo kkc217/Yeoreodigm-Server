@@ -388,6 +388,16 @@ public class TravelNoteService {
                 .findByMemberPaging(member, limit * (page - 1), limit);
     }
 
+    public List<TravelNote> getTravelNotesOrderByLike(Member member, int page, int limit) {
+        if (member == null) return new ArrayList<>();
+
+        return travelNoteLikeRepository.findTravelNoteIdOrderByLikePaging(
+                travelNoteLikeRepository.findTravelNoteIdByMemberId(member.getId()), limit * (page - 1), limit)
+                .stream()
+                .map(travelNoteRepository::findById)
+                .toList();
+    }
+
     public int checkNextNoteLikePage(Member member, int page, int limit) {
         return getNoteLikes(member, page + 1, limit).size() > 0 ? page + 1 : 0;
     }
