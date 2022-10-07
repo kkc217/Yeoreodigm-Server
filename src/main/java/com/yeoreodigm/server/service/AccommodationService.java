@@ -26,14 +26,14 @@ public class AccommodationService {
     public List<Long> getNearAccommodationId(Long placeId, int type) {
         if (Objects.equals(PENSION.getIndex(), type)) {
             return nearAccommodationRepository.findByPlaceIdPension(placeId);
-        } else if (Objects.equals(MINBAK.getIndex(), type)) {
-            return nearAccommodationRepository.findByPlaceIdMinbak(placeId);
-        } else if (Objects.equals(MOTEL.getIndex(), type)) {
-            return nearAccommodationRepository.findByPlaceIdMotel(placeId);
         } else if (Objects.equals(GUEST_HOUSE.getIndex(), type)) {
             return nearAccommodationRepository.findByPlaceIdGuestHouse(placeId);
         } else if (Objects.equals(HOTEL.getIndex(), type)) {
             return nearAccommodationRepository.findByPlaceIdHotel(placeId);
+        } else if (Objects.equals(MINBAK.getIndex(), type)) {
+            return nearAccommodationRepository.findByPlaceIdMinbak(placeId);
+        } else if (Objects.equals(MOTEL.getIndex(), type)) {
+            return nearAccommodationRepository.findByPlaceIdMotel(placeId);
         } else if (Objects.equals(CAMPING.getIndex(), type)) {
             return nearAccommodationRepository.findByPlaceIdCamping(placeId);
         }
