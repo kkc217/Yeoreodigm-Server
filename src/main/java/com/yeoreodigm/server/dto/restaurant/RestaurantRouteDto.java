@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.dto.restaurant;
 
 import com.yeoreodigm.server.domain.Restaurant;
+import com.yeoreodigm.server.dto.route.RouteData;
 import lombok.Data;
 
 import java.util.List;
@@ -30,7 +31,9 @@ public class RestaurantRouteDto {
 
     private double longitude;
 
-    public RestaurantRouteDto(Restaurant restaurant) {
+    private RouteData routeInfo;
+
+    public RestaurantRouteDto(Restaurant restaurant, RouteData routeInfo) {
         this.restaurantId = restaurant.getId();
         this.title = restaurant.getTitle();
         this.address = restaurant.getAddress();
@@ -42,6 +45,7 @@ public class RestaurantRouteDto {
         this.tag = restaurant.getTag();
         this.latitude = restaurant.getLatitude();
         this.longitude = restaurant.getLongitude();
+        this.routeInfo = routeInfo;
     }
 
 }

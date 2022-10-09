@@ -1,8 +1,6 @@
 package com.yeoreodigm.server.controller;
 
-import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.PlaceLike;
-import com.yeoreodigm.server.domain.Places;
+import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
@@ -13,9 +11,11 @@ import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.dto.place.PlaceStringIdDto;
 import com.yeoreodigm.server.dto.restaurant.RestaurantDto;
+import com.yeoreodigm.server.dto.restaurant.RestaurantRouteDto;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.RestaurantService;
+import com.yeoreodigm.server.service.RouteInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +35,8 @@ public class PlaceApiController {
     private final MemberService memberService;
 
     private final RestaurantService restaurantService;
+
+    private final RouteInfoService routeInfoService;
 
     @GetMapping("/like/list/{page}/{limit}")
     public PageResult<List<PlaceLikeDto>> callPlaceLikeList(
@@ -135,18 +137,30 @@ public class PlaceApiController {
     }
 
     @GetMapping("/restaurant")
-    public PageResult<List<RestaurantDto>> callNearRestaurant(
+    public PageResult<List<RestaurantRouteDto>> callNearRestaurant(
             @RequestParam("placeId") Long placeId,
             @RequestParam(value = "type", required = false, defaultValue = "0") int type,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit) {
+        Places place = placeService.getPlaceById(placeId);
         List<Long> restaurantIdList = restaurantService.getNearRestaurantId(placeId, type);
 
+        List<Restaurant> restaurantList = restaurantService.getRestaurantsPaging(restaurantIdList, page, limit);
+
+        List<RestaurantRouteDto> response = new ArrayList<>();
+        for (Restaurant restaurant : restaurantList) {
+            RestaurantRouteInfo restaurantRouteInfo = routeInfoService.getRestaurantRouteInfo(place, restaurant);
+
+            if (Objects.isNull(restaurantRouteInfo)) {
+                restaurantRouteInfo = routeInfoService.updateRestaurantRouteInfo(place, restaurant);
+            }
+
+            response.add(new RestaurantRouteDto(
+                    restaurant, routeInfoService.getRouteDataRestaurant(restaurantRouteInfo)));
+        }
+
         return new PageResult<>(
-                restaurantService.getRestaurantsPaging(restaurantIdList, page, limit)
-                        .stream()
-                        .map(RestaurantDto::new)
-                        .toList(),
+                response,
                 restaurantService.checkNextRestaurants(restaurantIdList, page, limit));
     }
 

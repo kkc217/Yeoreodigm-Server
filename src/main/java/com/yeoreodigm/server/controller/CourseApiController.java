@@ -81,7 +81,7 @@ public class CourseApiController {
                 }
                 routeInfoList.add(routeInfo);
             }
-            response.add(new RouteItemDto(course.getDay(), routeInfoService.getRouteData(routeInfoList)));
+            response.add(new RouteItemDto(course.getDay(), routeInfoService.getRouteDataList(routeInfoList)));
         }
         return new Result<>(response);
     }
@@ -108,7 +108,7 @@ public class CourseApiController {
             }
             routeInfoList.add(routeInfo);
         }
-        RouteItemDto routeItemDto = new RouteItemDto(course.getDay(), routeInfoService.getRouteData(routeInfoList));
+        RouteItemDto routeItemDto = new RouteItemDto(course.getDay(), routeInfoService.getRouteDataList(routeInfoList));
 
         return new Result<>(new CourseRouteDto(
                 0,

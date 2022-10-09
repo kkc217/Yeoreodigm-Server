@@ -10,6 +10,7 @@ import com.yeoreodigm.server.dto.route.RouteData;
 import com.yeoreodigm.server.dto.route.RouteDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.PlacesRepository;
+import com.yeoreodigm.server.repository.RestaurantRouteRepository;
 import com.yeoreodigm.server.repository.RouteInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONArray;
@@ -31,6 +32,8 @@ public class RouteInfoService {
 
     private final RouteInfoRepository routeInfoRepository;
 
+    private final RestaurantRouteRepository restaurantRouteRepository;
+
     private final PlacesRepository placesRepository;
 
     public RouteInfo getRouteInfo(Long startPlaceId, Long goalPlaceId) {
@@ -44,9 +47,9 @@ public class RouteInfoService {
         return routeInfoRepository.findRouteInfoByPlaceIds(startPlaceId, goalPlaceId);
     }
 
-//    public RestaurantRouteInfo getRestaurantRouteInfo(Places place, Restaurant restaurant) {
-//        if (pl)
-//    }
+    public RestaurantRouteInfo getRestaurantRouteInfo(Places place, Restaurant restaurant) {
+        return restaurantRouteRepository.findByIds(place.getId(), restaurant.getId());
+    }
 
     @Transactional
     public RouteInfo updateRouteInfo(Places start, Places goal) {
@@ -57,6 +60,16 @@ public class RouteInfoService {
         routeInfoRepository.save(routeInfo);
         routeInfoRepository.flushAndClear();
         return routeInfo;
+    }
+
+    @Transactional
+    public RestaurantRouteInfo updateRestaurantRouteInfo(Places place, Restaurant restaurant) {
+        RouteDto routeDto = getRouteInfoFromApi(
+                place.getLatitude(), place.getLongitude(), restaurant.getLatitude(), restaurant.getLongitude());
+        RestaurantRouteInfo restaurantRouteInfo = new RestaurantRouteInfo(
+                place, restaurant, routeDto.getDistance(), routeDto.getCar(), routeDto.getWalk());
+        restaurantRouteRepository.saveAndFlush(restaurantRouteInfo);
+        return restaurantRouteInfo;
     }
 
     private RouteDto getRouteInfoFromApi(
@@ -120,72 +133,101 @@ public class RouteInfoService {
         }
     }
 
-    public List<RouteData> getRouteData(List<RouteInfo> routeInfoList) {
+    public List<RouteData> getRouteDataList(List<RouteInfo> routeInfoList) {
         List<RouteData> result = new ArrayList<>();
 
         for (RouteInfo routeInfo : routeInfoList) {
-            int distanceInt = routeInfo.getDistance();
-            String distance;
-            if (distanceInt < 1000) {
-                distance = distanceInt + "m 이동";
-            } else {
-                DecimalFormat decimalFormat = new DecimalFormat("###,###.##");
-                distance = decimalFormat.format(((float) distanceInt) / 1000) + "km 이동";
-            }
+            String distance = getDistanceStr(routeInfo.getDistance());
 
-            int carInt = routeInfo.getCar();
-            String car;
-            if ((carInt / 60) == 0) {
-                car = carInt + "분";
-            } else {
-                car = (carInt / 60) + "시간 " + (carInt % 60) + "분";
-            }
+            String car = getCarStr(routeInfo.getCar());
 
-            String walk;
-            if (routeInfo.getWalk() < 0) {
-                walk = "10시간 이상";
-            } else {
-                int walkInt = routeInfo.getWalk();
+            String walk = getWalkStr(routeInfo.getWalk());
 
-                if ((walkInt / 60) == 0) {
-                    walk = walkInt + "분";
-                } else {
-                    walk = (walkInt / 60) + "시간 " + (walkInt % 60) + "분";
-                }
-            }
-
+            Places start = placesRepository.findByPlaceId(routeInfo.getStart());
+            Places goal = placesRepository.findByPlaceId(routeInfo.getGoal());
             result.add(new RouteData(
                     distance,
                     car,
                     walk,
-                    getRouteSearchUrl(placesRepository.findByPlaceId(routeInfo.getStart())
-                            , placesRepository.findByPlaceId(routeInfo.getGoal()))));
+                    getRouteSearchUrl(
+                            start.getTitle(),
+                            start.getLatitude(),
+                            start.getLongitude(),
+                            goal.getTitle(),
+                            goal.getLatitude(),
+                            goal.getLongitude())));
         }
 
         return result;
     }
 
-    public String getRouteSearchUrl(Places start, Places goal) {
+    public RouteData getRouteDataRestaurant(RestaurantRouteInfo restaurantRouteInfo) {
+        String distance = getDistanceStr(restaurantRouteInfo.getDistance());
+        String car = getCarStr(restaurantRouteInfo.getCar());
+        String walk = getWalkStr(restaurantRouteInfo.getWalk());
+
+        Places place = restaurantRouteInfo.getPlace();
+        Restaurant restaurant = restaurantRouteInfo.getRestaurant();
+        return new RouteData(
+                distance,
+                car,
+                walk,
+                getRouteSearchUrl(
+                        place.getTitle(),
+                        place.getLatitude(),
+                        place.getLongitude(),
+                        restaurant.getTitle(),
+                        restaurant.getLatitude(),
+                        restaurant.getLongitude()));
+    }
+
+    private String getDistanceStr(int distance) {
+        if (distance < 1000) return distance + "m 이동";
+
+        DecimalFormat decimalFormat = new DecimalFormat("###,###.##");
+        return decimalFormat.format(((float) distance) / 1000) + "km 이동";
+    }
+
+    private String getCarStr(int car) {
+        if ((car / 60) == 0) return car + "분";
+
+        return  (car / 60) + "시간 " + (car % 60) + "분";
+    }
+
+    private String getWalkStr(int walk) {
+        if (walk < 0) return "10시간 이상";
+
+        if ((walk / 60) == 0) return walk + "분";
+
+        return (walk / 60) + "시간 " + (walk % 60) + "분";
+    }
+
+    private String getRouteSearchUrl(
+            String startTitle,
+            double startLatitude,
+            double startLongitude,
+            String goalTitle,
+            double goalLatitude,
+            double goalLongitude) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
                 .append(RouteInfoConst.ROUTE_SEARCH_BASE_URL)
                 .append("?menu=route")
                 .append("&sname=")
-                .append(start.getTitle())
+                .append(startTitle)
                 .append("&sx=")
-                .append(start.getLongitude())
+                .append(startLongitude)
                 .append("&sy=")
-                .append(start.getLatitude())
+                .append(startLatitude)
                 .append("&ename=")
-                .append(goal.getTitle())
+                .append(goalTitle)
                 .append("&ex=")
-                .append(goal.getLongitude())
+                .append(goalLongitude)
                 .append("&ey=")
-                .append(goal.getLatitude())
+                .append(goalLatitude)
                 .append("&pathType=0&showMap=true");
 
         return stringBuilder.toString();
     }
-
 
 }

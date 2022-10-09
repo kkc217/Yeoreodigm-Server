@@ -37,7 +37,7 @@ public class RestaurantRouteRepository {
             return queryFactory
                     .selectFrom(restaurantRouteInfo)
                     .where(restaurantRouteInfo.place.id.eq(placeId),
-                            restaurantRouteInfo.restaurant.id.eq(restaurantRouteInfo.id))
+                            restaurantRouteInfo.restaurant.id.eq(RestaurantId))
                     .fetchOne();
         } catch (NonUniqueResultException e) {
             throw new BadRequestException("일치하는 맛집 경로가 둘 이상입니다.");
