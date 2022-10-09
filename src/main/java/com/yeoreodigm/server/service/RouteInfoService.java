@@ -1,10 +1,13 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.Places;
+import com.yeoreodigm.server.domain.Restaurant;
+import com.yeoreodigm.server.domain.RestaurantRouteInfo;
 import com.yeoreodigm.server.domain.RouteInfo;
 import com.yeoreodigm.server.dto.constraint.EnvConst;
 import com.yeoreodigm.server.dto.constraint.RouteInfoConst;
 import com.yeoreodigm.server.dto.route.RouteData;
+import com.yeoreodigm.server.dto.route.RouteDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.PlacesRepository;
 import com.yeoreodigm.server.repository.RouteInfoRepository;
@@ -39,27 +42,31 @@ public class RouteInfoService {
             goalPlaceId = tmp;
         }
 
-        RouteInfo routeInfo = routeInfoRepository.findRouteInfoByPlaceIds(startPlaceId, goalPlaceId);
-        if (routeInfo != null)
-            return routeInfo;
-
-        return updateRouteInfo(startPlaceId, goalPlaceId);
+        return routeInfoRepository.findRouteInfoByPlaceIds(startPlaceId, goalPlaceId);
     }
 
+//    public RestaurantRouteInfo getRestaurantRouteInfo(Places place, Restaurant restaurant) {
+//        if (pl)
+//    }
+
     @Transactional
-    public RouteInfo updateRouteInfo(Long start, Long goal) {
-        RouteInfo routeInfo = getRouteInfoFromApi(start, goal);
+    public RouteInfo updateRouteInfo(Places start, Places goal) {
+        RouteDto routeDto = getRouteInfoFromApi(
+                start.getLatitude(), start.getLongitude(), goal.getLatitude(), goal.getLongitude());
+        RouteInfo routeInfo = new RouteInfo(
+                start.getId(), goal.getId(), routeDto.getDistance(), routeDto.getCar(), routeDto.getWalk());
         routeInfoRepository.save(routeInfo);
         routeInfoRepository.flushAndClear();
         return routeInfo;
     }
 
-    private RouteInfo getRouteInfoFromApi(Long start, Long goal) {
-        Places startPlace = placesRepository.findByPlaceId(start);
-        Places goalPlace = placesRepository.findByPlaceId(goal);
-
-        String startCoordinate = startPlace.getLongitude() + "," + startPlace.getLatitude();
-        String goalCoordinate = goalPlace.getLongitude() + "," + goalPlace.getLatitude();
+    private RouteDto getRouteInfoFromApi(
+            double startLatitude,
+            double startLongitude,
+            double goalLatitude,
+            double goalLongitude) {
+        String startCoordinate = startLongitude + "," + startLatitude;
+        String goalCoordinate = goalLongitude + "," + goalLatitude;
 
         WebClient webClient = WebClient.create(EnvConst.NAVER_API_URL);
 
@@ -102,10 +109,10 @@ public class RouteInfoService {
                     walk = (int) (((float) distance / 1000) * RouteInfoConst.WALKING_MINUTE_PER_KILOMETER);
                 }
 
-                return new RouteInfo(start, goal, distance, duration, walk);
+                return new RouteDto(distance, duration, walk);
 
             } else if (code == 1) {
-                return new RouteInfo(start, goal, 0, 0, 0);
+                return new RouteDto(0, 0, 0);
             } else {
                 throw new BadRequestException("경로 검색에 실패하였습니다.(code: " + code + ")");
             }

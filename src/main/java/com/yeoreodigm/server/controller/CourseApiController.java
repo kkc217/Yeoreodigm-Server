@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Course;
+import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.RouteInfo;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.PageResult;
@@ -70,7 +71,15 @@ public class CourseApiController {
             List<Long> placeIdList = course.getPlaces();
             List<RouteInfo> routeInfoList = new ArrayList<>();
             for (int i = 0; i < placeIdList.size() - 1; i++) {
-                routeInfoList.add(routeInfoService.getRouteInfo(placeIdList.get(i), placeIdList.get(i + 1)));
+                Long startPlaceId = placeIdList.get(i);
+                Long goalPlaceId = placeIdList.get(i + 1);
+                RouteInfo routeInfo = routeInfoService.getRouteInfo(startPlaceId, goalPlaceId);
+                if (Objects.isNull(routeInfo)) {
+                    Places start = placeService.getPlaceById(startPlaceId);
+                    Places goal = placeService.getPlaceById(goalPlaceId);
+                    routeInfo = routeInfoService.updateRouteInfo(start, goal);
+                }
+                routeInfoList.add(routeInfo);
             }
             response.add(new RouteItemDto(course.getDay(), routeInfoService.getRouteData(routeInfoList)));
         }
@@ -89,7 +98,15 @@ public class CourseApiController {
         List<Long> placeIdList = course.getPlaces();
         List<RouteInfo> routeInfoList = new ArrayList<>();
         for (int i = 0; i < placeIdList.size() - 1; i++) {
-            routeInfoList.add(routeInfoService.getRouteInfo(placeIdList.get(i), placeIdList.get(i + 1)));
+            Long startPlaceId = placeIdList.get(i);
+            Long goalPlaceId = placeIdList.get(i + 1);
+            RouteInfo routeInfo = routeInfoService.getRouteInfo(startPlaceId, goalPlaceId);
+            if (Objects.isNull(routeInfo)) {
+                Places start = placeService.getPlaceById(startPlaceId);
+                Places goal = placeService.getPlaceById(goalPlaceId);
+                routeInfo = routeInfoService.updateRouteInfo(start, goal);
+            }
+            routeInfoList.add(routeInfo);
         }
         RouteItemDto routeItemDto = new RouteItemDto(course.getDay(), routeInfoService.getRouteData(routeInfoList));
 
