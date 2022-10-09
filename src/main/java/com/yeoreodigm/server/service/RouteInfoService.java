@@ -33,7 +33,6 @@ public class RouteInfoService {
 
     private final PlacesRepository placesRepository;
 
-    @Transactional
     public RouteInfo getRouteInfo(Long startPlaceId, Long goalPlaceId) {
         if (startPlaceId.equals(goalPlaceId)) return new RouteInfo(startPlaceId, goalPlaceId, 0, 0, 0);
         if (startPlaceId > goalPlaceId) {
