@@ -148,6 +148,7 @@ public class PhotodigmService {
 
     @Transactional
     public void changePhotodigmTitle(Photodigm photodigm, String title) {
+        if (title.length() > 30) throw new BadRequestException("포토다임 제목은 30자 이하만 가능합니다.");
         photodigm.changeTitle(title);
         photodigmRepository.merge(photodigm);
     }
