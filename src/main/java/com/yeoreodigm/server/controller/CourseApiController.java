@@ -71,8 +71,14 @@ public class CourseApiController {
             List<Long> placeIdList = course.getPlaces();
             List<RouteInfo> routeInfoList = new ArrayList<>();
             for (int i = 0; i < placeIdList.size() - 1; i++) {
-                Long startPlaceId = placeIdList.get(i);
+                Long startPlaceId = placeIdList.get(i) ;
                 Long goalPlaceId = placeIdList.get(i + 1);
+
+                if (startPlaceId > goalPlaceId) {
+                    Long tmp = startPlaceId;
+                    startPlaceId = goalPlaceId;
+                    goalPlaceId = tmp;
+                }
                 RouteInfo routeInfo = routeInfoService.getRouteInfo(startPlaceId, goalPlaceId);
                 if (Objects.isNull(routeInfo)) {
                     Places start = placeService.getPlaceById(startPlaceId);
@@ -100,6 +106,12 @@ public class CourseApiController {
         for (int i = 0; i < placeIdList.size() - 1; i++) {
             Long startPlaceId = placeIdList.get(i);
             Long goalPlaceId = placeIdList.get(i + 1);
+
+            if (startPlaceId > goalPlaceId) {
+                Long tmp = startPlaceId;
+                startPlaceId = goalPlaceId;
+                goalPlaceId = tmp;
+            }
             RouteInfo routeInfo = routeInfoService.getRouteInfo(startPlaceId, goalPlaceId);
             if (Objects.isNull(routeInfo)) {
                 Places start = placeService.getPlaceById(startPlaceId);

@@ -38,11 +38,6 @@ public class RouteInfoService {
 
     public RouteInfo getRouteInfo(Long startPlaceId, Long goalPlaceId) {
         if (startPlaceId.equals(goalPlaceId)) return new RouteInfo(startPlaceId, goalPlaceId, 0, 0, 0);
-        if (startPlaceId > goalPlaceId) {
-            Long tmp = startPlaceId;
-            startPlaceId = goalPlaceId;
-            goalPlaceId = tmp;
-        }
 
         return routeInfoRepository.findRouteInfoByPlaceIds(startPlaceId, goalPlaceId);
     }
