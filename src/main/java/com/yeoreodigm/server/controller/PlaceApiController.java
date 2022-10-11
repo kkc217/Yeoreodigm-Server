@@ -10,7 +10,6 @@ import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.dto.place.PlaceStringIdDto;
-import com.yeoreodigm.server.dto.restaurant.RestaurantDto;
 import com.yeoreodigm.server.dto.restaurant.RestaurantRouteDto;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceService;
