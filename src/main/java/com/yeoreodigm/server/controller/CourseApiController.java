@@ -1,8 +1,6 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Course;
-import com.yeoreodigm.server.domain.Places;
-import com.yeoreodigm.server.domain.RouteInfo;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
@@ -68,26 +66,9 @@ public class CourseApiController {
         for (Course course : courseList) {
             if (course == null) throw new BadRequestException("일치하는 일차의 정보가 없습니다.");
 
-            List<Long> placeIdList = course.getPlaces();
-            List<RouteInfo> routeInfoList = new ArrayList<>();
-            for (int i = 0; i < placeIdList.size() - 1; i++) {
-                Long startPlaceId = placeIdList.get(i) ;
-                Long goalPlaceId = placeIdList.get(i + 1);
-
-                if (startPlaceId > goalPlaceId) {
-                    Long tmp = startPlaceId;
-                    startPlaceId = goalPlaceId;
-                    goalPlaceId = tmp;
-                }
-                RouteInfo routeInfo = routeInfoService.getRouteInfo(startPlaceId, goalPlaceId);
-                if (Objects.isNull(routeInfo)) {
-                    Places start = placeService.getPlaceById(startPlaceId);
-                    Places goal = placeService.getPlaceById(goalPlaceId);
-                    routeInfo = routeInfoService.updateRouteInfo(start, goal);
-                }
-                routeInfoList.add(routeInfo);
-            }
-            response.add(new RouteItemDto(course.getDay(), routeInfoService.getRouteDataList(routeInfoList)));
+            response.add(new RouteItemDto(
+                    course.getDay(),
+                    routeInfoService.getRouteDataList(routeInfoService.getRouteInfosFromCourse(course))));
         }
         return new Result<>(response);
     }
@@ -101,26 +82,9 @@ public class CourseApiController {
 
         if (course == null) throw new BadRequestException("일치하는 코스 정보가 없습니다.");
 
-        List<Long> placeIdList = course.getPlaces();
-        List<RouteInfo> routeInfoList = new ArrayList<>();
-        for (int i = 0; i < placeIdList.size() - 1; i++) {
-            Long startPlaceId = placeIdList.get(i);
-            Long goalPlaceId = placeIdList.get(i + 1);
-
-            if (startPlaceId > goalPlaceId) {
-                Long tmp = startPlaceId;
-                startPlaceId = goalPlaceId;
-                goalPlaceId = tmp;
-            }
-            RouteInfo routeInfo = routeInfoService.getRouteInfo(startPlaceId, goalPlaceId);
-            if (Objects.isNull(routeInfo)) {
-                Places start = placeService.getPlaceById(startPlaceId);
-                Places goal = placeService.getPlaceById(goalPlaceId);
-                routeInfo = routeInfoService.updateRouteInfo(start, goal);
-            }
-            routeInfoList.add(routeInfo);
-        }
-        RouteItemDto routeItemDto = new RouteItemDto(course.getDay(), routeInfoService.getRouteDataList(routeInfoList));
+        RouteItemDto routeItemDto = new RouteItemDto(
+                course.getDay(),
+                routeInfoService.getRouteDataList(routeInfoService.getRouteInfosFromCourse(course)));
 
         return new Result<>(new CourseRouteDto(
                 0,

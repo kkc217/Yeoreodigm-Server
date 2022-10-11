@@ -1,9 +1,6 @@
 package com.yeoreodigm.server.service;
 
-import com.yeoreodigm.server.domain.Places;
-import com.yeoreodigm.server.domain.Restaurant;
-import com.yeoreodigm.server.domain.RestaurantRouteInfo;
-import com.yeoreodigm.server.domain.RouteInfo;
+import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.constraint.EnvConst;
 import com.yeoreodigm.server.dto.constraint.RouteInfoConst;
 import com.yeoreodigm.server.dto.route.RouteData;
@@ -24,6 +21,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -40,6 +38,35 @@ public class RouteInfoService {
         if (startPlaceId.equals(goalPlaceId)) return new RouteInfo(startPlaceId, goalPlaceId, 0, 0, 0);
 
         return routeInfoRepository.findRouteInfoByPlaceIds(startPlaceId, goalPlaceId);
+    }
+
+    @Transactional
+    public List<RouteInfo> getRouteInfosFromCourse(Course course) {
+        List<Long> placeIdList = course.getPlaces();
+
+        List<RouteInfo> routeInfoList = new ArrayList<>();
+        for (int i = 0; i < placeIdList.size() - 1; i++) {
+            Long startPlaceId = placeIdList.get(i);
+            Long goalPlaceId = placeIdList.get(i + 1);
+
+            if (startPlaceId > goalPlaceId) {
+                Long tmp = startPlaceId;
+                startPlaceId = goalPlaceId;
+                goalPlaceId = tmp;
+            }
+
+            RouteInfo routeInfo = getRouteInfo(startPlaceId, goalPlaceId);
+            if (Objects.isNull(routeInfo)) {
+                Places start = placesRepository.findByPlaceId(startPlaceId);
+                Places goal = placesRepository.findByPlaceId(goalPlaceId);
+                if (Objects.isNull(start) || Objects.isNull(goal))
+                    throw new BadRequestException("일치하는 여행지를 찾을 수 없습니다.");
+
+                routeInfo = updateRouteInfo(start, goal);
+            }
+            routeInfoList.add(routeInfo);
+        }
+        return routeInfoList;
     }
 
     public RestaurantRouteInfo getRestaurantRouteInfo(Places place, Restaurant restaurant) {
