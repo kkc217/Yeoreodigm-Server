@@ -276,6 +276,13 @@ public class TravelNoteApiController {
                 travelNoteService.checkNextMyTravelNote(member, page, limit));
     }
 
+    @GetMapping("/board/{travelNoteId}")
+    public MyTravelNoteBoardDto callTravelNoteBoard(
+            @PathVariable("travelNoteId") Long travelNoteId) {
+        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
+        return new MyTravelNoteBoardDto(travelNote, courseService.countAllPlace(travelNote));
+    }
+
     @GetMapping("/public/{memberId}/{page}/{limit}")
     public PageResult<List<PublicTravelNoteDto>> callMyPublicTravelNotes(
             @PathVariable("memberId") Long memberId,
