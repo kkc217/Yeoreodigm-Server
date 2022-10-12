@@ -367,6 +367,11 @@ public class TravelNoteService {
         return result;
     }
 
+    public Long getMyTravelNoteCount(Member member) {
+        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        return travelNoteRepository.countByMember(member);
+    }
+
     public int checkNextMyTravelNote(Member member, int page, int limit) {
         return travelNoteRepository.findByMember(member, page * limit, limit).size() > 0 ? page + 1 : 0;
     }
