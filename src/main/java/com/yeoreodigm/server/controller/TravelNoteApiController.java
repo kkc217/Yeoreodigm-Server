@@ -2,6 +2,7 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.ContentRequestDto;
+import com.yeoreodigm.server.dto.CountDto;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
@@ -252,8 +253,34 @@ public class TravelNoteApiController {
             @PathVariable("limit") int limit,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new PageResult<>(
-                travelNoteService.getMyTravelNote(member, page, limit),
+                travelNoteService.getMyTravelNoteDtoList(travelNoteService.getMyTravelNote(member, page, limit)),
                 travelNoteService.checkNextMyTravelNote(member, page, limit));
+    }
+
+    @GetMapping("/my/count")
+    public CountDto callMyTravelNoteCount(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new CountDto(travelNoteService.getMyTravelNoteCount(member));
+    }
+
+    @GetMapping("/my/board/{page}/{limit}")
+    public PageResult<List<MyTravelNoteBoardDto>> callMyTravelNoteBoard(
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new PageResult<>(
+                travelNoteService.getMyTravelNote(member, page, limit)
+                        .stream()
+                        .map(travelNote -> new MyTravelNoteBoardDto(travelNote, courseService.countAllPlace(travelNote)))
+                        .toList(),
+                travelNoteService.checkNextMyTravelNote(member, page, limit));
+    }
+
+    @GetMapping("/board/{travelNoteId}")
+    public MyTravelNoteBoardDto callTravelNoteBoard(
+            @PathVariable("travelNoteId") Long travelNoteId) {
+        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
+        return new MyTravelNoteBoardDto(travelNote, courseService.countAllPlace(travelNote));
     }
 
     @GetMapping("/public/{memberId}/{page}/{limit}")

@@ -108,7 +108,16 @@ public class CourseService {
         } catch (WebClientResponseException | NullPointerException e) {
             throw new BadRequestException("경로 최적화에 실패하였습니다.");
         }
+    }
 
+    public Long countAllPlace(TravelNote travelNote) {
+        List<Course> courseList = courseRepository.findCoursesByTravelNoteId(travelNote.getId());
+
+        long result = 0L;
+        for (Course course : courseList) {
+            result += course.getPlaces().size();
+        }
+        return result;
     }
 
 }
