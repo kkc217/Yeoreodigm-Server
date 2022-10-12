@@ -253,7 +253,7 @@ public class TravelNoteApiController {
             @PathVariable("limit") int limit,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new PageResult<>(
-                travelNoteService.getMyTravelNote(member, page, limit),
+                travelNoteService.getMyTravelNoteDtoList(travelNoteService.getMyTravelNote(member, page, limit)),
                 travelNoteService.checkNextMyTravelNote(member, page, limit));
     }
 
