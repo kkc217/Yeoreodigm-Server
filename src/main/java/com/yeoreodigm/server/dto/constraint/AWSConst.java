@@ -10,9 +10,11 @@ public class AWSConst {
 
     public static String AWS_S3_BASE_URL;
 
-    public static String AWS_S3_FRAME_URI;
-
     public static String AWS_S3_PROFILE_URI;
+
+    public static String AWS_S3_BOARD_URI;
+
+    public static String AWS_S3_FRAME_URI;
 
     public static String AWS_S3_PHOTODIGM_URI;
 
@@ -36,6 +38,11 @@ public class AWSConst {
     @Value("${aws.s3.profile.uri}")
     public void setAwsS3ProfileUri(String awsS3ProfileUri) {
         AWS_S3_PROFILE_URI = awsS3ProfileUri;
+    }
+
+    @Value("${aws.s3.board.uri}")
+    public void setAwsS3BoardUri(String awsS3BoardUri) {
+        AWS_S3_BOARD_URI = awsS3BoardUri;
     }
 
     @Value("${aws.s3.photodigm.uri}")

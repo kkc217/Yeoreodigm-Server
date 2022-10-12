@@ -126,9 +126,7 @@ public class PhotodigmApiController {
                 continue;
             }
 
-            String extension = photodigmService.checkPictureContentType(file);
-            String pictureAddress = photodigmService.getRandomFileName() + "." + extension;
-            awsS3Service.uploadFile(AWS_S3_PICTURE_URI, pictureAddress, file);
+            String pictureAddress = awsS3Service.uploadFile(AWS_S3_PICTURE_URI, null, file);
             pictureList.add(photodigmService.savePicture(pictureAddress, member));
         }
 

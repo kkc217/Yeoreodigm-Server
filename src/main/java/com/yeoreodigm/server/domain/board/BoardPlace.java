@@ -1,7 +1,9 @@
 package com.yeoreodigm.server.domain.board;
 
 import com.yeoreodigm.server.domain.Places;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -12,6 +14,7 @@ import javax.persistence.*;
         name = "BOARD_PLACE_ID_SEQ_GENERATOR",
         sequenceName = "board_place_id_seq",
         allocationSize = 1)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BoardPlace {
 
     @Id
@@ -28,4 +31,8 @@ public class BoardPlace {
     @JoinColumn(name = "place_id")
     private Places place;
 
+    public BoardPlace(Board board, Places place) {
+        this.board = board;
+        this.place = place;
+    }
 }
