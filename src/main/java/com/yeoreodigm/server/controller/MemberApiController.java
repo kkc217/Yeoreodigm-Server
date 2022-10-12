@@ -2,7 +2,6 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.dto.constraint.AWSConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.member.*;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -17,7 +16,8 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.HashMap;
 
-import static com.yeoreodigm.server.dto.constraint.AWSConst.*;
+import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BASE_URL;
+import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_PROFILE_URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -187,7 +187,10 @@ public class MemberApiController {
 
         memberService.changeProfileImage(
                 member,
-                AWS_S3_BASE_URL + AWS_S3_PROFILE_URI + "/" + awsS3Service.uploadFile(AWS_S3_PROFILE_URI, member.getId().toString(), multipartFile));
+                AWS_S3_BASE_URL
+                        + AWS_S3_PROFILE_URI
+                        + "/"
+                        + awsS3Service.uploadFile(AWS_S3_PROFILE_URI, member.getId().toString(), multipartFile));
     }
 
     @DeleteMapping("/profile/image")

@@ -58,7 +58,11 @@ public class AwsS3Service {
     public List<String> uploadFiles(String directory, List<String> fileNameList, List<MultipartFile> fileList) {
         List<String> result = new ArrayList<>();
         for (int i = 0; i < fileList.size(); i++) {
-            result.add(uploadFile(directory, fileNameList.get(i), fileList.get(i)));
+            if (Objects.isNull(fileNameList)) {
+                result.add(uploadFile(directory, null, fileList.get(i)));
+            } else {
+                result.add(uploadFile(directory, fileNameList.get(i), fileList.get(i)));
+            }
         }
         return result;
     }
