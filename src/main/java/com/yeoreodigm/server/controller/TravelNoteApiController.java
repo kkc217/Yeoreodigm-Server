@@ -263,6 +263,19 @@ public class TravelNoteApiController {
         return new CountDto(travelNoteService.getMyTravelNoteCount(member));
     }
 
+    @GetMapping("/my/board/{page}/{limit}")
+    public PageResult<List<MyTravelNoteBoardDto>> callMyTravelNoteBoard(
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new PageResult<>(
+                travelNoteService.getMyTravelNote(member, page, limit)
+                        .stream()
+                        .map(travelNote -> new MyTravelNoteBoardDto(travelNote, courseService.countAllPlace(travelNote)))
+                        .toList(),
+                travelNoteService.checkNextMyTravelNote(member, page, limit));
+    }
+
     @GetMapping("/public/{memberId}/{page}/{limit}")
     public PageResult<List<PublicTravelNoteDto>> callMyPublicTravelNotes(
             @PathVariable("memberId") Long memberId,

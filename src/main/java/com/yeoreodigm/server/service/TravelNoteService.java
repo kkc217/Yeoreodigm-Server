@@ -376,10 +376,6 @@ public class TravelNoteService {
         return travelNoteRepository.countByMember(member);
     }
 
-    public int checkNextMyTravelNote(Member member, int page, int limit) {
-        return travelNoteRepository.findByMember(member, page * limit, limit).size() > 0 ? page + 1 : 0;
-    }
-
     public void resetTitle(Member member) {
         List<TravelNote> travelNoteList = travelNoteRepository.findAllByMember(member);
 
