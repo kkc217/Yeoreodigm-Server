@@ -48,7 +48,7 @@ public class PlacesRepository {
                 .fetch();
     }
 
-    public List<Places> findPublicByKeywordOrderByLikeAsc(String keyword, int page, int limit) {
+    public List<Places> findByKeywordOrderByLikeAsc(String keyword, int page, int limit) {
         return queryFactory
                 .selectFrom(places)
                 .leftJoin(placeLike)
@@ -61,7 +61,7 @@ public class PlacesRepository {
                 .fetch();
     }
 
-    public List<Places> findPublicByKeywordOrderByLikeDesc(String keyword, int page, int limit) {
+    public List<Places> findByKeywordOrderByLikeDesc(String keyword, int page, int limit) {
         return queryFactory
                 .selectFrom(places)
                 .leftJoin(placeLike)

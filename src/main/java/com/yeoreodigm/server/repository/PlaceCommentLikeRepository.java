@@ -41,10 +41,10 @@ public class PlaceCommentLikeRepository {
                 .fetchOne();
     }
 
-    public void deleteById(Long placeCommentId) {
+    public void deleteById(Long placeCommentLikeId) {
         queryFactory
                 .delete(placeCommentLike)
-                .where(placeCommentLike.id.eq(placeCommentId))
+                .where(placeCommentLike.id.eq(placeCommentLikeId))
                 .execute();
     }
 
