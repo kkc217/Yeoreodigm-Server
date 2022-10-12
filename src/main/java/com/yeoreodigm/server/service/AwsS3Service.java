@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -54,10 +55,12 @@ public class AwsS3Service {
         return fileName;
     }
 
-    public void uploadFiles(String directory, List<String> fileNameList, List<MultipartFile> fileList) {
+    public List<String> uploadFiles(String directory, List<String> fileNameList, List<MultipartFile> fileList) {
+        List<String> result = new ArrayList<>();
         for (int i = 0; i < fileList.size(); i++) {
-            uploadFile(directory, fileNameList.get(i), fileList.get(i));
+            result.add(uploadFile(directory, fileNameList.get(i), fileList.get(i)));
         }
+        return result;
     }
 
     private void validateFileExists(MultipartFile multipartFile) {
