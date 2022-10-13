@@ -455,7 +455,7 @@ public class TravelNoteService {
     }
 
     public int checkNextSearchTravelNote(String content, int page, int limit, int option) {
-        return searchTravelNote(content, limit * page, limit, option).size() > 0 ? page + 1 : 0;
+        return searchTravelNote(content, page + 1, limit, option).size() > 0 ? page + 1 : 0;
     }
 
     @Transactional

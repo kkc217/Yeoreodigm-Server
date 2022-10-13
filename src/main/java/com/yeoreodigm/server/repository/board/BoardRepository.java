@@ -92,4 +92,35 @@ public class BoardRepository {
                 .fetch();
     }
 
+    public List<Board> findPublicOrderByModifiedAsc(int page, int limit) {
+        return queryFactory
+                .selectFrom(board)
+                .where(board.publicShare.eq(true))
+                .orderBy(board.modifiedTime.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<Board> findPublicOrderByModifiedDesc(int page, int limit) {
+        return queryFactory
+                .selectFrom(board)
+                .where(board.publicShare.eq(true))
+                .orderBy(board.modifiedTime.desc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<Board> findPublicFollowOrderByModifiedDesc(int page, int limit, List<Member> followeeList) {
+        return queryFactory
+                .selectFrom(board)
+                .where(board.publicShare.eq(true),
+                        board.member.id.in(followeeList.stream().map(Member::getId).toList()))
+                .orderBy(board.modifiedTime.desc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
 }
