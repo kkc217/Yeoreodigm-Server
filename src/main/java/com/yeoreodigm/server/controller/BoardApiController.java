@@ -7,6 +7,7 @@ import com.yeoreodigm.server.dto.board.BoardDto;
 import com.yeoreodigm.server.dto.board.BoardIdDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.service.AwsS3Service;
 import com.yeoreodigm.server.service.BoardService;
 import com.yeoreodigm.server.service.PlaceService;

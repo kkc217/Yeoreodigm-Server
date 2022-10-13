@@ -3,12 +3,14 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
+import com.yeoreodigm.server.domain.board.Follow;
 import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.dto.constraint.MemberConst;
 import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
+import com.yeoreodigm.server.repository.FollowRepository;
 import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     private final SurveyRepository surveyRepository;
+
+    private final FollowRepository followRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -211,6 +215,23 @@ public class MemberService {
         member.changeNickname(nickname);
         memberRepository.merge(member);
         memberRepository.flush();
+    }
+
+    @Transactional
+    public void changeFollow(Member member, Member followee, boolean isFollow) {
+        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
+        if (Objects.equals(member.getId(), followee.getId())) throw new BadRequestException("본인은 팔로우할 수 없습니다.");
+
+        Follow follow = followRepository.findByMembers(member, followee);
+
+        if (isFollow) {
+            if (Objects.isNull(follow)) {
+                Follow newFollow = new Follow(member, followee);
+                followRepository.saveAndFlush(newFollow);
+            }
+        } else if (Objects.nonNull(follow)) {
+            followRepository.deleteById(follow.getId());
+        }
     }
 
 }

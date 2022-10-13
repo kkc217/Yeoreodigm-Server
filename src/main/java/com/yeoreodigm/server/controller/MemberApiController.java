@@ -3,6 +3,7 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
+import com.yeoreodigm.server.dto.follow.FollowRequestDto;
 import com.yeoreodigm.server.dto.member.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
@@ -212,6 +213,14 @@ public class MemberApiController {
         } else {
             throw new LoginRequiredException("로그인이 필요합니다.");
         }
+    }
+
+    @PatchMapping("/follow")
+    public void changeFollow(
+            @RequestBody @Valid FollowRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        memberService.changeFollow(
+                member, memberService.getMemberById(requestDto.getMemberId()), requestDto.isFollow());
     }
 
 }
