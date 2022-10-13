@@ -7,6 +7,7 @@ import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.board.BoardDto;
 import com.yeoreodigm.server.dto.board.BoardFullDto;
 import com.yeoreodigm.server.dto.board.BoardIdDto;
+import com.yeoreodigm.server.dto.board.MyBoardDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
@@ -107,6 +108,23 @@ public class BoardApiController {
         }
 
         return new BoardDto(board);
+    }
+
+    @GetMapping("/my/{page}/{limit}")
+    public PageResult<List<MyBoardDto>> callMyBoards(
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
+
+        List<Board> boardList = boardService.getMyBoardList(member, page, limit);
+
+        return new PageResult<>(
+                boardList
+                        .stream()
+                        .map(board -> new MyBoardDto(board, boardCommentService.countCommentByBoard(board)))
+                        .toList(),
+                boardService.checkNextMyBoardList(member, page, limit));
     }
 
 }
