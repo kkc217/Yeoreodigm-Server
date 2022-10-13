@@ -70,4 +70,11 @@ public class BoardDetailApiController {
                 requestDto.getText());
     }
 
+    @DeleteMapping("/comment/{commentId}")
+    public void deleteBoardComment(
+            @PathVariable("commentId") Long commentId,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        boardCommentService.deleteBoardComment(member, commentId);
+    }
+
 }
