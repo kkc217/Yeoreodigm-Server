@@ -2,6 +2,7 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.dto.CountDto;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.follow.FollowCheckDto;
@@ -217,6 +218,13 @@ public class MemberApiController {
         } else {
             throw new LoginRequiredException("로그인이 필요합니다.");
         }
+    }
+
+    @GetMapping("/follower/count/{memberId}")
+    public CountDto callFollowerCount(
+            @PathVariable("memberId") Long memberId) {
+        return new CountDto(
+                memberService.getFollowerCountByMember(memberService.getMemberById(memberId)));
     }
 
     @GetMapping("/follower/{memberId}")

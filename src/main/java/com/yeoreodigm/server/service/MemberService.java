@@ -217,6 +217,10 @@ public class MemberService {
         memberRepository.flush();
     }
 
+    public Long getFollowerCountByMember(Member member) {
+        return followRepository.countFollowerByMember(member);
+    }
+
     public List<Member> getFollowerByMember(Member member) {
         return followRepository.findFollowerByMember(member);
     }
