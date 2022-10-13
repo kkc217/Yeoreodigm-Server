@@ -3,6 +3,7 @@ package com.yeoreodigm.server.dto.comment;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.NoteComment;
 import com.yeoreodigm.server.domain.PlaceComment;
+import com.yeoreodigm.server.domain.board.BoardComment;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import lombok.Data;
 
@@ -54,6 +55,21 @@ public class CommentLikeDto {
         this.profileImageUrl = member.getProfileImage();
         this.text = placeComment.getText();
         this.hasModified = !Objects.equals(placeComment.getCreated(), placeComment.getModified());
+        this.dateTime = dateTimeStr.getDateTime();
+        this.hasLiked = likeItemDto.isHasLiked();
+        this.likeCount = likeItemDto.getLikeCount();
+    }
+
+    public CommentLikeDto(BoardComment boardComment, LikeItemDto likeItemDto) {
+        Member member = boardComment.getMember();
+        DateTimeStr dateTimeStr = new DateTimeStr(boardComment.getModifiedTime());
+
+        this.commentId = boardComment.getId();
+        this.memberId = member.getId();
+        this.nickname = member.getNickname();
+        this.profileImageUrl = member.getProfileImage();
+        this.text = boardComment.getText();
+        this.hasModified = !Objects.equals(boardComment.getCreatedTime(), boardComment.getModifiedTime());
         this.dateTime = dateTimeStr.getDateTime();
         this.hasLiked = likeItemDto.isHasLiked();
         this.likeCount = likeItemDto.getLikeCount();
