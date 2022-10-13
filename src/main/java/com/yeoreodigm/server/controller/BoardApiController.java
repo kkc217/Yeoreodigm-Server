@@ -10,6 +10,7 @@ import com.yeoreodigm.server.dto.board.BoardIdDto;
 import com.yeoreodigm.server.dto.board.MyBoardDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.service.*;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
 
@@ -132,6 +134,13 @@ public class BoardApiController {
             @PathVariable("boardId") Long boardId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return boardService.getLikeInfo(boardService.getBoardById(boardId), member);
+    }
+
+    @PatchMapping("/like")
+    public void changeBoardLike(
+            @RequestBody @Valid LikeRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        boardService.changeBoardLike(member, boardService.getBoardById(requestDto.getId()), requestDto.isLike());
     }
 
 }

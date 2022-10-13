@@ -5,11 +5,13 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.domain.board.Board;
+import com.yeoreodigm.server.domain.board.BoardLike;
 import com.yeoreodigm.server.domain.board.BoardPlace;
 import com.yeoreodigm.server.domain.board.BoardTravelNote;
 import com.yeoreodigm.server.dto.constraint.SearchConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.repository.CourseRepository;
 import com.yeoreodigm.server.repository.FollowRepository;
 import com.yeoreodigm.server.repository.PlacesRepository;
@@ -170,4 +172,19 @@ public class BoardService {
                 countBoardLike(board));
     }
 
+    @Transactional
+    public void changeBoardLike(Member member, Board board, boolean like) {
+        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
+
+        BoardLike boardLike = boardLikeRepository.findByBoardIdAndMemberId(board.getId(), member.getId());
+
+        if (like) {
+            if (Objects.isNull(boardLike)) {
+                BoardLike newBoardLike = new BoardLike(board, member);
+                boardLikeRepository.saveAndFlush(newBoardLike);
+            }
+        } else if (Objects.nonNull(boardLike)) {
+            boardLikeRepository.deleteById(boardLike.getId());
+        }
+    }
 }
