@@ -3,7 +3,7 @@ package com.yeoreodigm.server.dto.search;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.TravelNote;
-import com.yeoreodigm.server.dto.member.MemberItemDto;
+import com.yeoreodigm.server.dto.member.MemberEmailItemDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -18,7 +18,7 @@ public class RelatedSearchDto {
 
     private List<RelatedTravelNote> travelNotes = new ArrayList<>();
 
-    private List<MemberItemDto> members = new ArrayList<>();
+    private List<MemberEmailItemDto> members = new ArrayList<>();
 
     public RelatedSearchDto(
             List<Places> placeList, List<TravelNote> travelNoteList, List<Member> memberList) {
@@ -38,7 +38,7 @@ public class RelatedSearchDto {
                 .addAll(
                         memberList
                                 .stream()
-                                .map(MemberItemDto::new)
+                                .map(MemberEmailItemDto::new)
                                 .toList());
     }
 

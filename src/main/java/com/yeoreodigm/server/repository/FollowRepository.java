@@ -1,4 +1,4 @@
-package com.yeoreodigm.server.repository.board;
+package com.yeoreodigm.server.repository;
 
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -73,6 +73,13 @@ public class FollowRepository {
                 .from(follow)
                 .where(follow.follower.id.eq(follower.getId()))
                 .fetchOne();
+    }
+
+    public void deleteById(Long followId) {
+        queryFactory
+                .delete(follow)
+                .where(follow.id.eq(followId))
+                .execute();
     }
 
 }

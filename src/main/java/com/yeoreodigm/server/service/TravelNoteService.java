@@ -372,7 +372,7 @@ public class TravelNoteService {
     }
 
     public Long getMyTravelNoteCount(Member member) {
-        if (member == null) throw new BadRequestException("로그인이 필요합니다.");
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
         return travelNoteRepository.countByMember(member);
     }
 
