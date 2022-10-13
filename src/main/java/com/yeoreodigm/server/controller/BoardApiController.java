@@ -3,15 +3,14 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.board.Board;
 import com.yeoreodigm.server.domain.board.BoardTravelNote;
+import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.board.BoardDto;
+import com.yeoreodigm.server.dto.board.BoardFullDto;
 import com.yeoreodigm.server.dto.board.BoardIdDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
-import com.yeoreodigm.server.service.AwsS3Service;
-import com.yeoreodigm.server.service.BoardService;
-import com.yeoreodigm.server.service.PlaceService;
-import com.yeoreodigm.server.service.TravelNoteService;
+import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,11 +28,9 @@ public class BoardApiController {
 
     private final BoardService boardService;
 
+    private final BoardCommentService boardCommentService;
+
     private final AwsS3Service awsS3Service;
-
-    private final TravelNoteService travelNoteService;
-
-    private final PlaceService placeService;
 
     @PostMapping("/new")
     public BoardIdDto createBoard(
@@ -80,6 +77,23 @@ public class BoardApiController {
 
         boardService.deleteBoardPlaceList(board.getBoardPlaceList());
         boardService.createBoardPlaces(board, boardTravelNote, placeTag);
+    }
+
+    @GetMapping("")
+    public PageResult<List<BoardFullDto>> callBoards(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "option", required = false, defaultValue = "0") int option,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new PageResult<>(
+                boardService.getBoardList(member, page, limit, option)
+                        .stream()
+                        .map(board -> new BoardFullDto(
+                                board,
+                                boardService.getLikeInfo(board, member),
+                                boardCommentService.countCommentByBoard(board)))
+                        .toList(),
+                boardService.checkNextBoardList(member, page, limit, option));
     }
 
     @GetMapping("/modification/{boardId}")

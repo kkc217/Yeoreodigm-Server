@@ -18,4 +18,8 @@ public class SearchConst {
 
     public static int SEARCH_OPTION_MODIFIED_DESC = 21;
 
+    public static int SEARCH_OPTION_FOLLOW_MODIFIED_ASC = 30;
+
+    public static int SEARCH_OPTION_FOLLOW_MODIFIED_DESC = 31;
+
 }

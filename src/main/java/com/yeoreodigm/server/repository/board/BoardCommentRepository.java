@@ -1,6 +1,7 @@
 package com.yeoreodigm.server.repository.board;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yeoreodigm.server.domain.board.Board;
 import com.yeoreodigm.server.domain.board.BoardComment;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -33,6 +34,14 @@ public class BoardCommentRepository {
                 .where(boardComment.board.id.eq(boardId))
                 .orderBy(boardComment.createdTime.asc())
                 .fetch();
+    }
+
+    public Long countByBoard(Board board) {
+        return queryFactory
+                .select(boardComment.count())
+                .from(boardComment)
+                .where(boardComment.board.id.eq(board.getId()))
+                .fetchOne();
     }
 
     public void deleteById(Long boardCommentId) {

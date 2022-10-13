@@ -25,7 +25,7 @@ public class CommentItemDto {
 
     public CommentItemDto(CourseComment comment) {
         Member member = comment.getMember();
-        CommentDateTime commentDateTime = new CommentDateTime(comment.getModified());
+        DateTimeStr dateTimeStr = new DateTimeStr(comment.getModified());
 
         this.commentId = comment.getId();
         this.text = comment.getText();
@@ -33,7 +33,7 @@ public class CommentItemDto {
         this.profileImageUrl = member.getProfileImage();
         this.nickname = member.getNickname();
         this.hasModified = !Objects.equals(comment.getCreated(), comment.getModified());
-        this.dateTime = commentDateTime.getDateTime();
+        this.dateTime = dateTimeStr.getDateTime();
     }
 
 }

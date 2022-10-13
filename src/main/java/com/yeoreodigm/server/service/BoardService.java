@@ -7,10 +7,14 @@ import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.domain.board.Board;
 import com.yeoreodigm.server.domain.board.BoardPlace;
 import com.yeoreodigm.server.domain.board.BoardTravelNote;
+import com.yeoreodigm.server.dto.constraint.SearchConst;
+import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
+import com.yeoreodigm.server.repository.FollowRepository;
 import com.yeoreodigm.server.repository.PlacesRepository;
 import com.yeoreodigm.server.repository.TravelNoteRepository;
+import com.yeoreodigm.server.repository.board.BoardLikeRepository;
 import com.yeoreodigm.server.repository.board.BoardPlaceRepository;
 import com.yeoreodigm.server.repository.board.BoardRepository;
 import com.yeoreodigm.server.repository.board.BoardTravelNoteRepository;
@@ -37,11 +41,15 @@ public class BoardService {
 
     private final BoardPlaceRepository boardPlaceRepository;
 
+    private final BoardLikeRepository boardLikeRepository;
+
     private final TravelNoteRepository travelNoteRepository;
 
     private final CourseRepository courseRepository;
 
     private final PlacesRepository placesRepository;
+
+    private final FollowRepository followRepository;
 
 
     public Board getBoarById(Long boardId) {
@@ -120,6 +128,38 @@ public class BoardService {
         if (Objects.isNull(pictures) || pictures.size() == 0 || pictures.size() > MAX_NUM_OF_BOARD_PICTURE) {
             throw new BadRequestException("여행 피드 사진은 1장 이상, 10장 이하만 가능합니다.");
         }
+    }
+
+    public List<Board> getBoardList(Member member, int page, int limit, int option) {
+        if (Objects.equals(SearchConst.SEARCH_OPTION_LIKE_DESC, option)) {
+            return boardRepository.findPublicOrderByLikeDesc(limit * (page - 1), limit);
+        } else if (Objects.equals(SearchConst.SEARCH_OPTION_MODIFIED_DESC, option)) {
+            return boardRepository.findPublicOrderByModifiedDesc(limit * (page - 1), limit);
+        } else if (Objects.equals(SearchConst.SEARCH_OPTION_FOLLOW_MODIFIED_DESC, option)) {
+            return boardRepository.findPublicFollowOrderByModifiedDesc(
+                    limit * (page - 1), limit, followRepository.findFolloweeByMember(member));
+        }
+
+        return boardRepository.findPublicOrderByLikeDesc(limit * (page - 1), limit);
+    }
+
+    public int checkNextBoardList(Member member, int page, int limit, int option) {
+        return getBoardList(member, page + 1, limit, option).size() > 0 ? page + 1 : 0;
+    }
+
+    public Long countBoardLike(Board board) {
+        return boardLikeRepository.countByBoardId(board.getId());
+    }
+
+    public boolean checkHasLiked(Board board, Member member) {
+        if (Objects.isNull(member)) return false;
+        return Objects.nonNull(boardLikeRepository.findByBoardIdAndMemberId(board.getId(), member.getId()));
+    }
+
+    public LikeItemDto getLikeInfo(Board board, Member member) {
+        return new LikeItemDto(
+                checkHasLiked(board, member),
+                countBoardLike(board));
     }
 
 }
