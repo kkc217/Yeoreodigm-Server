@@ -52,7 +52,7 @@ public class BoardService {
     private final FollowRepository followRepository;
 
 
-    public Board getBoarById(Long boardId) {
+    public Board getBoardById(Long boardId) {
         Board board = boardRepository.findById(boardId);
         if (Objects.isNull(board)) throw new BadRequestException("일치하는 여행 피드를 찾을 수 없습니다.");
         return board;

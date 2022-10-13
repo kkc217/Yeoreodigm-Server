@@ -9,6 +9,7 @@ import com.yeoreodigm.server.dto.board.BoardFullDto;
 import com.yeoreodigm.server.dto.board.BoardIdDto;
 import com.yeoreodigm.server.dto.board.MyBoardDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
+import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.service.*;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BOARD_URI;
-import static com.yeoreodigm.server.dto.constraint.BoardConst.MAX_NUM_OF_BOARD_PICTURE;
 
 @RestController
 @RequiredArgsConstructor
@@ -61,7 +61,7 @@ public class BoardApiController {
             @RequestPart(name = "travelNoteTag", required = false) Long travelNoteTag,
             @RequestPart(name = "placeTag", required = false) List<Long> placeTag,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        Board board = boardService.getBoarById(boardId);
+        Board board = boardService.getBoardById(boardId);
 
         if (Objects.isNull(member) || !Objects.equals(board.getMember().getId(), member.getId())) {
             throw new BadRequestException("여행 피드를 수정할 수 없습니다.");
@@ -101,7 +101,7 @@ public class BoardApiController {
     public BoardDto callBoardEditInfo(
             @PathVariable("boardId") Long boardId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        Board board = boardService.getBoarById(boardId);
+        Board board = boardService.getBoardById(boardId);
 
         if (Objects.isNull(member) || !Objects.equals(board.getMember().getId(), member.getId())) {
             throw new BadRequestException("여행 피드를 수정할 수 없습니다.");
@@ -125,6 +125,13 @@ public class BoardApiController {
                         .map(board -> new MyBoardDto(board, boardCommentService.countCommentByBoard(board)))
                         .toList(),
                 boardService.checkNextMyBoardList(member, page, limit));
+    }
+
+    @GetMapping("/like/{boardId}")
+    public LikeItemDto callBoardLike(
+            @PathVariable("boardId") Long boardId,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return boardService.getLikeInfo(boardService.getBoardById(boardId), member);
     }
 
 }
