@@ -42,10 +42,13 @@ public class BoardRepository {
         }
     }
 
-    public List<Board> findByMember(Member member) {
+    public List<Board> findByMemberPaging(Member member, int page, int limit) {
         return queryFactory
                 .selectFrom(board)
                 .where(board.member.id.eq(member.getId()))
+                .orderBy(board.modifiedTime.desc())
+                .offset(page)
+                .limit(limit)
                 .fetch();
     }
 

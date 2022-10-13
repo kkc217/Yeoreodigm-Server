@@ -147,6 +147,14 @@ public class BoardService {
         return getBoardList(member, page + 1, limit, option).size() > 0 ? page + 1 : 0;
     }
 
+    public List<Board> getMyBoardList(Member member, int page, int limit) {
+        return boardRepository.findByMemberPaging(member, limit * (page - 1), limit);
+    }
+
+    public int checkNextMyBoardList(Member member, int page, int limit) {
+        return getMyBoardList(member, page + 1, limit).size() > 0 ? page + 1 : 0;
+    }
+
     public Long countBoardLike(Board board) {
         return boardLikeRepository.countByBoardId(board.getId());
     }
