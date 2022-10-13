@@ -3,6 +3,7 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.board.Board;
 import com.yeoreodigm.server.domain.board.BoardTravelNote;
+import com.yeoreodigm.server.dto.board.BoardDto;
 import com.yeoreodigm.server.dto.board.BoardIdDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.exception.BadRequestException;
@@ -53,6 +54,19 @@ public class BoardApiController {
 
         boardService.createBoardPlaces(board, boardTravelNote, placeTag);
         return new BoardIdDto(board.getId());
+    }
+
+    @GetMapping("/modification/{boardId}")
+    public BoardDto editBoard(
+            @PathVariable("boardId") Long boardId,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        Board board = boardService.getBoarById(boardId);
+
+        if (Objects.isNull(member) || !Objects.equals(board.getMember().getId(), member.getId())) {
+            throw new BadRequestException("여행 피드를 수정할 수 없습니다.");
+        }
+
+        return new BoardDto(board);
     }
 
 }
