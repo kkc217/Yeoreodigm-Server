@@ -4,7 +4,7 @@ import com.yeoreodigm.server.domain.Member;
 import lombok.Data;
 
 @Data
-public class MemberItemDto {
+public class MemberEmailItemDto {
 
     private Long memberId;
 
@@ -12,10 +12,13 @@ public class MemberItemDto {
 
     private String nickname;
 
-    public MemberItemDto(Member member) {
+    private String email;
+
+    public MemberEmailItemDto(Member member) {
         this.memberId = member.getId();
         this.profileImage = member.getProfileImage();
         this.nickname = member.getNickname();
+        this.email = member.getEmail();
     }
 
 }

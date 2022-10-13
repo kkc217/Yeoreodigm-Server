@@ -2,6 +2,7 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.follow.FollowCheckDto;
 import com.yeoreodigm.server.dto.follow.FollowRequestDto;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BASE_URL;
@@ -215,6 +217,16 @@ public class MemberApiController {
         } else {
             throw new LoginRequiredException("로그인이 필요합니다.");
         }
+    }
+
+    @GetMapping("/follower/{memberId}")
+    public Result<List<MemberItemDto>> callFollower(
+            @PathVariable("memberId") Long memberId) {
+        return new Result<>(
+                memberService.getFollowerByMember(memberService.getMemberById(memberId))
+                        .stream()
+                        .map(MemberItemDto::new)
+                        .toList());
     }
 
     @GetMapping("/follow/{memberId}")
