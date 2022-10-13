@@ -237,6 +237,13 @@ public class MemberApiController {
                         .toList());
     }
 
+    @GetMapping("/followee/count/{memberId}")
+    public CountDto callFolloweeCount(
+            @PathVariable("memberId") Long memberId) {
+        return new CountDto(
+                memberService.getFolloweeCountByMember(memberService.getMemberById(memberId)));
+    }
+
     @GetMapping("/follow/{memberId}")
     public FollowCheckDto checkFollow(
             @PathVariable("memberId") Long memberId,
