@@ -234,4 +234,10 @@ public class MemberService {
         }
     }
 
+    public boolean checkFollow(Member member, Member followee) {
+        if (Objects.isNull(member)) return false;
+
+        return !Objects.isNull(followRepository.findByMembers(member, followee));
+    }
+
 }
