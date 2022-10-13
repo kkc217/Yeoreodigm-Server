@@ -6,7 +6,7 @@ import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.member.MemberItemDto;
+import com.yeoreodigm.server.dto.member.MemberEmailItemDto;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.dto.search.RelatedSearchDto;
@@ -51,11 +51,11 @@ public class SearchApiController {
     }
 
     @GetMapping("/member/{content}")
-    public MemberItemDto searchMember(
+    public MemberEmailItemDto searchMember(
             @PathVariable("content") String content) {
         Member member = memberService.searchMember(content);
         if (member != null) {
-            return new MemberItemDto(member);
+            return new MemberEmailItemDto(member);
         } else {
             throw new BadRequestException("일치하는 사용자가 없습니다.");
         }
@@ -120,14 +120,14 @@ public class SearchApiController {
     }
 
     @GetMapping("/member")
-    public PageResult<List<MemberItemDto>> searchMembers(
+    public PageResult<List<MemberEmailItemDto>> searchMembers(
             @RequestParam("content") String content,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit) {
         return new PageResult<>(
                 memberService.searchMembersByNickname(content, page, limit)
                         .stream()
-                        .map(MemberItemDto::new)
+                        .map(MemberEmailItemDto::new)
                         .toList(),
                 memberService.checkNextSearchMembersByNickname(content, page, limit));
     }

@@ -11,7 +11,7 @@ import com.yeoreodigm.server.dto.constraint.MainPageConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
-import com.yeoreodigm.server.dto.member.MemberItemDto;
+import com.yeoreodigm.server.dto.member.MemberEmailItemDto;
 import com.yeoreodigm.server.dto.travelnote.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
@@ -96,14 +96,14 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/companion/{travelNoteId}")
-    public Result<List<MemberItemDto>> callTravelMakingNoteCompanion(
+    public Result<List<MemberEmailItemDto>> callTravelMakingNoteCompanion(
             @PathVariable("travelNoteId") Long travelNoteId) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
         List<Member> memberList = travelNoteService.getCompanionMember(travelNote);
-        List<MemberItemDto> response = memberList
+        List<MemberEmailItemDto> response = memberList
                 .stream()
-                .map(MemberItemDto::new)
+                .map(MemberEmailItemDto::new)
                 .toList();
 
         return new Result<>(response);
