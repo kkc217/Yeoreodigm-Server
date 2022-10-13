@@ -3,6 +3,7 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.board.Board;
 import com.yeoreodigm.server.domain.board.BoardComment;
+import com.yeoreodigm.server.domain.board.BoardCommentLike;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
@@ -68,6 +69,23 @@ public class BoardCommentService {
             throw new BadRequestException("댓글을 삭제할 수 없습니다.");
 
         boardCommentRepository.deleteById(boardComment.getId());
+    }
+
+    @Transactional
+    public void changeBoardCommentLike(Member member, BoardComment boardComment, boolean like) {
+        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
+
+        BoardCommentLike boardCommentLike
+                = boardCommentLikeRepository.findByBoardCommentIdAndMemberId(boardComment.getId(), member.getId());
+
+        if (like) {
+            if (Objects.isNull(boardCommentLike)) {
+                BoardCommentLike newBoardCommentLike = new BoardCommentLike(boardComment, member);
+                boardCommentLikeRepository.saveAndFlush(newBoardCommentLike);
+            }
+        } else if (Objects.nonNull(boardCommentLike)) {
+            boardCommentLikeRepository.deleteById(boardCommentLike.getId());
+        }
     }
 
 }
