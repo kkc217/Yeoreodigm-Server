@@ -20,7 +20,6 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BASE_URL;
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_PROFILE_URI;
@@ -242,6 +241,16 @@ public class MemberApiController {
             @PathVariable("memberId") Long memberId) {
         return new CountDto(
                 memberService.getFolloweeCountByMember(memberService.getMemberById(memberId)));
+    }
+
+    @GetMapping("/followee/{memberId}")
+    public Result<List<MemberItemDto>> callFollowee(
+            @PathVariable("memberId") Long memberId) {
+        return new Result<>(
+                memberService.getFolloweeByMember(memberService.getMemberById(memberId))
+                        .stream()
+                        .map(MemberItemDto::new)
+                        .toList());
     }
 
     @GetMapping("/follow/{memberId}")
