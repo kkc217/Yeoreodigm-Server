@@ -31,7 +31,7 @@ public class CommentLikeDto {
 
     public CommentLikeDto(NoteComment noteComment, LikeItemDto likeItemDto) {
         Member member = noteComment.getMember();
-        CommentDateTime commentDateTime = new CommentDateTime(noteComment.getModified());
+        DateTimeStr dateTimeStr = new DateTimeStr(noteComment.getModified());
 
         this.commentId = noteComment.getId();
         this.memberId = member.getId();
@@ -39,14 +39,14 @@ public class CommentLikeDto {
         this.profileImageUrl = member.getProfileImage();
         this.text = noteComment.getText();
         this.hasModified = !Objects.equals(noteComment.getCreated(), noteComment.getModified());
-        this.dateTime = commentDateTime.getDateTime();
+        this.dateTime = dateTimeStr.getDateTime();
         this.hasLiked = likeItemDto.isHasLiked();
         this.likeCount = likeItemDto.getLikeCount();
     }
 
     public CommentLikeDto(PlaceComment placeComment, LikeItemDto likeItemDto) {
         Member member = placeComment.getMember();
-        CommentDateTime commentDateTime = new CommentDateTime(placeComment.getModified());
+        DateTimeStr dateTimeStr = new DateTimeStr(placeComment.getModified());
 
         this.commentId = placeComment.getId();
         this.memberId = member.getId();
@@ -54,7 +54,7 @@ public class CommentLikeDto {
         this.profileImageUrl = member.getProfileImage();
         this.text = placeComment.getText();
         this.hasModified = !Objects.equals(placeComment.getCreated(), placeComment.getModified());
-        this.dateTime = commentDateTime.getDateTime();
+        this.dateTime = dateTimeStr.getDateTime();
         this.hasLiked = likeItemDto.isHasLiked();
         this.likeCount = likeItemDto.getLikeCount();
     }
