@@ -7,6 +7,7 @@ import com.yeoreodigm.server.dto.board.BoardDto;
 import com.yeoreodigm.server.dto.board.BoardIdDto;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.service.AwsS3Service;
 import com.yeoreodigm.server.service.BoardService;
 import com.yeoreodigm.server.service.PlaceService;
@@ -41,7 +42,7 @@ public class BoardApiController {
             @RequestPart(name = "travelNoteTag", required = false) Long travelNoteTag,
             @RequestPart(name = "placeTag", required = false) List<Long> placeTag,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (Objects.isNull(member)) throw new BadRequestException("로그인이 필요합니다.");
+        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
 
         boardService.validatePictures(pictures);
         List<String> pictureAddressList = awsS3Service.uploadFiles(
