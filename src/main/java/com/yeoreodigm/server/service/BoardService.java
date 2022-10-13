@@ -7,6 +7,7 @@ import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.domain.board.Board;
 import com.yeoreodigm.server.domain.board.BoardPlace;
 import com.yeoreodigm.server.domain.board.BoardTravelNote;
+import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.CourseRepository;
 import com.yeoreodigm.server.repository.PlacesRepository;
 import com.yeoreodigm.server.repository.TravelNoteRepository;
@@ -39,6 +40,13 @@ public class BoardService {
     private final CourseRepository courseRepository;
 
     private final PlacesRepository placesRepository;
+
+
+    public Board getBoarById(Long boardId) {
+        Board board = boardRepository.findById(boardId);
+        if (Objects.isNull(board)) throw new BadRequestException("일치하는 여행 피드를 찾을 수 없습니다.");
+        return board;
+    }
 
     @Transactional
     public Board createBoard(Member member, List<String> pictureAddress, String text) {
