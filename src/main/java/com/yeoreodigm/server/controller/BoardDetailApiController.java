@@ -10,6 +10,7 @@ import com.yeoreodigm.server.dto.comment.CommentLikeDto;
 import com.yeoreodigm.server.dto.comment.CommentRequestDto;
 import com.yeoreodigm.server.dto.comment.DateTimeStr;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
+import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.service.BoardCommentService;
 import com.yeoreodigm.server.service.BoardService;
 import lombok.RequiredArgsConstructor;
@@ -75,6 +76,13 @@ public class BoardDetailApiController {
             @PathVariable("commentId") Long commentId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         boardCommentService.deleteBoardComment(member, commentId);
+    }
+
+    @GetMapping("/comment/like/{commentId}")
+    public LikeItemDto callBoardCommentLike(
+            @PathVariable("commentId") Long commentId,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return boardCommentService.getLikeInfo(boardCommentService.getBoardCommentById(commentId), member);
     }
 
 }
