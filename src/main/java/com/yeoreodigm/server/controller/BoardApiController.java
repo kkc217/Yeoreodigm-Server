@@ -43,9 +43,7 @@ public class BoardApiController {
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         if (Objects.isNull(member)) throw new BadRequestException("로그인이 필요합니다.");
 
-        if (Objects.isNull(pictures) || pictures.size() == 0 || pictures.size() > MAX_NUM_OF_BOARD_PICTURE) {
-            throw new BadRequestException("여행 피드 사진은 1장 이상, 10장 이하만 가능합니다.");
-        }
+        boardService.validatePictures(pictures);
         List<String> pictureAddressList = awsS3Service.uploadFiles(
                 AWS_S3_BOARD_URI, null, pictures);
         Board board = boardService.createBoard(member, pictureAddressList, text);
@@ -56,8 +54,35 @@ public class BoardApiController {
         return new BoardIdDto(board.getId());
     }
 
+    @PutMapping("")
+    public void editBoard(
+            @RequestPart(name = "boardId") Long boardId,
+            @RequestPart(name = "pictures", required = false) List<MultipartFile> pictures,
+            @RequestPart(name = "text") String text,
+            @RequestPart(name = "travelNoteTag", required = false) Long travelNoteTag,
+            @RequestPart(name = "placeTag", required = false) List<Long> placeTag,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        Board board = boardService.getBoarById(boardId);
+
+        if (Objects.isNull(member) || !Objects.equals(board.getMember().getId(), member.getId())) {
+            throw new BadRequestException("여행 피드를 수정할 수 없습니다.");
+        }
+
+        boardService.validatePictures(pictures);
+        List<String> pictureAddressList = awsS3Service.uploadFiles(
+                AWS_S3_BOARD_URI, null, pictures);
+        board.changeImageList(pictureAddressList);
+        board.changeText(text);
+
+        boardService.deleteBoardTravelNote(board.getBoardTravelNote());
+        BoardTravelNote boardTravelNote = boardService.createBoardTravelNote(board, travelNoteTag);
+
+        boardService.deleteBoardPlaceList(board.getBoardPlaceList());
+        boardService.createBoardPlaces(board, boardTravelNote, placeTag);
+    }
+
     @GetMapping("/modification/{boardId}")
-    public BoardDto editBoard(
+    public BoardDto callBoardEditInfo(
             @PathVariable("boardId") Long boardId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         Board board = boardService.getBoarById(boardId);

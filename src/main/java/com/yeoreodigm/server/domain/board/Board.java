@@ -63,4 +63,12 @@ public class Board {
         this.imageList = imageList;
     }
 
+    public void changeImageList(List<String> imageList) {
+        this.imageList = imageList;
+    }
+
+    public void changeText(String text) {
+        this.text = text;
+    }
+
 }
