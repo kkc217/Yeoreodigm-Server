@@ -225,6 +225,15 @@ public class MemberService {
         return followRepository.findFollowerByMember(member);
     }
 
+
+    public Long getFolloweeCountByMember(Member member) {
+        return followRepository.countFolloweeByMember(member);
+    }
+
+    public List<Member> getFolloweeByMember(Member member) {
+        return followRepository.findFolloweeByMember(member);
+    }
+
     @Transactional
     public void changeFollow(Member member, Member followee, boolean isFollow) {
         if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
