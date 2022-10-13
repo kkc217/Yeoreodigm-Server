@@ -4,6 +4,7 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.board.Board;
 import com.yeoreodigm.server.domain.board.BoardComment;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.repository.board.BoardCommentLikeRepository;
 import com.yeoreodigm.server.repository.board.BoardCommentRepository;
@@ -22,6 +23,13 @@ public class BoardCommentService {
     private final BoardCommentRepository boardCommentRepository;
 
     private final BoardCommentLikeRepository boardCommentLikeRepository;
+
+    public BoardComment getBoardCommentById(Long boardCommentId) {
+        BoardComment boardComment = boardCommentRepository.findById(boardCommentId);
+
+        if (Objects.isNull(boardComment)) throw new BadRequestException("일치하는 여행 피드 댓글이 없습니다.");
+        return boardComment;
+    }
 
     public List<BoardComment> getBoardCommentsByBoard(Board board) {
         return boardCommentRepository.findByBoardId(board.getId());
@@ -49,6 +57,17 @@ public class BoardCommentService {
         if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
 
         boardCommentRepository.saveAndFlush(new BoardComment(board, member, text));
+    }
+
+    @Transactional
+    public void deleteBoardComment(Member member, Long boardCommentId) {
+        BoardComment boardComment = boardCommentRepository.findById(boardCommentId);
+
+        if (Objects.isNull(boardComment)) return;
+        if (Objects.isNull(member) || !Objects.equals(boardComment.getMember().getId(), member.getId()))
+            throw new BadRequestException("댓글을 삭제할 수 없습니다.");
+
+        boardCommentRepository.deleteById(boardComment.getId());
     }
 
 }
