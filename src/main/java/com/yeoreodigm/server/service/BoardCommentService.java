@@ -4,6 +4,7 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.board.Board;
 import com.yeoreodigm.server.domain.board.BoardComment;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.repository.board.BoardCommentLikeRepository;
 import com.yeoreodigm.server.repository.board.BoardCommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -40,6 +42,13 @@ public class BoardCommentService {
 
     public LikeItemDto getLikeInfo(BoardComment boardComment, Member member) {
         return new LikeItemDto(checkHasLiked(boardComment, member), countCommentLike(boardComment));
+    }
+
+    @Transactional
+    public void addBoardComment(Member member, Board board, String text) {
+        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
+
+        boardCommentRepository.saveAndFlush(new BoardComment(board, member, text));
     }
 
 }

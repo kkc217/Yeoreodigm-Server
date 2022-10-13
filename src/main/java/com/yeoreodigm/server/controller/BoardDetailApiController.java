@@ -7,6 +7,7 @@ import com.yeoreodigm.server.dto.CountDto;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.board.BoardDetailDto;
 import com.yeoreodigm.server.dto.comment.CommentLikeDto;
+import com.yeoreodigm.server.dto.comment.CommentRequestDto;
 import com.yeoreodigm.server.dto.comment.DateTimeStr;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.service.BoardCommentService;
@@ -14,6 +15,7 @@ import com.yeoreodigm.server.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,6 +58,16 @@ public class BoardDetailApiController {
                         .map(boardComment -> new CommentLikeDto(
                                 boardComment, boardCommentService.getLikeInfo(boardComment, member)))
                         .toList());
+    }
+
+    @PostMapping("/comment")
+    public void addBoardComment(
+            @RequestBody @Valid CommentRequestDto requestDto,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        boardCommentService.addBoardComment(
+                member,
+                boardService.getBoardById(requestDto.getId()),
+                requestDto.getText());
     }
 
 }
