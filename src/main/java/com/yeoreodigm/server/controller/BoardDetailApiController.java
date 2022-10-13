@@ -2,6 +2,7 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.board.Board;
+import com.yeoreodigm.server.dto.CountDto;
 import com.yeoreodigm.server.dto.board.BoardDetailDto;
 import com.yeoreodigm.server.dto.comment.DateTimeStr;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
@@ -31,6 +32,14 @@ public class BoardDetailApiController {
                 board,
                 Objects.nonNull(member) && Objects.equals(board.getMember().getId(), member.getId()),
                 new DateTimeStr(board.getModifiedTime()));
+    }
+
+    @GetMapping("/comment/count/{boardId}")
+    public CountDto callBoardCommentCount(
+            @PathVariable("boardId") Long boardId) {
+        return new CountDto(
+                boardCommentService.countCommentByBoard(
+                        boardService.getBoardById(boardId)));
     }
 
 }
