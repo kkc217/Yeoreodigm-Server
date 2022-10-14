@@ -62,6 +62,7 @@ public class BoardService {
 
     @Transactional
     public Board createBoard(Member member, List<String> pictureAddress, String text) {
+        if (text.length() > 500) throw new BadRequestException("피드의 최대 글자 수는 500자입니다.");
         Board board = new Board(member, text, pictureAddress);
         boardRepository.saveAndFlush(board);
         return board;
