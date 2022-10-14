@@ -464,4 +464,10 @@ public class TravelNoteService {
         travelNoteRepository.merge(travelNote);
     }
 
+    @Transactional
+    public void changeNotePublicShare(TravelNote travelNote, boolean publicShare) {
+        travelNote.changePublicShare(publicShare);
+        travelNoteRepository.merge(travelNote);
+    }
+
 }
