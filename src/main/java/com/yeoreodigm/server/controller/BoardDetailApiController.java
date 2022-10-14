@@ -2,7 +2,6 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.board.Board;
-import com.yeoreodigm.server.domain.board.BoardComment;
 import com.yeoreodigm.server.dto.CountDto;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.board.BoardDetailDto;

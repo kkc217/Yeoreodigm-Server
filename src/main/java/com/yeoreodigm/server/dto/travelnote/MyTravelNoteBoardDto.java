@@ -2,12 +2,9 @@ package com.yeoreodigm.server.dto.travelnote;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yeoreodigm.server.domain.TravelNote;
-import com.yeoreodigm.server.dto.like.LikeItemDto;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 public class MyTravelNoteBoardDto {

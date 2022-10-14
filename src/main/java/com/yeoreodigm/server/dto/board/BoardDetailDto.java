@@ -1,15 +1,12 @@
 package com.yeoreodigm.server.dto.board;
 
 import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.board.Board;
-import com.yeoreodigm.server.domain.board.BoardPlace;
 import com.yeoreodigm.server.dto.comment.DateTimeStr;
 import com.yeoreodigm.server.dto.constraint.AWSConst;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Objects;
 
 @Data
 public class BoardDetailDto {
@@ -21,6 +18,8 @@ public class BoardDetailDto {
     private Long memberId;
 
     private String profileImage;
+
+    private String nickname;
 
     private String dateTime;
 
@@ -41,6 +40,7 @@ public class BoardDetailDto {
         Member member = board.getMember();
         this.memberId = member.getId();
         this.profileImage = member.getProfileImage();
+        this.nickname = member.getNickname();
 
         this.dateTime = dateTimeStr.getDateTime();
 

@@ -69,7 +69,7 @@ public class BoardService {
 
     @Transactional
     public BoardTravelNote createBoardTravelNote(Board board, Long travelNoteId) {
-        if (Objects.isNull(travelNoteId)) return null;
+        if (Objects.isNull(travelNoteId) || Objects.equals(0L, travelNoteId)) return null;
 
         TravelNote travelNote = travelNoteRepository.findById(travelNoteId);
 
@@ -95,6 +95,9 @@ public class BoardService {
                 }
             }
         }
+
+        if (MAX_NUM_OF_BOARD_PLACE < placeIdList.size())
+            throw new BadRequestException("여행지 태그는 최대 4개만 추가할 수 있습니다.");
 
         for (Long placeId : placeIdList) {
             Places place = placesRepository.findByPlaceId(placeId);

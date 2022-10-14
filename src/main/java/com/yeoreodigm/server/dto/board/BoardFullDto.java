@@ -8,7 +8,7 @@ import lombok.Data;
 
 import java.util.Objects;
 
-import static com.yeoreodigm.server.dto.constraint.AWSConst.*;
+import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BASE_URL;
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BOARD_URI;
 
 @Data
@@ -17,6 +17,8 @@ public class BoardFullDto {
     private Long memberId;
 
     private String profileImage;
+
+    private String nickname;
 
     private Long boardId;
 
@@ -38,6 +40,7 @@ public class BoardFullDto {
         Member member = board.getMember();
         this.memberId = member.getId();
         this.profileImage = member.getProfileImage();
+        this.nickname = member.getNickname();
 
         this.boardId = board.getId();
         this.text = board.getText();
