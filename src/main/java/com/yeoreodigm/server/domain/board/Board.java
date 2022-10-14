@@ -10,6 +10,7 @@ import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class Board {
     public Board(Member member, String text, List<String> imageList) {
         this.member = member;
         this.text = text;
-        this.createdTime = LocalDateTime.now();
+        this.createdTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         this.modifiedTime = createdTime;
         publicShare = true;
         this.imageList = imageList;
