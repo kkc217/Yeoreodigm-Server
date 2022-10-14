@@ -19,6 +19,8 @@ public class BoardDetailDto {
 
     private String profileImage;
 
+    private String nickname;
+
     private String dateTime;
 
     private String text;
@@ -38,6 +40,7 @@ public class BoardDetailDto {
         Member member = board.getMember();
         this.memberId = member.getId();
         this.profileImage = member.getProfileImage();
+        this.nickname = member.getNickname();
 
         this.dateTime = dateTimeStr.getDateTime();
 

@@ -18,6 +18,8 @@ public class BoardFullDto {
 
     private String profileImage;
 
+    private String nickname;
+
     private Long boardId;
 
     private String text;
@@ -38,6 +40,7 @@ public class BoardFullDto {
         Member member = board.getMember();
         this.memberId = member.getId();
         this.profileImage = member.getProfileImage();
+        this.nickname = member.getNickname();
 
         this.boardId = board.getId();
         this.text = board.getText();
