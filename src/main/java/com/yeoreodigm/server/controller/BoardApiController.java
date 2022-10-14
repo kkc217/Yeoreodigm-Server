@@ -13,7 +13,9 @@ import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
-import com.yeoreodigm.server.service.*;
+import com.yeoreodigm.server.service.AwsS3Service;
+import com.yeoreodigm.server.service.BoardCommentService;
+import com.yeoreodigm.server.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BOARD_URI;
+import static com.yeoreodigm.server.dto.constraint.BoardConst.MAX_NUM_OF_BOARD_PLACE;
 
 @RestController
 @RequiredArgsConstructor
@@ -77,6 +80,9 @@ public class BoardApiController {
 
         boardService.deleteBoardTravelNote(board.getBoardTravelNote());
         BoardTravelNote boardTravelNote = boardService.createBoardTravelNote(board, travelNoteTag);
+
+        if (Objects.nonNull(placeTag) && MAX_NUM_OF_BOARD_PLACE < placeTag.size())
+            throw new BadRequestException("여행지 태그는 최대 4개만 추가할 수 있습니다.");
 
         boardService.deleteBoardPlaceList(board.getBoardPlaceList());
         boardService.createBoardPlaces(board, boardTravelNote, placeTag);

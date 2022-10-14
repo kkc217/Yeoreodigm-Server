@@ -1,9 +1,7 @@
 package com.yeoreodigm.server.dto.board;
 
-import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.board.Board;
 import com.yeoreodigm.server.dto.comment.DateTimeStr;
-import com.yeoreodigm.server.dto.like.LikeItemDto;
 import lombok.Data;
 
 import java.util.Objects;

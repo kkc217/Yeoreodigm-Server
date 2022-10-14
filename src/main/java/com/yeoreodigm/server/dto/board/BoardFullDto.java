@@ -8,7 +8,7 @@ import lombok.Data;
 
 import java.util.Objects;
 
-import static com.yeoreodigm.server.dto.constraint.AWSConst.*;
+import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BASE_URL;
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BOARD_URI;
 
 @Data
