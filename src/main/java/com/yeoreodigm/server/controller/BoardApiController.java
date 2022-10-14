@@ -16,6 +16,7 @@ import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.service.AwsS3Service;
 import com.yeoreodigm.server.service.BoardCommentService;
 import com.yeoreodigm.server.service.BoardService;
+import com.yeoreodigm.server.service.TravelNoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +37,8 @@ public class BoardApiController {
 
     private final BoardCommentService boardCommentService;
 
+    private final TravelNoteService travelNoteService;
+
     private final AwsS3Service awsS3Service;
 
     @PostMapping("/new")
@@ -55,6 +58,10 @@ public class BoardApiController {
         BoardTravelNote boardTravelNote = boardService.createBoardTravelNote(board, travelNoteTag);
 
         boardService.createBoardPlaces(board, boardTravelNote, placeTag);
+
+        if (Objects.nonNull(boardTravelNote))
+            travelNoteService.changeNotePublicShare(boardTravelNote.getTravelNote(), true);
+
         return new BoardIdDto(board.getId());
     }
 
@@ -86,6 +93,9 @@ public class BoardApiController {
 
         boardService.deleteBoardPlaceList(board.getBoardPlaceList());
         boardService.createBoardPlaces(board, boardTravelNote, placeTag);
+
+        if (Objects.nonNull(boardTravelNote))
+            travelNoteService.changeNotePublicShare(boardTravelNote.getTravelNote(), true);
     }
 
     @GetMapping("")
