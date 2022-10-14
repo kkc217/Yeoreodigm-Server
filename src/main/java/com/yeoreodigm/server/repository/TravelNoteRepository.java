@@ -174,6 +174,14 @@ public class TravelNoteRepository {
                 .fetch();
     }
 
+    public Long countByMember(Member member) {
+        return queryFactory
+                .select(travelNote.count())
+                .from(travelNote)
+                .where(travelNote.member.id.eq(member.getId()))
+                .fetchOne();
+    }
+
     public List<TravelNote> findAllByMember(Member member) {
         return queryFactory
                 .selectFrom(travelNote)

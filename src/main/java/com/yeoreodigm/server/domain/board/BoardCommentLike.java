@@ -1,7 +1,9 @@
 package com.yeoreodigm.server.domain.board;
 
 import com.yeoreodigm.server.domain.Member;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -12,6 +14,7 @@ import javax.persistence.*;
         name = "BOARD_COMMENT_LIKE_ID_SEQ_GENERATOR",
         sequenceName = "board_comment_like_id_seq",
         allocationSize = 1)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BoardCommentLike {
 
     @Id
@@ -28,5 +31,10 @@ public class BoardCommentLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public BoardCommentLike(BoardComment boardComment, Member member) {
+        this.boardComment = boardComment;
+        this.member = member;
+    }
 
 }

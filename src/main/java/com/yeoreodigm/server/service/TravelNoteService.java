@@ -355,20 +355,25 @@ public class TravelNoteService {
         }
     }
 
-    public List<MyTravelNoteDto> getMyTravelNote(Member member, int page, int limit) {
+    public List<TravelNote> getMyTravelNote(Member member, int page, int limit) {
         if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-        List<TravelNote> travelNoteList = travelNoteRepository.findByMember(member, limit * (page - 1), limit);
-
-        List<MyTravelNoteDto> result = new ArrayList<>();
-
-        for (TravelNote travelNote : travelNoteList) {
-            result.add(new MyTravelNoteDto(travelNote, getPeriod(travelNote)));
-        }
-        return result;
+        return travelNoteRepository.findByMember(member, limit * (page - 1), limit);
     }
 
     public int checkNextMyTravelNote(Member member, int page, int limit) {
-        return travelNoteRepository.findByMember(member, page * limit, limit).size() > 0 ? page + 1 : 0;
+        return getMyTravelNote(member, page + 1, limit).size() > 0 ? page + 1 : 0;
+    }
+
+    public List<MyTravelNoteDto> getMyTravelNoteDtoList(List<TravelNote> travelNoteList) {
+        return travelNoteList
+                .stream()
+                .map(travelNote -> new MyTravelNoteDto(travelNote, getPeriod(travelNote)))
+                .toList();
+    }
+
+    public Long getMyTravelNoteCount(Member member) {
+        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
+        return travelNoteRepository.countByMember(member);
     }
 
     public void resetTitle(Member member) {
@@ -450,7 +455,7 @@ public class TravelNoteService {
     }
 
     public int checkNextSearchTravelNote(String content, int page, int limit, int option) {
-        return searchTravelNote(content, limit * page, limit, option).size() > 0 ? page + 1 : 0;
+        return searchTravelNote(content, page + 1, limit, option).size() > 0 ? page + 1 : 0;
     }
 
     @Transactional

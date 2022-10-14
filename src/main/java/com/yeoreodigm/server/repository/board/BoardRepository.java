@@ -42,10 +42,13 @@ public class BoardRepository {
         }
     }
 
-    public List<Board> findByMember(Member member) {
+    public List<Board> findByMemberPaging(Member member, int page, int limit) {
         return queryFactory
                 .selectFrom(board)
                 .where(board.member.id.eq(member.getId()))
+                .orderBy(board.modifiedTime.desc())
+                .offset(page)
+                .limit(limit)
                 .fetch();
     }
 
@@ -87,6 +90,37 @@ public class BoardRepository {
                 .where(board.publicShare.eq(true))
                 .groupBy(board.id, boardLike.board.id)
                 .orderBy(board.count().desc(), boardLike.board.id.desc().nullsLast())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<Board> findPublicOrderByModifiedAsc(int page, int limit) {
+        return queryFactory
+                .selectFrom(board)
+                .where(board.publicShare.eq(true))
+                .orderBy(board.modifiedTime.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<Board> findPublicOrderByModifiedDesc(int page, int limit) {
+        return queryFactory
+                .selectFrom(board)
+                .where(board.publicShare.eq(true))
+                .orderBy(board.modifiedTime.desc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<Board> findPublicFollowOrderByModifiedDesc(int page, int limit, List<Member> followeeList) {
+        return queryFactory
+                .selectFrom(board)
+                .where(board.publicShare.eq(true),
+                        board.member.id.in(followeeList.stream().map(Member::getId).toList()))
+                .orderBy(board.modifiedTime.desc())
                 .offset(page)
                 .limit(limit)
                 .fetch();

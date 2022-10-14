@@ -14,7 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BUCKET;
 
@@ -27,6 +30,10 @@ public class AwsS3Service {
 
     public String uploadFile(String directory, String fileName, MultipartFile file) {
         validateFileExists(file);
+
+        if (Objects.isNull(fileName)) {
+            fileName = getRandomFileName();
+        }
 
         String targetUrl = AWS_S3_BUCKET + directory;
 
@@ -45,19 +52,29 @@ public class AwsS3Service {
             throw new BadRequestException("이미지 파일이 존재하지 않습니다.");
         }
 
-        return amazonS3Client.getUrl(targetUrl, fileName).toString();
+        return fileName;
     }
 
-    public void uploadFiles(String directory, List<String> fileNameList, List<MultipartFile> fileList) {
+    public List<String> uploadFiles(String directory, List<String> fileNameList, List<MultipartFile> fileList) {
+        List<String> result = new ArrayList<>();
         for (int i = 0; i < fileList.size(); i++) {
-            uploadFile(directory, fileNameList.get(i), fileList.get(i));
+            if (Objects.isNull(fileNameList)) {
+                result.add(uploadFile(directory, null, fileList.get(i)));
+            } else {
+                result.add(uploadFile(directory, fileNameList.get(i), fileList.get(i)));
+            }
         }
+        return result;
     }
 
     private void validateFileExists(MultipartFile multipartFile) {
         if (multipartFile.isEmpty()) {
             throw new BadRequestException("이미지 파일이 존재하지 않습니다.");
         }
+    }
+
+    private String getRandomFileName() {
+        return UUID.randomUUID().toString();
     }
 
 }

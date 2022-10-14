@@ -8,11 +8,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 @Data
-public class CommentDateTime {
+public class DateTimeStr {
 
     private String dateTime;
 
-    public CommentDateTime(LocalDateTime dateTime) {
+    public DateTimeStr(LocalDateTime dateTime) {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         if (ChronoUnit.MONTHS.between(dateTime, now) > 0) {

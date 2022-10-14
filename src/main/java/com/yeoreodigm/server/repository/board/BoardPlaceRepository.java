@@ -24,9 +24,13 @@ public class BoardPlaceRepository {
         em.persist(boardPlace);
     }
 
+    public void flush() {
+        em.flush();
+    }
+
     public void saveAndFlush(BoardPlace boardPlace) {
         save(boardPlace);
-        em.flush();
+        flush();
     }
 
     public List<BoardPlace> findByBoardId(Long boardId) {

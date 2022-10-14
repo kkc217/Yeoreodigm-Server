@@ -1,7 +1,9 @@
 package com.yeoreodigm.server.domain.board;
 
 import com.yeoreodigm.server.domain.Member;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -12,6 +14,7 @@ import javax.persistence.*;
         name = "FOLLOW_ID_SEQ_GENERATOR",
         sequenceName = "follow_id_seq",
         allocationSize = 1)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Follow {
 
     @Id
@@ -21,11 +24,16 @@ public class Follow {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "follower")
     private Member follower;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "followee")
     private Member followee;
+
+    public Follow(Member follower, Member followee) {
+        this.follower = follower;
+        this.followee = followee;
+    }
 
 }

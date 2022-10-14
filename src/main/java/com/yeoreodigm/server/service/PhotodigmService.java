@@ -92,7 +92,7 @@ public class PhotodigmService {
                 .block();
     }
 
-    public String getRandomFileName() {
+    private String getRandomFileName() {
         return UUID.randomUUID().toString();
     }
 
@@ -150,14 +150,12 @@ public class PhotodigmService {
         photodigmRepository.merge(photodigm);
     }
 
-    public String checkPictureContentType(MultipartFile file) {
+    public void checkPictureContentType(MultipartFile file) {
         if (file.isEmpty()) throw new BadRequestException("업로드한 이미지 파일을 확인해주시기 바랍니다.");
 
         if (!Arrays.asList(PICTURE_CONTENT_TYPE_LIST)
                 .contains(Objects.requireNonNull(file.getContentType()).toLowerCase()))
             throw new BadRequestException("jpg, jpeg, png, peng 파일만 업로드 가능합니다.");
-
-        return file.getContentType().split("/")[1];
     }
 
     public void checkPictureListContentType(List<MultipartFile> fileList) {

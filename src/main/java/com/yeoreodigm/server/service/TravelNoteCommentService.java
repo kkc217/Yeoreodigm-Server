@@ -74,7 +74,7 @@ public class TravelNoteCommentService {
     }
 
     @Transactional
-    public void changeTravelNoteLike(Member member, Long noteCommentId, boolean like) {
+    public void changeTravelNoteCommentLike(Member member, Long noteCommentId, boolean like) {
         if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
         NoteCommentLike noteCommentLike

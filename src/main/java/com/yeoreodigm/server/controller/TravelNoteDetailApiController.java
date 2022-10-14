@@ -82,7 +82,7 @@ public class TravelNoteDetailApiController {
     public void changeTravelNoteCommentLike(
             @RequestBody @Valid LikeRequestDto requestDto,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        travelNoteCommentService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
+        travelNoteCommentService.changeTravelNoteCommentLike(member, requestDto.getId(), requestDto.isLike());
     }
 
     @PostMapping("/new")

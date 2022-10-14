@@ -2,6 +2,7 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.ContentRequestDto;
+import com.yeoreodigm.server.dto.CountDto;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
@@ -10,7 +11,7 @@ import com.yeoreodigm.server.dto.constraint.MainPageConst;
 import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
-import com.yeoreodigm.server.dto.member.MemberItemDto;
+import com.yeoreodigm.server.dto.member.MemberEmailItemDto;
 import com.yeoreodigm.server.dto.travelnote.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
@@ -95,14 +96,14 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/companion/{travelNoteId}")
-    public Result<List<MemberItemDto>> callTravelMakingNoteCompanion(
+    public Result<List<MemberEmailItemDto>> callTravelMakingNoteCompanion(
             @PathVariable("travelNoteId") Long travelNoteId) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
         List<Member> memberList = travelNoteService.getCompanionMember(travelNote);
-        List<MemberItemDto> response = memberList
+        List<MemberEmailItemDto> response = memberList
                 .stream()
-                .map(MemberItemDto::new)
+                .map(MemberEmailItemDto::new)
                 .toList();
 
         return new Result<>(response);
@@ -252,8 +253,34 @@ public class TravelNoteApiController {
             @PathVariable("limit") int limit,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         return new PageResult<>(
-                travelNoteService.getMyTravelNote(member, page, limit),
+                travelNoteService.getMyTravelNoteDtoList(travelNoteService.getMyTravelNote(member, page, limit)),
                 travelNoteService.checkNextMyTravelNote(member, page, limit));
+    }
+
+    @GetMapping("/my/count")
+    public CountDto callMyTravelNoteCount(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new CountDto(travelNoteService.getMyTravelNoteCount(member));
+    }
+
+    @GetMapping("/my/board/{page}/{limit}")
+    public PageResult<List<MyTravelNoteBoardDto>> callMyTravelNoteBoard(
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        return new PageResult<>(
+                travelNoteService.getMyTravelNote(member, page, limit)
+                        .stream()
+                        .map(travelNote -> new MyTravelNoteBoardDto(travelNote, courseService.countAllPlace(travelNote)))
+                        .toList(),
+                travelNoteService.checkNextMyTravelNote(member, page, limit));
+    }
+
+    @GetMapping("/board/{travelNoteId}")
+    public MyTravelNoteBoardDto callTravelNoteBoard(
+            @PathVariable("travelNoteId") Long travelNoteId) {
+        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
+        return new MyTravelNoteBoardDto(travelNote, courseService.countAllPlace(travelNote));
     }
 
     @GetMapping("/public/{memberId}/{page}/{limit}")

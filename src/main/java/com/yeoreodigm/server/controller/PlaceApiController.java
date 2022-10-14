@@ -8,6 +8,7 @@ import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
+import com.yeoreodigm.server.dto.place.PlaceDetailDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.dto.place.PlaceStringIdDto;
 import com.yeoreodigm.server.dto.restaurant.RestaurantRouteDto;
@@ -161,6 +162,12 @@ public class PlaceApiController {
         return new PageResult<>(
                 response,
                 restaurantService.checkNextRestaurants(restaurantIdList, page, limit));
+    }
+
+    @GetMapping("/{placeId}")
+    public PlaceDetailDto callPlaceBoard(
+            @PathVariable("placeId") Long placeId) {
+        return new PlaceDetailDto(placeService.getPlaceById(placeId));
     }
 
 }

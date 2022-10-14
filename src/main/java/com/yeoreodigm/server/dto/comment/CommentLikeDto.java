@@ -3,6 +3,7 @@ package com.yeoreodigm.server.dto.comment;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.NoteComment;
 import com.yeoreodigm.server.domain.PlaceComment;
+import com.yeoreodigm.server.domain.board.BoardComment;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import lombok.Data;
 
@@ -31,7 +32,7 @@ public class CommentLikeDto {
 
     public CommentLikeDto(NoteComment noteComment, LikeItemDto likeItemDto) {
         Member member = noteComment.getMember();
-        CommentDateTime commentDateTime = new CommentDateTime(noteComment.getModified());
+        DateTimeStr dateTimeStr = new DateTimeStr(noteComment.getModified());
 
         this.commentId = noteComment.getId();
         this.memberId = member.getId();
@@ -39,14 +40,14 @@ public class CommentLikeDto {
         this.profileImageUrl = member.getProfileImage();
         this.text = noteComment.getText();
         this.hasModified = !Objects.equals(noteComment.getCreated(), noteComment.getModified());
-        this.dateTime = commentDateTime.getDateTime();
+        this.dateTime = dateTimeStr.getDateTime();
         this.hasLiked = likeItemDto.isHasLiked();
         this.likeCount = likeItemDto.getLikeCount();
     }
 
     public CommentLikeDto(PlaceComment placeComment, LikeItemDto likeItemDto) {
         Member member = placeComment.getMember();
-        CommentDateTime commentDateTime = new CommentDateTime(placeComment.getModified());
+        DateTimeStr dateTimeStr = new DateTimeStr(placeComment.getModified());
 
         this.commentId = placeComment.getId();
         this.memberId = member.getId();
@@ -54,7 +55,22 @@ public class CommentLikeDto {
         this.profileImageUrl = member.getProfileImage();
         this.text = placeComment.getText();
         this.hasModified = !Objects.equals(placeComment.getCreated(), placeComment.getModified());
-        this.dateTime = commentDateTime.getDateTime();
+        this.dateTime = dateTimeStr.getDateTime();
+        this.hasLiked = likeItemDto.isHasLiked();
+        this.likeCount = likeItemDto.getLikeCount();
+    }
+
+    public CommentLikeDto(BoardComment boardComment, LikeItemDto likeItemDto) {
+        Member member = boardComment.getMember();
+        DateTimeStr dateTimeStr = new DateTimeStr(boardComment.getModifiedTime());
+
+        this.commentId = boardComment.getId();
+        this.memberId = member.getId();
+        this.nickname = member.getNickname();
+        this.profileImageUrl = member.getProfileImage();
+        this.text = boardComment.getText();
+        this.hasModified = !Objects.equals(boardComment.getCreatedTime(), boardComment.getModifiedTime());
+        this.dateTime = dateTimeStr.getDateTime();
         this.hasLiked = likeItemDto.isHasLiked();
         this.likeCount = likeItemDto.getLikeCount();
     }
