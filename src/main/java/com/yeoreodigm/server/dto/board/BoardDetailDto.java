@@ -7,6 +7,7 @@ import com.yeoreodigm.server.dto.constraint.AWSConst;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Objects;
 
 @Data
 public class BoardDetailDto {
@@ -50,11 +51,15 @@ public class BoardDetailDto {
                 .map(address -> AWSConst.AWS_S3_BASE_URL + AWSConst.AWS_S3_BOARD_URI + "/" + address)
                 .toList();
         this.imageCount = imageList.size();
-        this.travelNoteTag = board.getBoardTravelNote().getTravelNote().getId();
-        this.placeTag = board.getBoardPlaceList()
-                .stream()
-                .map(boardPlace -> boardPlace.getPlace().getId())
-                .toList();
+
+        if (Objects.nonNull(board.getBoardTravelNote()))
+            this.travelNoteTag = board.getBoardTravelNote().getTravelNote().getId();
+
+        if (Objects.nonNull(board.getBoardPlaceList()))
+            this.placeTag = board.getBoardPlaceList()
+                    .stream()
+                    .map(boardPlace -> boardPlace.getPlace().getId())
+                    .toList();
     }
 
 }
