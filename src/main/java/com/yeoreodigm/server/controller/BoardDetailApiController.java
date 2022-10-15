@@ -37,7 +37,7 @@ public class BoardDetailApiController {
 
         return new BoardDetailDto(
                 board,
-                Objects.nonNull(member) && Objects.equals(board.getMember().getId(), member.getId()),
+                member,
                 new DateTimeStr(board.getModifiedTime()));
     }
 
@@ -57,7 +57,7 @@ public class BoardDetailApiController {
                 boardCommentService.getBoardCommentsByBoard(boardService.getBoardById(boardId))
                         .stream()
                         .map(boardComment -> new CommentLikeDto(
-                                boardComment, boardCommentService.getLikeInfo(boardComment, member)))
+                                boardComment, member, boardCommentService.getLikeInfo(boardComment, member)))
                         .toList());
     }
 

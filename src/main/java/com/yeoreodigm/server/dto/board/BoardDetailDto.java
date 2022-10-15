@@ -34,14 +34,16 @@ public class BoardDetailDto {
 
     private List<Long> placeTag;
 
-    public BoardDetailDto(Board board, boolean mine, DateTimeStr dateTimeStr) {
-        this.boardId = board.getId();
-        this.mine = mine;
+    public BoardDetailDto(Board board, Member member, DateTimeStr dateTimeStr) {
+        Member owner = board.getMember();
 
-        Member member = board.getMember();
-        this.memberId = member.getId();
-        this.profileImage = member.getProfileImage();
-        this.nickname = member.getNickname();
+        this.boardId = board.getId();
+
+        this.mine = Objects.nonNull(member) && Objects.equals(member.getId(), owner.getId());
+
+        this.memberId = owner.getId();
+        this.profileImage = owner.getProfileImage();
+        this.nickname = owner.getNickname();
 
         this.dateTime = dateTimeStr.getDateTime();
 
