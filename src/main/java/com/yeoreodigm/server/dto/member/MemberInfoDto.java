@@ -5,7 +5,7 @@ import com.yeoreodigm.server.domain.Member;
 import lombok.Data;
 
 @Data
-public class LoginResponseDto {
+public class MemberInfoDto {
 
     private Long memberId;
 
@@ -17,7 +17,7 @@ public class LoginResponseDto {
 
     private int surveyIndex;
 
-    public LoginResponseDto(final Member member) {
+    public MemberInfoDto(final Member member) {
         this.memberId = member.getId();
         this.email = member.getEmail();
         this.nickname = member.getNickname();

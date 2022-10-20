@@ -3,7 +3,7 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.RefreshToken;
 import com.yeoreodigm.server.dto.jwt.TokenDto;
-import com.yeoreodigm.server.dto.member.MemberLoginRequestDto;
+import com.yeoreodigm.server.dto.member.LoginRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.jwt.CustomEmailPasswordAuthToken;
@@ -33,7 +33,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
-    public TokenDto login(MemberLoginRequestDto requestDto) {
+    public TokenDto login(LoginRequestDto requestDto) {
         CustomEmailPasswordAuthToken customEmailPasswordAuthToken
                 = new CustomEmailPasswordAuthToken(requestDto.getEmail(), requestDto.getPassword());
         Authentication authentication = authenticationManager.authenticate(customEmailPasswordAuthToken);
@@ -60,7 +60,7 @@ public class AuthService {
     @Transactional
     public TokenDto reissue(TokenDto tokenDto) {
         String originAccessToken = tokenDto.getAccessToken();
-        String originRefreshToken = tokenDto.getRefreshToke();
+        String originRefreshToken = tokenDto.getRefreshToken();
 
         int refreshTokenFlag = tokenProvider.validateToken(originRefreshToken);
 

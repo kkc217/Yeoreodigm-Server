@@ -62,6 +62,7 @@ public class SpringSecurityConfig {
                 .authorizeRequests()
                 .mvcMatchers("/api/auth/**").permitAll()
                 .mvcMatchers("/api/**").authenticated()
+//                .mvcMatchers("/api/**").hasAuthority("ROLE_USER")
 
                 .anyRequest().denyAll()
 
