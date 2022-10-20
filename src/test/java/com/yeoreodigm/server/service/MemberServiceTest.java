@@ -4,6 +4,7 @@ import com.yeoreodigm.server.domain.Gender;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.repository.FollowRepository;
 import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
 import org.junit.Before;
@@ -32,6 +33,9 @@ public class MemberServiceTest {
     private SurveyRepository surveyRepository;
 
     @Mock
+    private FollowRepository followRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
@@ -56,6 +60,7 @@ public class MemberServiceTest {
         memberService = new MemberService(
                 mockMemberRepository,
                 surveyRepository,
+                followRepository,
                 passwordEncoder);
     }
 
