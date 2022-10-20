@@ -68,7 +68,7 @@ public class TokenProvider {
         return this.createToken(email, auth, REFRESH_TOKEN_EXPIRE_TIME);
     }
 
-    public String getMemberEmailByToken(String token) {
+    public String getEmailByToken(String token) {
         return this.parseClaims(token).getSubject();
     }
 

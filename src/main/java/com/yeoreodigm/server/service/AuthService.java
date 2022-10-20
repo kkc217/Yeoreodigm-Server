@@ -50,7 +50,7 @@ public class AuthService {
             refreshTokenRepository.save(new RefreshToken(email, refreshToken));
         } else {
             RefreshToken originRefreshToken = originRefreshTokenOpt.get();
-            originRefreshToken.changeVale(refreshToken);
+            originRefreshToken.changeValue(refreshToken);
             refreshTokenRepository.save(originRefreshToken);
         }
 
@@ -78,7 +78,7 @@ public class AuthService {
             throw new BadRequestException("다시 로그인해주시기 바랍니다.");
         }
 
-        String email = tokenProvider.getMemberEmailByToken(originAccessToken);
+        String email = tokenProvider.getEmailByToken(originAccessToken);
         Member member = memberRepository.findByEmail(email);
 
         if (Objects.isNull(member)) throw new BadRequestException("일치하는 사용자가 없습니다.");
@@ -87,7 +87,7 @@ public class AuthService {
         String newRefreshToken = tokenProvider.createRefreshToken(email, member.getAuthority());
         TokenDto newTokenDto = tokenProvider.createTokenDto(newAccessToken, newRefreshToken);
 
-        refreshToken.changeVale(newRefreshToken);
+        refreshToken.changeValue(newRefreshToken);
         refreshTokenRepository.saveAndFlush(refreshToken);
 
         return newTokenDto;

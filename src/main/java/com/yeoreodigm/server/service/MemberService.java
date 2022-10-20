@@ -125,7 +125,7 @@ public class MemberService {
             refreshTokenRepository.save(new RefreshToken(email, refreshToken));
         } else {
             RefreshToken originRefreshToken = originRefreshTokenOpt.get();
-            originRefreshToken.changeVale(refreshToken);
+            originRefreshToken.changeValue(refreshToken);
             refreshTokenRepository.save(originRefreshToken);
         }
 
