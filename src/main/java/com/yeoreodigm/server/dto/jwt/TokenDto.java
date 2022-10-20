@@ -7,13 +7,13 @@ public class TokenDto {
 
     private String accessToken;
 
-    private String refreshToke;
+    private String refreshToken;
 
     private String grantType;
 
-    public TokenDto(String accessToken, String refreshToke, String grantType) {
+    public TokenDto(String accessToken, String refreshToken, String grantType) {
         this.accessToken = accessToken;
-        this.refreshToke = refreshToke;
+        this.refreshToken = refreshToken;
         this.grantType = grantType;
     }
 
