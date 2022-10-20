@@ -14,10 +14,12 @@ import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.service.BoardCommentService;
 import com.yeoreodigm.server.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,8 +32,15 @@ public class BoardDetailApiController {
 
     @GetMapping("/{boardId}")
     public BoardDetailDto callBoardDetailInfo(
+            Authentication authentication,
             @PathVariable("boardId") Long boardId,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (Objects.isNull(authentication)) {
+            System.out.println("HIHI");
+        } else {
+            System.out.println(authentication.getName());
+
+        }
         Board board = boardService.getBoardById(boardId);
 
         return new BoardDetailDto(

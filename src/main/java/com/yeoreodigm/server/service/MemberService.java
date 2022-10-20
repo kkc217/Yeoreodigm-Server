@@ -194,6 +194,16 @@ public class MemberService {
         return tokenProvider.createTokenDto(newAccessToken, newRefreshToken, BEARER_TYPE);
     }
 
+    @Transactional
+    public void logout(String email) {
+        Optional<RefreshToken> refreshTokenOpt = refreshTokenRepository.findByKey(email);
+
+        if (refreshTokenOpt.isEmpty()) return;
+
+        RefreshToken refreshToken = refreshTokenOpt.get();
+        refreshTokenRepository.deleteByKey(refreshToken.getKey());
+    }
+
     public void checkDuplicateEmail(String email) {
         Member member = memberRepository.findByEmail(email);
         if (member != null) {

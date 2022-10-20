@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.Optional;
 
+import static com.yeoreodigm.server.domain.QNoteComment.noteComment;
 import static com.yeoreodigm.server.domain.QRefreshToken.refreshToken;
 
 @Repository
@@ -32,6 +33,13 @@ public class RefreshTokenRepository {
                 .selectFrom(refreshToken)
                 .where(refreshToken.key.eq(key))
                 .fetchOne());
+    }
+
+    public void deleteByKey(String key) {
+        queryFactory
+                .delete(refreshToken)
+                .where(refreshToken.key.eq(key))
+                .execute();
     }
 
 }
