@@ -22,7 +22,6 @@ import java.security.Key;
 import java.util.*;
 
 import static com.yeoreodigm.server.dto.constraint.JWTConst.AUTHORITIES_KEY;
-import static com.yeoreodigm.server.dto.constraint.JWTConst.BEARER_TYPE;
 
 @Getter
 @Component
@@ -72,8 +71,8 @@ public class TokenProvider {
         return this.parseClaims(token).getSubject();
     }
 
-    public TokenDto createTokenDto(String accessToken, String refreshToken) {
-        return new TokenDto(accessToken, refreshToken, BEARER_TYPE);
+    public TokenDto createTokenDto(String accessToken, String refreshToken, String grantType) {
+        return new TokenDto(accessToken, refreshToken, grantType);
     }
 
     public Authentication getAuthentication(String accessToken) {

@@ -33,8 +33,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import static com.yeoreodigm.server.dto.constraint.JWTConst.EXPIRED_TOKEN_FLAG;
-import static com.yeoreodigm.server.dto.constraint.JWTConst.WRONG_TOKEN_FLAG;
+import static com.yeoreodigm.server.dto.constraint.JWTConst.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -132,7 +131,7 @@ public class MemberService {
             refreshTokenRepository.save(originRefreshToken);
         }
 
-        return tokenProvider.createTokenDto(accessToken, refreshToken);
+        return tokenProvider.createTokenDto(accessToken, refreshToken, BEARER_TYPE);
     }
 
     @Transactional
@@ -165,7 +164,34 @@ public class MemberService {
         refreshToken.changeValue(newRefreshToken);
         refreshTokenRepository.saveAndFlush(refreshToken);
 
-        return tokenProvider.createTokenDto(newAccessToken, newRefreshToken);
+        return tokenProvider.createTokenDto(newAccessToken, newRefreshToken, BEARER_TYPE);
+    }
+
+    @Transactional
+    public TokenDto autoLogin(String originAccessToken) {
+        Authentication authentication = tokenProvider.getAuthentication(originAccessToken);
+
+        RefreshToken refreshToken = refreshTokenRepository.findByKey(authentication.getName())
+                .orElseThrow(() -> new LoginRequiredException("다시 로그인해주시기 바랍니다."));
+
+        int refreshTokenFlag = tokenProvider.validateToken(refreshToken.getValue());
+
+        if (Objects.equals(WRONG_TOKEN_FLAG, refreshTokenFlag) //잘못된 토큰
+                || Objects.equals(EXPIRED_TOKEN_FLAG, refreshTokenFlag))
+            throw new LoginRequiredException("다시 로그인해주시기 바랍니다.");
+
+        String email = tokenProvider.getEmailByToken(originAccessToken);
+        Member member = memberRepository.findByEmail(email);
+
+        if (Objects.isNull(member)) throw new BadRequestException("일치하는 사용자가 없습니다.");
+
+        String newAccessToken = tokenProvider.createAccessToken(email, member.getAuthority());
+        String newRefreshToken = tokenProvider.createRefreshToken(email, member.getAuthority());
+
+        refreshToken.changeValue(newRefreshToken);
+        refreshTokenRepository.saveAndFlush(refreshToken);
+
+        return tokenProvider.createTokenDto(newAccessToken, newRefreshToken, BEARER_TYPE);
     }
 
     public void checkDuplicateEmail(String email) {
