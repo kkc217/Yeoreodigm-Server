@@ -2,18 +2,26 @@ package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.domain.RefreshToken;
 import com.yeoreodigm.server.domain.SurveyResult;
 import com.yeoreodigm.server.domain.board.Follow;
 import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.dto.constraint.MemberConst;
+import com.yeoreodigm.server.dto.jwt.TokenDto;
+import com.yeoreodigm.server.dto.member.LoginRequestDto;
 import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
+import com.yeoreodigm.server.jwt.CustomEmailPasswordAuthToken;
+import com.yeoreodigm.server.jwt.TokenProvider;
 import com.yeoreodigm.server.repository.FollowRepository;
 import com.yeoreodigm.server.repository.MemberRepository;
+import com.yeoreodigm.server.repository.RefreshTokenRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -35,7 +44,13 @@ public class MemberService {
 
     private final FollowRepository followRepository;
 
+    private final AuthenticationManager authenticationManager;
+
+    private final TokenProvider tokenProvider;
+
     private final PasswordEncoder passwordEncoder;
+
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public Member getMemberByEmail(String email) {
         Member member = memberRepository.findByEmail(email);
@@ -90,6 +105,31 @@ public class MemberService {
             return member;
         }
         throw new BadRequestException("이메일 또는 비밀번호를 잘못 입력했습니다.");
+    }
+
+    @Transactional
+    public TokenDto loginV2(LoginRequestDto requestDto) {
+        CustomEmailPasswordAuthToken customEmailPasswordAuthToken
+                = new CustomEmailPasswordAuthToken(requestDto.getEmail(), requestDto.getPassword());
+        Authentication authentication = authenticationManager.authenticate(customEmailPasswordAuthToken);
+
+        String email = authentication.getName();
+        Member member = memberRepository.findByEmail(email);
+        if (Objects.isNull(member)) throw new BadRequestException("일치하는 회원 정보가 없습니다.");
+
+        String accessToken = tokenProvider.createAccessToken(email, member.getAuthority());
+        String refreshToken = tokenProvider.createRefreshToken(email, member.getAuthority());
+
+        Optional<RefreshToken> originRefreshTokenOpt = refreshTokenRepository.findByKey(email);
+        if (originRefreshTokenOpt.isEmpty()) {
+            refreshTokenRepository.save(new RefreshToken(email, refreshToken));
+        } else {
+            RefreshToken originRefreshToken = originRefreshTokenOpt.get();
+            originRefreshToken.changeVale(refreshToken);
+            refreshTokenRepository.save(originRefreshToken);
+        }
+
+        return tokenProvider.createTokenDto(accessToken, refreshToken);
     }
 
     public void checkDuplicateEmail(String email) {

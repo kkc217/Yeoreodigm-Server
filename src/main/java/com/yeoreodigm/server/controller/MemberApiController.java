@@ -12,6 +12,7 @@ import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,13 +46,13 @@ public class MemberApiController {
     }
 
     @PostMapping("/login")
-    public LoginResponseDto login(
-            @RequestBody @Valid MemberLoginRequestDto requestDto,
+    public MemberInfoDto login(
+            @RequestBody @Valid LoginRequestDto requestDto,
             HttpServletRequest httpServletRequest) {
         //회원 유무, 비밀번호 일치 확인
         Member member = memberService.login(requestDto.getEmail(), requestDto.getPassword());
 
-        LoginResponseDto responseDto = new LoginResponseDto(member);
+        MemberInfoDto responseDto = new MemberInfoDto(member);
 
         if (member.getAuthority() == Authority.ROLE_NOT_PERMITTED) {
             return responseDto;
@@ -67,10 +68,10 @@ public class MemberApiController {
     }
 
     @GetMapping("/auto-login")
-    public LoginResponseDto autoLogin(
+    public MemberInfoDto autoLogin(
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         if (member != null) {
-            LoginResponseDto responseDto = new LoginResponseDto(member);
+            MemberInfoDto responseDto = new MemberInfoDto(member);
 
             if (member.getAuthority() == Authority.ROLE_SURVEY) {
                 responseDto.setSurveyIndex(surveyService.getProgress(member));
@@ -89,6 +90,12 @@ public class MemberApiController {
         if (session != null) {
             session.invalidate();
         }
+    }
+
+    @GetMapping("")
+    public MemberInfoDto callMemberInfo(Authentication authentication) {
+        return new MemberInfoDto(
+                memberService.getMemberByEmail(authentication.getName()));
     }
 
     @PostMapping("/email")
