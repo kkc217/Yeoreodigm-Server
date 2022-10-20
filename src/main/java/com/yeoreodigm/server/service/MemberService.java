@@ -33,6 +33,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import static com.yeoreodigm.server.dto.constraint.JWTConst.EXPIRED_TOKEN_FLAG;
+import static com.yeoreodigm.server.dto.constraint.JWTConst.WRONG_TOKEN_FLAG;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -130,6 +133,39 @@ public class MemberService {
         }
 
         return tokenProvider.createTokenDto(accessToken, refreshToken);
+    }
+
+    @Transactional
+    public TokenDto reissue(TokenDto tokenDto) {
+        String originAccessToken = tokenDto.getAccessToken();
+        String originRefreshToken = tokenDto.getRefreshToken();
+
+        int refreshTokenFlag = tokenProvider.validateToken(originRefreshToken);
+
+        if (Objects.equals(WRONG_TOKEN_FLAG, refreshTokenFlag) //잘못된 토큰
+                || Objects.equals(EXPIRED_TOKEN_FLAG, refreshTokenFlag)) //만료된 토큰
+            throw new LoginRequiredException("다시 로그인해주시기 바랍니다.");
+
+        Authentication authentication = tokenProvider.getAuthentication(originAccessToken);
+
+        RefreshToken refreshToken = refreshTokenRepository.findByKey(authentication.getName())
+                .orElseThrow(() -> new LoginRequiredException("다시 로그인해주시기 바랍니다."));
+
+        if (!Objects.equals(originRefreshToken, refreshToken.getValue()))
+            throw new LoginRequiredException("다시 로그인해주시기 바랍니다.");
+
+        String email = tokenProvider.getEmailByToken(originAccessToken);
+        Member member = memberRepository.findByEmail(email);
+
+        if (Objects.isNull(member)) throw new BadRequestException("일치하는 사용자가 없습니다.");
+
+        String newAccessToken = tokenProvider.createAccessToken(email, member.getAuthority());
+        String newRefreshToken = tokenProvider.createRefreshToken(email, member.getAuthority());
+
+        refreshToken.changeValue(newRefreshToken);
+        refreshTokenRepository.saveAndFlush(refreshToken);
+
+        return tokenProvider.createTokenDto(newAccessToken, newRefreshToken);
     }
 
     public void checkDuplicateEmail(String email) {

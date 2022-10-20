@@ -2,7 +2,6 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.dto.jwt.TokenDto;
 import com.yeoreodigm.server.dto.member.LoginRequestDto;
-import com.yeoreodigm.server.service.AuthService;
 import com.yeoreodigm.server.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,8 +18,6 @@ public class AuthApiController {
 
     private final MemberService memberService;
 
-    private final AuthService authService;
-
     @PostMapping("/login")
     public TokenDto login(
             @RequestBody @Valid LoginRequestDto requestDto) {
@@ -29,7 +26,7 @@ public class AuthApiController {
 
     @PostMapping("/reissue")
     public TokenDto reissue(@RequestBody @Valid TokenDto requestDto) {
-        return authService.reissue(requestDto);
+        return memberService.reissue(requestDto);
     }
 
 }
