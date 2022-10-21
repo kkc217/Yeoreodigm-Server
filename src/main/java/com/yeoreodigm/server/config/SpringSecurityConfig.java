@@ -6,7 +6,6 @@ import com.yeoreodigm.server.jwt.JwtFilter;
 import com.yeoreodigm.server.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -18,6 +17,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import static org.springframework.http.HttpMethod.*;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -53,18 +54,58 @@ public class SpringSecurityConfig {
                 .sameOrigin()
 
                 .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .formLogin().disable();
 
-                .and()
-                .formLogin().disable()
-
+        http.httpBasic().disable()
                 .authorizeRequests()
                 .mvcMatchers("/api/auth/**").permitAll()
-                .mvcMatchers("/api/**").authenticated()
-//                .mvcMatchers("/api/**").hasAuthority("ROLE_USER")
 
+                .mvcMatchers(PATCH, "/api/member/auth").permitAll()
+                .mvcMatchers(PATCH, "/api/member/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers(DELETE, "/api/member").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers(DELETE, "/api/member/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers(POST, "/api/member/**").permitAll()
+                .mvcMatchers(PUT, "/api/member/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers(GET, "/api/member").permitAll()
+                .mvcMatchers(GET, "/api/member/**").permitAll()
+
+                .mvcMatchers("/api/survey/**").hasAnyAuthority("ROLE_SURVEY", "ROLE_ADMIN")
+
+                .mvcMatchers(GET, "/api/search").permitAll()
+                .mvcMatchers(GET, "/api/search/**").permitAll()
+
+                .mvcMatchers(GET, "/api/place/detail/**").permitAll()
+                .mvcMatchers( "/api/place/detail/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
+                .mvcMatchers(GET, "/api/place/**").permitAll()
+                .mvcMatchers("/api/place/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
+                .mvcMatchers(GET, "/api/note/detail/**").permitAll()
+                .mvcMatchers("/api/note/detail/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
+                .mvcMatchers(GET, "/api/recommend/**").permitAll()
+
+                .mvcMatchers(GET, "/api/course/**").permitAll()
+                .mvcMatchers("/api/course").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers("/api/course/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
+                .mvcMatchers("/api/photodigm/**").permitAll()
+
+                .mvcMatchers(GET,"/api/board/detail/**").permitAll()
+                .mvcMatchers("/api/board/detail/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
+                .mvcMatchers(GET, "/api/board/modification/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers(GET, "/api/board").permitAll()
+                .mvcMatchers(GET, "/api/board/**").permitAll()
+                .mvcMatchers("/api/board").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers("/api/board/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
+                .mvcMatchers("/api/**").authenticated()
                 .anyRequest().denyAll()
+
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
                 .and()
                 .addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
@@ -80,11 +121,11 @@ public class SpringSecurityConfig {
 //        configuration.addAllowedOrigin("https://www.yeoreodigm.com");
 //        configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedOriginPattern("*");
-        configuration.addAllowedMethod(HttpMethod.GET);
-        configuration.addAllowedMethod(HttpMethod.POST);
-        configuration.addAllowedMethod(HttpMethod.PUT);
-        configuration.addAllowedMethod(HttpMethod.PATCH);
-        configuration.addAllowedMethod(HttpMethod.DELETE);
+        configuration.addAllowedMethod(GET);
+        configuration.addAllowedMethod(POST);
+        configuration.addAllowedMethod(PUT);
+        configuration.addAllowedMethod(PATCH);
+        configuration.addAllowedMethod(DELETE);
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
