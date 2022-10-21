@@ -2,11 +2,13 @@ package com.yeoreodigm.server.dto.board;
 
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.board.Board;
+import com.yeoreodigm.server.domain.board.BoardPlace;
 import com.yeoreodigm.server.dto.comment.DateTimeStr;
 import com.yeoreodigm.server.dto.constraint.AWSConst;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Objects;
 
 @Data
 public class BoardDetailDto {
@@ -50,11 +52,20 @@ public class BoardDetailDto {
                 .map(address -> AWSConst.AWS_S3_BASE_URL + AWSConst.AWS_S3_BOARD_URI + "/" + address)
                 .toList();
         this.imageCount = imageList.size();
-        this.travelNoteTag = board.getBoardTravelNote().getTravelNote().getId();
-        this.placeTag = board.getBoardPlaceList()
-                .stream()
-                .map(boardPlace -> boardPlace.getPlace().getId())
-                .toList();
+
+        if (Objects.nonNull(board.getBoardTravelNote())) {
+            this.travelNoteTag = board.getBoardTravelNote().getTravelNote().getId();
+        }
+
+
+        List<BoardPlace> boardPlaceList = board.getBoardPlaceList();
+
+        if (Objects.nonNull(boardPlaceList) && boardPlaceList.size() > 0) {
+            this.placeTag = boardPlaceList
+                    .stream()
+                    .map(boardPlace -> boardPlace.getPlace().getId())
+                    .toList();
+        }
     }
 
 }
