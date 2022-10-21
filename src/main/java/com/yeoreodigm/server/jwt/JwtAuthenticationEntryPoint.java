@@ -19,7 +19,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
-        out.println("{\"error\": \"401\", \"message\" : \"로그인이 필요합니다.\"}");
+        out.println("{\"error\": \"401\", \"message\" : \"다시 로그인해 주시기 바랍니다.\"}");
     }
 
 }
