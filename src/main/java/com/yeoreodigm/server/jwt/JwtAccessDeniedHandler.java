@@ -19,7 +19,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
-        out.println("{\"error\": \"ACCESS_TOKEN_EXPIRED\", \"message\" : \"권한이 없습니다.\"}");
+        out.println("{\"error\": \"401\", \"message\" : \"접근 권한이 없습니다.\"}");
     }
 
 }

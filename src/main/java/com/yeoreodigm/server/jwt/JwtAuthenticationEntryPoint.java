@@ -19,7 +19,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
-        out.println("{\"error\": \"ACCESS_TOKEN_EXPIRED\", \"message\" : \"인증 정보가 없습니다.\"}");
+        out.println("{\"error\": \"401\", \"message\" : \"로그인이 필요합니다.\"}");
     }
 
 }
