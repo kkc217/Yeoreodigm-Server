@@ -191,4 +191,13 @@ public class BoardService {
             boardLikeRepository.deleteById(boardLike.getId());
         }
     }
+
+    @Transactional
+    public void deleteBoard(Member member, Board board) {
+        if (Objects.isNull(member) || !Objects.equals(member.getId(), board.getMember().getId()))
+            throw new BadRequestException("피드를 삭제할 수 없습니다.");
+
+        boardRepository.deleteById(board.getId());
+    }
+
 }

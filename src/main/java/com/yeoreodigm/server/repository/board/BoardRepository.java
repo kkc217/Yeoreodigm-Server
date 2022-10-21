@@ -126,4 +126,11 @@ public class BoardRepository {
                 .fetch();
     }
 
+    public void deleteById(Long boardId) {
+        queryFactory
+                .delete(board)
+                .where(board.id.eq(boardId))
+                .execute();
+    }
+
 }
