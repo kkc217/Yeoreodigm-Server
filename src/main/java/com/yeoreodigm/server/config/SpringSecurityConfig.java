@@ -83,6 +83,14 @@ public class SpringSecurityConfig {
                 .mvcMatchers(GET, "/api/note/detail/**").permitAll()
                 .mvcMatchers("/api/note/detail/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 
+                .mvcMatchers(GET, "/api/note/{travelNoteId}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers(GET, "/api/note/companion/{travelNoteId}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers(GET, "/api/note/comment/{travelNoteId}/{day}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers(GET, "/api/note/my/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers(GET, "/api/note/board/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers(GET, "/api/note/**").permitAll()
+                .mvcMatchers("/api/note/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
                 .mvcMatchers(GET, "/api/recommend/**").permitAll()
 
                 .mvcMatchers(GET, "/api/course/**").permitAll()
