@@ -142,6 +142,7 @@ public class BoardService {
         } else if (Objects.equals(SearchConst.SEARCH_OPTION_MODIFIED_DESC, option)) {
             return boardRepository.findPublicOrderByModifiedDesc(limit * (page - 1), limit);
         } else if (Objects.equals(SearchConst.SEARCH_OPTION_FOLLOW_MODIFIED_DESC, option)) {
+            if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
             return boardRepository.findPublicFollowOrderByModifiedDesc(
                     limit * (page - 1), limit, followRepository.findFolloweeByMember(member));
         }
