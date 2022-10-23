@@ -159,4 +159,11 @@ public class BoardApiController {
         boardService.changeBoardLike(member, boardService.getBoardById(requestDto.getId()), requestDto.isLike());
     }
 
+    @DeleteMapping("/{boardId}")
+    public void deleteBoard(
+            @PathVariable("boardId") Long boardId,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        boardService.deleteBoard(member, boardService.getBoardById(boardId));
+    }
+
 }

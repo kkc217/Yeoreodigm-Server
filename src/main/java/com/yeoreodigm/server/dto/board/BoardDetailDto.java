@@ -2,6 +2,7 @@ package com.yeoreodigm.server.dto.board;
 
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.board.Board;
+import com.yeoreodigm.server.domain.board.BoardPlace;
 import com.yeoreodigm.server.dto.comment.DateTimeStr;
 import com.yeoreodigm.server.dto.constraint.AWSConst;
 import lombok.Data;
@@ -54,14 +55,19 @@ public class BoardDetailDto {
                 .toList();
         this.imageCount = imageList.size();
 
-        if (Objects.nonNull(board.getBoardTravelNote()))
+        if (Objects.nonNull(board.getBoardTravelNote())) {
             this.travelNoteTag = board.getBoardTravelNote().getTravelNote().getId();
+        }
 
-        if (Objects.nonNull(board.getBoardPlaceList()))
-            this.placeTag = board.getBoardPlaceList()
+
+        List<BoardPlace> boardPlaceList = board.getBoardPlaceList();
+
+        if (Objects.nonNull(boardPlaceList) && boardPlaceList.size() > 0) {
+            this.placeTag = boardPlaceList
                     .stream()
                     .map(boardPlace -> boardPlace.getPlace().getId())
                     .toList();
+        }
     }
 
 }

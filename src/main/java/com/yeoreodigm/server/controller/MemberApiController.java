@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_BASE_URL;
 import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_PROFILE_URI;
@@ -226,35 +227,39 @@ public class MemberApiController {
         }
     }
 
-    @GetMapping("/follower/count/{memberId}")
+    @GetMapping("/follower/my/count")
     public CountDto callFollowerCount(
-            @PathVariable("memberId") Long memberId) {
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
         return new CountDto(
-                memberService.getFollowerCountByMember(memberService.getMemberById(memberId)));
+                memberService.getFollowerCountByMember(member));
     }
 
-    @GetMapping("/follower/{memberId}")
+    @GetMapping("/follower/my")
     public Result<List<MemberItemDto>> callFollower(
-            @PathVariable("memberId") Long memberId) {
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
         return new Result<>(
-                memberService.getFollowerByMember(memberService.getMemberById(memberId))
+                memberService.getFollowerByMember(member)
                         .stream()
                         .map(MemberItemDto::new)
                         .toList());
     }
 
-    @GetMapping("/followee/count/{memberId}")
+    @GetMapping("/followee/my/count")
     public CountDto callFolloweeCount(
-            @PathVariable("memberId") Long memberId) {
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
         return new CountDto(
-                memberService.getFolloweeCountByMember(memberService.getMemberById(memberId)));
+                memberService.getFolloweeCountByMember(member));
     }
 
-    @GetMapping("/followee/{memberId}")
+    @GetMapping("/followee/my")
     public Result<List<MemberItemDto>> callFollowee(
-            @PathVariable("memberId") Long memberId) {
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
         return new Result<>(
-                memberService.getFolloweeByMember(memberService.getMemberById(memberId))
+                memberService.getFolloweeByMember(member)
                         .stream()
                         .map(MemberItemDto::new)
                         .toList());
