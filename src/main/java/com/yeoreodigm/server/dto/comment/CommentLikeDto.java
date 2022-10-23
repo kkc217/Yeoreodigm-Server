@@ -14,6 +14,8 @@ public class CommentLikeDto {
 
     private Long commentId;
 
+    private boolean mine;
+
     private Long memberId;
 
     private String nickname;
@@ -30,14 +32,17 @@ public class CommentLikeDto {
 
     private Long likeCount;
 
-    public CommentLikeDto(NoteComment noteComment, LikeItemDto likeItemDto) {
-        Member member = noteComment.getMember();
+    public CommentLikeDto(NoteComment noteComment, Member member, LikeItemDto likeItemDto) {
+        Member owner = noteComment.getMember();
         DateTimeStr dateTimeStr = new DateTimeStr(noteComment.getModified());
 
         this.commentId = noteComment.getId();
-        this.memberId = member.getId();
-        this.nickname = member.getNickname();
-        this.profileImageUrl = member.getProfileImage();
+
+        this.mine = Objects.nonNull(member) && Objects.equals(member.getId(), owner.getId());
+
+        this.memberId = owner.getId();
+        this.nickname = owner.getNickname();
+        this.profileImageUrl = owner.getProfileImage();
         this.text = noteComment.getText();
         this.hasModified = !Objects.equals(noteComment.getCreated(), noteComment.getModified());
         this.dateTime = dateTimeStr.getDateTime();
@@ -45,14 +50,17 @@ public class CommentLikeDto {
         this.likeCount = likeItemDto.getLikeCount();
     }
 
-    public CommentLikeDto(PlaceComment placeComment, LikeItemDto likeItemDto) {
-        Member member = placeComment.getMember();
+    public CommentLikeDto(PlaceComment placeComment, Member member, LikeItemDto likeItemDto) {
+        Member owner = placeComment.getMember();
         DateTimeStr dateTimeStr = new DateTimeStr(placeComment.getModified());
 
         this.commentId = placeComment.getId();
-        this.memberId = member.getId();
-        this.nickname = member.getNickname();
-        this.profileImageUrl = member.getProfileImage();
+
+        this.mine = Objects.nonNull(member) && Objects.equals(member.getId(), owner.getId());
+
+        this.memberId = owner.getId();
+        this.nickname = owner.getNickname();
+        this.profileImageUrl = owner.getProfileImage();
         this.text = placeComment.getText();
         this.hasModified = !Objects.equals(placeComment.getCreated(), placeComment.getModified());
         this.dateTime = dateTimeStr.getDateTime();
@@ -60,14 +68,17 @@ public class CommentLikeDto {
         this.likeCount = likeItemDto.getLikeCount();
     }
 
-    public CommentLikeDto(BoardComment boardComment, LikeItemDto likeItemDto) {
-        Member member = boardComment.getMember();
+    public CommentLikeDto(BoardComment boardComment, Member member, LikeItemDto likeItemDto) {
+        Member owner = boardComment.getMember();
         DateTimeStr dateTimeStr = new DateTimeStr(boardComment.getModifiedTime());
 
         this.commentId = boardComment.getId();
-        this.memberId = member.getId();
-        this.nickname = member.getNickname();
-        this.profileImageUrl = member.getProfileImage();
+
+        this.mine = Objects.nonNull(member) && Objects.equals(member.getId(), owner.getId());
+
+        this.memberId = owner.getId();
+        this.nickname = owner.getNickname();
+        this.profileImageUrl = owner.getProfileImage();
         this.text = boardComment.getText();
         this.hasModified = !Objects.equals(boardComment.getCreatedTime(), boardComment.getModifiedTime());
         this.dateTime = dateTimeStr.getDateTime();

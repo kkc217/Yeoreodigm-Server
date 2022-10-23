@@ -54,7 +54,7 @@ public class PlaceCommentService {
         List<CommentLikeDto> result = new ArrayList<>();
         for (PlaceComment placeComment : placeCommentList) {
             result.add(new CommentLikeDto(
-                    placeComment, getLikeInfo(placeComment.getId(), member)));
+                    placeComment, member, getLikeInfo(placeComment.getId(), member)));
         }
 
         return result;

@@ -131,7 +131,8 @@ public class TravelNoteApiController {
     @GetMapping("/comment/{travelNoteId}/{day}")
     public Result<List<CommentItemDto>> callCourseComment(
             @PathVariable(name = "travelNoteId") Long travelNoteId,
-            @PathVariable(name = "day") int day) {
+            @PathVariable(name = "day") int day,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
         List<CourseComment> courseCommentList
@@ -140,7 +141,7 @@ public class TravelNoteApiController {
         return new Result<>(
                 courseCommentList
                         .stream()
-                        .map(CommentItemDto::new)
+                        .map(courseComment -> new CommentItemDto(courseComment, member))
                         .toList());
     }
 

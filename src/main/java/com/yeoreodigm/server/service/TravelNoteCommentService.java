@@ -33,7 +33,7 @@ public class TravelNoteCommentService {
 
         for (NoteComment noteComment : noteCommentList) {
             result.add(new CommentLikeDto(
-                    noteComment, getLikeInfo(noteComment.getId(), member)));
+                    noteComment, member, getLikeInfo(noteComment.getId(), member)));
         }
 
         return result;
