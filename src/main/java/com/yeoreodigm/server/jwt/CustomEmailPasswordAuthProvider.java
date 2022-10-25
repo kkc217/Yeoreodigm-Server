@@ -62,7 +62,7 @@ public class CustomEmailPasswordAuthProvider implements AuthenticationProvider {
             }
             return loadedUser;
         } catch (Exception e) {
-            throw new BadRequestException("내부 인증 로직 중 알 수 없는 오류가 발생하였습니다.");
+            throw new BadRequestException("이메일 또는 비밀번호를 잘못 입력했습니다.");
         }
     }
 

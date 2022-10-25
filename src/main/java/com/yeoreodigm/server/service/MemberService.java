@@ -54,6 +54,24 @@ public class MemberService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
+    public Member getMemberByAuth(Authentication authentication) {
+        if (Objects.isNull(authentication)) throw new LoginRequiredException("로그인이 필요합니다.");
+
+        Member member = memberRepository.findByEmail(authentication.getName());
+
+        if (Objects.isNull(member)) throw new BadRequestException("일치하는 회원 정보가 없습니다.");
+        return member;
+    }
+
+    public Member getMemberByAuthNullable(Authentication authentication) {
+        if (Objects.isNull(authentication)) return null;
+
+        Member member = memberRepository.findByEmail(authentication.getName());
+
+        if (Objects.isNull(member)) throw new BadRequestException("일치하는 회원 정보가 없습니다.");
+        return member;
+    }
+
     public Member getMemberByEmail(String email) {
         Member member = memberRepository.findByEmail(email);
 
@@ -252,19 +270,14 @@ public class MemberService {
     }
 
     public void checkPassword(String password, Member member) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         if (!passwordEncoder.matches(password, member.getPassword()))
             throw new BadRequestException("비밀번호가 일치하지 않습니다.");
     }
 
     @Transactional
     public void changePassword(String password, Member member) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         member.changePassword(encodePassword(password));
-        memberRepository.merge(member);
-        memberRepository.flush();
+        memberRepository.saveAndFlush(member);
     }
 
     public Member searchMember(String content) {
@@ -288,8 +301,6 @@ public class MemberService {
 
     @Transactional
     public void changeIntroduction(Member member, String newIntroduction) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         member.changeIntroduction(newIntroduction);
         memberRepository.merge(member);
         memberRepository.flush();
@@ -298,8 +309,7 @@ public class MemberService {
     @Transactional
     public void changeProfileImage(Member member, String newProfileImageUrl) {
         member.changeProfileImage(newProfileImageUrl);
-        memberRepository.merge(member);
-        memberRepository.flush();
+        memberRepository.saveAndFlush(member);
     }
 
     @Transactional
@@ -313,20 +323,26 @@ public class MemberService {
 
     @Transactional
     public void deleteMember(Member member) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다");
-
         memberRepository.deleteMember(member);
+        deleteRefreshToken(member);
+    }
+
+    @Transactional
+    public void deleteRefreshToken(Member member) {
+        Optional<RefreshToken> refreshTokenOp = refreshTokenRepository.findByKey(member.getEmail());
+
+        if (refreshTokenOp.isPresent()) {
+            RefreshToken refreshToken = refreshTokenOp.get();
+            refreshTokenRepository.deleteByKey(refreshToken.getKey());
+        }
     }
 
     @Transactional
     public void changeNickname(Member member, String nickname) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         checkDuplicateNickname(nickname);
 
         member.changeNickname(nickname);
-        memberRepository.merge(member);
-        memberRepository.flush();
+        memberRepository.saveAndFlush(member);
     }
 
     public Long getFollowerCountByMember(Member member) {

@@ -65,7 +65,7 @@ public class SpringSecurityConfig {
                 .mvcMatchers(DELETE, "/api/member").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                 .mvcMatchers(DELETE, "/api/member/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                 .mvcMatchers(POST, "/api/member/**").permitAll()
-                .mvcMatchers(PUT, "/api/member/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers(PUT, "/api/member/**").permitAll()
                 .mvcMatchers(GET, "/api/member").permitAll()
                 .mvcMatchers(GET, "/api/member/**").permitAll()
 

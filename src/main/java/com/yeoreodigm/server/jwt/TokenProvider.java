@@ -3,11 +3,13 @@ package com.yeoreodigm.server.jwt;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.dto.jwt.TokenDto;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.exception.LoginRequiredException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -96,6 +98,8 @@ public class TokenProvider {
             return 1;
         } catch (ExpiredJwtException e) {
             return 2;
+        } catch (SignatureException e) {
+          return 3;
         } catch (Exception e) {
             return -1;
         }
@@ -104,6 +108,8 @@ public class TokenProvider {
     private Claims parseClaims(String accessToken) {
         try {
             return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+        } catch (SignatureException e) {
+            throw new LoginRequiredException("다시 로그인해주시기 바랍니다.");
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
