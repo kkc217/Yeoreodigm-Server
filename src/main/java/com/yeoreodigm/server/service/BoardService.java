@@ -139,8 +139,8 @@ public class BoardService {
 
     public void validatePictures(List<String> pictureURl, List<MultipartFile> pictures) {
         int count = 0;
-        if (!Objects.isNull(pictureURl)) count += pictureURl.size();
-        if (!Objects.isNull(pictures)) count += pictures.size();
+        if (Objects.nonNull(pictureURl)) count += pictureURl.size();
+        if (Objects.nonNull(pictures)) count += pictures.size();
 
         if (count == 0 || count > MAX_NUM_OF_BOARD_PICTURE) {
             throw new BadRequestException("여행 피드 사진은 1장 이상, 10장 이하만 가능합니다.");
@@ -214,6 +214,8 @@ public class BoardService {
 
     public List<String> getPictureNamesFromUrl(List<String> pictureUrl) {
         List<String> result = new ArrayList<>();
+        if (Objects.isNull(pictureUrl) || Objects.equals(0, pictureUrl.size())) return result;
+
         for (String url : pictureUrl) {
             List<String> stringList = Arrays.stream(url.split("/")).toList();
             result.add(stringList.get(stringList.size() - 1));
