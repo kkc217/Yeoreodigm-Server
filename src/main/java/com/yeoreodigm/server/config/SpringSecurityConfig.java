@@ -10,7 +10,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.springframework.http.HttpMethod.*;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -24,10 +24,10 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http
-                .cors().and()
+                .httpBasic().disable()
+                .cors().configurationSource(corsConfigurationSource()).and()
                 .csrf().disable()
-                .formLogin().disable()
-                .headers().frameOptions().disable();
+                .formLogin().disable();
         return http.build();
     }
 
@@ -35,19 +35,14 @@ public class SpringSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.addAllowedOrigin("https://yeoreodigm.com");
-        configuration.addAllowedOrigin("https://www.yeoreodigm.com");
-        configuration.addAllowedMethod(GET);
-        configuration.addAllowedMethod(POST);
-        configuration.addAllowedMethod(PUT);
-        configuration.addAllowedMethod(PATCH);
-        configuration.addAllowedMethod(DELETE);
+        configuration.setAllowedOrigins(List.of("https://yeoreodigm.com", "https://www.yeoreodigm.com"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/api/**", configuration);
         return source;
     }
 
