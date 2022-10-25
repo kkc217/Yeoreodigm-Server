@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -136,6 +137,16 @@ public class BoardService {
         }
     }
 
+    public void validatePictures(List<String> pictureURl, List<MultipartFile> pictures) {
+        int count = 0;
+        if (!Objects.isNull(pictureURl)) count += pictureURl.size();
+        if (!Objects.isNull(pictures)) count += pictures.size();
+
+        if (count == 0 || count > MAX_NUM_OF_BOARD_PICTURE) {
+            throw new BadRequestException("여행 피드 사진은 1장 이상, 10장 이하만 가능합니다.");
+        }
+    }
+
     public List<Board> getBoardList(Member member, int page, int limit, int option) {
         if (Objects.equals(SearchConst.SEARCH_OPTION_LIKE_DESC, option)) {
             return boardRepository.findPublicOrderByLikeDesc(limit * (page - 1), limit);
@@ -201,4 +212,12 @@ public class BoardService {
         boardRepository.deleteById(board.getId());
     }
 
+    public List<String> getPictureNamesFromUrl(List<String> pictureUrl) {
+        List<String> result = new ArrayList<>();
+        for (String url : pictureUrl) {
+            List<String> stringList = Arrays.stream(url.split("/")).toList();
+            result.add(stringList.get(stringList.size() - 1));
+        }
+        return result;
+    }
 }
