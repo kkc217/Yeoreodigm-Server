@@ -37,7 +37,6 @@ public class SpringSecurityConfig {
 
         configuration.addAllowedOrigin("https://yeoreodigm.com");
         configuration.addAllowedOrigin("https://www.yeoreodigm.com");
-        configuration.addAllowedOriginPattern("*");
         configuration.addAllowedMethod(GET);
         configuration.addAllowedMethod(POST);
         configuration.addAllowedMethod(PUT);
