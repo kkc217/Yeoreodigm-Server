@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -68,6 +69,7 @@ public class BoardApiController {
     @PutMapping("")
     public void editBoard(
             @RequestPart(name = "boardId") Long boardId,
+            @RequestPart(name = "pictureUrl", required = false) List<String> pictureUrl,
             @RequestPart(name = "pictures", required = false) List<MultipartFile> pictures,
             @RequestPart(name = "text") String text,
             @RequestPart(name = "travelNoteTag", required = false) Long travelNoteTag,
@@ -79,9 +81,10 @@ public class BoardApiController {
             throw new BadRequestException("여행 피드를 수정할 수 없습니다.");
         }
 
-        boardService.validatePictures(pictures);
-        List<String> pictureAddressList = awsS3Service.uploadFiles(
-                AWS_S3_BOARD_URI, null, pictures);
+        boardService.validatePictures(pictureUrl, pictures);
+        List<String> pictureAddressList = new ArrayList<>();
+        pictureAddressList.addAll(boardService.getPictureNamesFromUrl(pictureUrl));
+        pictureAddressList.addAll(awsS3Service.uploadFiles(AWS_S3_BOARD_URI, null, pictures));
         board.changeImageList(pictureAddressList);
         board.changeText(text);
 
