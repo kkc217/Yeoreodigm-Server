@@ -16,10 +16,10 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException)
             throws IOException {
         response.setContentType("application/json");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
-        out.println("{\"error\": \"401\", \"message\" : \"접근 권한이 없습니다.\"}");
+        out.println("{\"error\": \"403\", \"message\" : \"접근 권한이 없습니다.\"}");
     }
 
 }

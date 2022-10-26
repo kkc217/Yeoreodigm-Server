@@ -16,10 +16,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authenticationException)
             throws IOException {
         response.setContentType("application/json");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
-        out.println("{\"error\": \"401\", \"message\" : \"로그인이 필요합니다.\"}");
+        out.println("{\"error\": \"403\", \"message\" : \"로그인이 필요합니다.\"}");
     }
 
 }
