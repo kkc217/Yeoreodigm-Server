@@ -116,7 +116,8 @@ public class CourseApiController {
     @PutMapping("")
     public void saveCourses(
             @RequestBody @Valid SaveCourseRequestDto requestDto) {
-        travelNoteService.updateCourse(travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()), requestDto.getCourseList());
+        travelNoteService.updateCourse(
+                travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()), requestDto.getCourseList());
     }
 
     @PatchMapping("")
