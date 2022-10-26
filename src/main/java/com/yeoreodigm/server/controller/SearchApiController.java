@@ -5,7 +5,6 @@ import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.constraint.QueryConst;
-import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.member.MemberEmailItemDto;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
@@ -16,6 +15,7 @@ import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.TravelNoteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -90,31 +90,34 @@ public class SearchApiController {
 
     @GetMapping("/place")
     public PageResult<List<PlaceLikeDto>> searchPlaces(
+            Authentication authentication,
             @RequestParam("content") String content,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
-            @RequestParam(value = "option", required = false, defaultValue = "0") int option,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @RequestParam(value = "option", required = false, defaultValue = "0") int option) {
         return new PageResult<>(
                 placeService.searchPlaces(content, page, limit, option)
                         .stream()
                         .map(place -> new PlaceLikeDto(
-                                place, placeService.getLikeInfo(place, member)))
+                                place,
+                                placeService.getLikeInfo(
+                                        place, memberService.getMemberByAuthNullable(authentication))))
                         .toList(),
                 placeService.checkNextSearchPage(content, page, limit, option));
     }
 
     @GetMapping("/note")
     public PageResult<List<PublicTravelNoteDto>> searchTravelNotes(
+            Authentication authentication,
             @RequestParam("content") String content,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
-            @RequestParam(value = "option", required = false, defaultValue = "0") int option,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @RequestParam(value = "option", required = false, defaultValue = "0") int option) {
         return new PageResult<>(
                 travelNoteService.searchTravelNote(content, page, limit, option)
                         .stream()
-                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(
+                                travelNote, memberService.getMemberByAuthNullable(authentication)))
                         .toList(),
                 travelNoteService.checkNextSearchTravelNote(content, page, limit, option));
     }
