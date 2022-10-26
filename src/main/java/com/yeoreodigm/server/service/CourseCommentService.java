@@ -40,8 +40,6 @@ public class CourseCommentService {
 
     @Transactional
     public void addCourseComment(TravelNote travelNote, Member member, int day, String text) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         Course course = courseRepository.findByTravelNoteIdAndDay(travelNote.getId(), day);
         if (course == null) {
             throw new BadRequestException("일치하는 일차 정보가 없습니다.");

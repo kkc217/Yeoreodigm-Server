@@ -8,7 +8,6 @@ import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentItemDto;
 import com.yeoreodigm.server.dto.comment.CourseCommentRequestDto;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
-import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.member.MemberEmailItemDto;
@@ -16,6 +15,7 @@ import com.yeoreodigm.server.dto.travelnote.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -43,10 +43,10 @@ public class TravelNoteApiController {
 
     @PostMapping("/new")
     public TravelNoteIdDto createNewTravelNote(
-            @RequestBody @Valid NewTravelNoteRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        TravelNote travelNote
-                = travelNoteService.createTravelNote(member, requestDto, placeService.getRandomImageUrl());
+            Authentication authentication,
+            @RequestBody @Valid NewTravelNoteRequestDto requestDto) {
+        TravelNote travelNote = travelNoteService.createTravelNote(
+                memberService.getMemberByAuth(authentication), requestDto, placeService.getRandomImageUrl());
 
         List<List<Long>> recommendCourseList = recommendService.getRecommendedCourses(travelNote);
 
@@ -58,13 +58,14 @@ public class TravelNoteApiController {
         return new TravelNoteIdDto(travelNote.getId());
     }
 
-    @GetMapping("/{travelNoteId}")
+    @GetMapping("/info/{travelNoteId}")
     public TravelNoteInfoDto callTravelMakingNoteInfo(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @PathVariable("travelNoteId") Long travelNoteId) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
-        NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(member, travelNote);
+        NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(
+                memberService.getMemberByAuth(authentication), travelNote);
 
         travelNoteService.updateModified(travelNote);
 
@@ -98,117 +99,112 @@ public class TravelNoteApiController {
     @GetMapping("/companion/{travelNoteId}")
     public Result<List<MemberEmailItemDto>> callTravelMakingNoteCompanion(
             @PathVariable("travelNoteId") Long travelNoteId) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
-        List<Member> memberList = travelNoteService.getCompanionMember(travelNote);
-        List<MemberEmailItemDto> response = memberList
+        return new Result<>(travelNoteService.getCompanionMember(travelNoteService.getTravelNoteById(travelNoteId))
                 .stream()
                 .map(MemberEmailItemDto::new)
-                .toList();
-
-        return new Result<>(response);
+                .toList());
     }
 
     @PatchMapping("/companion")
     public void addTravelMakingNoteCompanion(
-            @RequestBody @Valid ContentRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @RequestBody @Valid ContentRequestDto requestDto) {
         travelNoteService.addNoteCompanion(
                 travelNoteService.getTravelNoteById(requestDto.getId()),
-                member,
+                memberService.getMemberByAuth(authentication),
                 memberService.searchMember(requestDto.getContent()));
     }
 
     @DeleteMapping("/companion/{travelNoteId}/{memberId}")
     public void deleteTravelMakingNoteCompanion(
+            Authentication authentication,
             @PathVariable(name = "travelNoteId") Long travelNoteId,
-            @PathVariable(name = "memberId") Long memberId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @PathVariable(name = "memberId") Long memberId) {
         travelNoteService.deleteCompanion(
-                travelNoteService.getTravelNoteById(travelNoteId), member, memberId);
+                travelNoteService.getTravelNoteById(travelNoteId),
+                memberService.getMemberByAuth(authentication),
+                memberId);
     }
 
     @GetMapping("/comment/{travelNoteId}/{day}")
     public Result<List<CommentItemDto>> callCourseComment(
+            Authentication authentication,
             @PathVariable(name = "travelNoteId") Long travelNoteId,
-            @PathVariable(name = "day") int day,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
+            @PathVariable(name = "day") int day) {
 
-        List<CourseComment> courseCommentList
-                = commentService.getCourseCommentsByTravelNoteAndDay(travelNote, day);
-
-        return new Result<>(
-                courseCommentList
-                        .stream()
-                        .map(courseComment -> new CommentItemDto(courseComment, member))
-                        .toList());
+        return new Result<>(commentService.getCourseCommentsByTravelNoteAndDay(
+                travelNoteService.getTravelNoteById(travelNoteId), day)
+                .stream()
+                .map(courseComment -> new CommentItemDto(
+                        courseComment, memberService.getMemberByAuthNullable(authentication)))
+                .toList());
     }
 
     @PostMapping("/comment")
     public void addCourseComment(
-            @RequestBody @Valid CourseCommentRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @RequestBody @Valid CourseCommentRequestDto requestDto) {
         commentService.addCourseComment(
                 travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()),
-                member,
+                memberService.getMemberByAuth(authentication),
                 requestDto.getDay(),
                 requestDto.getText());
     }
 
     @DeleteMapping("/comment/{commentId}")
     public void deleteCourseComment(
-            @PathVariable(name = "commentId") Long commentId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        commentService.deleteCourseComment(member, commentId);
+            Authentication authentication,
+            @PathVariable(name = "commentId") Long commentId) {
+        commentService.deleteCourseComment(memberService.getMemberByAuth(authentication), commentId);
     }
 
     @GetMapping("/week")
-    public Result<List<TravelNoteLikeDto>> callWeekTravelNote(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return new Result<>(travelNoteService.getWeekNotes(MainPageConst.NUMBER_OF_WEEK_NOTES, member));
+    public Result<List<TravelNoteLikeDto>> callWeekTravelNote(Authentication authentication) {
+        return new Result<>(travelNoteService.getWeekNotes(
+                MainPageConst.NUMBER_OF_WEEK_NOTES, memberService.getMemberByAuthNullable(authentication)));
     }
 
     @GetMapping("/like/{travelNoteId}")
     public LikeItemDto callTravelNoteLike(
-            @PathVariable(name = "travelNoteId") Long travelNoteId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @PathVariable(name = "travelNoteId") Long travelNoteId) {
         return travelNoteService.getLikeInfo(
-                travelNoteService.getTravelNoteById(travelNoteId), member);
+                travelNoteService.getTravelNoteById(travelNoteId),
+                memberService.getMemberByAuthNullable(authentication));
     }
 
     @PatchMapping("/like")
     public void changeTravelNoteLike(
-            @RequestBody @Valid LikeRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        travelNoteService.changeTravelNoteLike(member, requestDto.getId(), requestDto.isLike());
+            Authentication authentication,
+            @RequestBody @Valid LikeRequestDto requestDto) {
+        travelNoteService.changeTravelNoteLike(
+                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
     }
 
     @GetMapping("/like/list/{page}/{limit}")
     public PageResult<List<PublicTravelNoteDto>> callTravelNoteLikeList(
+            Authentication authentication,
             @PathVariable("page") int page,
-            @PathVariable("limit") int limit,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        List<TravelNoteLike> noteLikeList = travelNoteService.getNoteLikes(member, page, limit);
-
-        List<TravelNote> travelNoteList = travelNoteService.getNotesByNoteLikes(noteLikeList);
-
-        int next = travelNoteService.checkNextNoteLikePage(member, page, limit);
+            @PathVariable("limit") int limit) {
+        Member member = memberService.getMemberByAuthNullable(authentication);
 
         return new PageResult<>(
-                travelNoteList
+                travelNoteService.getNotesByNoteLikes(travelNoteService.getNoteLikes(member, page, limit))
                         .stream()
                         .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
                         .toList(),
-                next);
+                travelNoteService.checkNextNoteLikePage(member, page, limit));
     }
 
     @GetMapping("/like/list")
     public PageResult<List<PublicTravelNoteDto>> callTravelNoteLikeListV2(
+            Authentication authentication,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
-            @RequestParam(value = "option", required = false, defaultValue = "0") int option,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @RequestParam(value = "option", required = false, defaultValue = "0") int option) {
+        Member member = memberService.getMemberByAuthNullable(authentication);
+
         if (Objects.equals(SEARCH_OPTION_LIKE_DESC, option)) {
             return new PageResult<>(
                     travelNoteService.getTravelNotesOrderByLike(member, page, limit)
@@ -228,10 +224,10 @@ public class TravelNoteApiController {
 
     @GetMapping("/like/list/{memberId}/{page}/{limit}")
     public PageResult<List<PublicTravelNoteDto>> callMemberTravelNoteLikeList(
+            Authentication authentication,
             @PathVariable("memberId") Long memberId,
             @PathVariable("page") int page,
-            @PathVariable("limit") int limit,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @PathVariable("limit") int limit) {
         Member targetMember = memberService.getMemberById(memberId);
 
         List<TravelNoteLike> noteLikeList = travelNoteService.getNoteLikes(targetMember, page, limit);
@@ -243,32 +239,36 @@ public class TravelNoteApiController {
         return new PageResult<>(
                 travelNoteList
                         .stream()
-                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(
+                                travelNote, memberService.getMemberByAuthNullable(authentication)))
                         .toList(),
                 next);
     }
 
     @GetMapping("/my/{page}/{limit}")
     public PageResult<List<MyTravelNoteDto>> callMyTravelNotes(
+            Authentication authentication,
             @PathVariable("page") int page,
-            @PathVariable("limit") int limit,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @PathVariable("limit") int limit) {
+        Member member = memberService.getMemberByAuth(authentication);
+
         return new PageResult<>(
                 travelNoteService.getMyTravelNoteDtoList(travelNoteService.getMyTravelNote(member, page, limit)),
                 travelNoteService.checkNextMyTravelNote(member, page, limit));
     }
 
     @GetMapping("/my/count")
-    public CountDto callMyTravelNoteCount(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return new CountDto(travelNoteService.getMyTravelNoteCount(member));
+    public CountDto callMyTravelNoteCount(Authentication authentication) {
+        return new CountDto(travelNoteService.getMyTravelNoteCount(memberService.getMemberByAuth(authentication)));
     }
 
     @GetMapping("/my/board/{page}/{limit}")
     public PageResult<List<MyTravelNoteBoardDto>> callMyTravelNoteBoard(
+            Authentication authentication,
             @PathVariable("page") int page,
-            @PathVariable("limit") int limit,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @PathVariable("limit") int limit) {
+        Member member = memberService.getMemberByAuth(authentication);
+
         return new PageResult<>(
                 travelNoteService.getMyTravelNote(member, page, limit)
                         .stream()
@@ -286,10 +286,10 @@ public class TravelNoteApiController {
 
     @GetMapping("/public/{memberId}/{page}/{limit}")
     public PageResult<List<PublicTravelNoteDto>> callMyPublicTravelNotes(
+            Authentication authentication,
             @PathVariable("memberId") Long memberId,
             @PathVariable("page") int page,
-            @PathVariable("limit") int limit,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @PathVariable("limit") int limit) {
         Member targetMember = memberService.getMemberById(memberId);
 
         List<TravelNote> travelNoteList = travelNoteService.getPublicNotes(targetMember, page, limit);
@@ -297,7 +297,8 @@ public class TravelNoteApiController {
         return new PageResult<>(
                 travelNoteList
                         .stream()
-                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(
+                                travelNote, memberService.getMemberByAuthNullable(authentication)))
                         .toList(),
                 travelNoteService.checkNextPublicMyNote(targetMember, page, limit));
     }

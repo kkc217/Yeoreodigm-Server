@@ -58,8 +58,6 @@ public class TravelNoteService {
 
     @Transactional
     public TravelNote createTravelNote(Member member, NewTravelNoteRequestDto requestDto, String thumbnail) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         long days = ChronoUnit.DAYS.between(requestDto.getDayStart(), requestDto.getDayEnd());
         if (days < 0) {
             throw new BadRequestException("잘못된 일정입니다.");
@@ -152,8 +150,6 @@ public class TravelNoteService {
     }
 
     public NoteAuthority checkNoteAuthority(Member member, TravelNote travelNote) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         Long memberId = member.getId();
         if (memberId.equals(travelNote.getMember().getId())) {
             return NoteAuthority.ROLE_OWNER;
@@ -213,7 +209,7 @@ public class TravelNoteService {
 
     @Transactional
     public void addNoteCompanion(TravelNote travelNote, Member member, Member newCompanion) {
-        if (member == null || !member.getId().equals(travelNote.getMember().getId())) {
+        if (!Objects.equals(travelNote.getMember().getId(), member.getId())) {
             throw new BadRequestException("여행 메이킹 노트 소유자만 동행자를 추가할 수 있습니다.");
         }
 
@@ -232,7 +228,7 @@ public class TravelNoteService {
 
     @Transactional
     public void deleteCompanion(TravelNote travelNote, Member member, Long companionId) {
-        if (member == null || !member.getId().equals(travelNote.getMember().getId())) {
+        if (!Objects.equals(travelNote.getMember().getId(), member.getId())) {
             throw new BadRequestException("여행 메이킹 노트 소유자만 동행자를 변경할 수 있습니다.");
         }
 
@@ -340,8 +336,6 @@ public class TravelNoteService {
 
     @Transactional
     public void changeTravelNoteLike(Member member, Long travelNoteId, boolean like) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         TravelNoteLike travelNoteLike
                 = travelNoteLikeRepository.findByTravelNoteIdAndMemberId(travelNoteId, member.getId());
 
@@ -356,7 +350,6 @@ public class TravelNoteService {
     }
 
     public List<TravelNote> getMyTravelNote(Member member, int page, int limit) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
         return travelNoteRepository.findByMember(member, limit * (page - 1), limit);
     }
 
@@ -372,7 +365,6 @@ public class TravelNoteService {
     }
 
     public Long getMyTravelNoteCount(Member member) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
         return travelNoteRepository.countByMember(member);
     }
 
