@@ -8,16 +8,12 @@ import com.yeoreodigm.server.dto.board.BoardDto;
 import com.yeoreodigm.server.dto.board.BoardFullDto;
 import com.yeoreodigm.server.dto.board.BoardIdDto;
 import com.yeoreodigm.server.dto.board.MyBoardDto;
-import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
-import com.yeoreodigm.server.exception.LoginRequiredException;
-import com.yeoreodigm.server.service.AwsS3Service;
-import com.yeoreodigm.server.service.BoardCommentService;
-import com.yeoreodigm.server.service.BoardService;
-import com.yeoreodigm.server.service.TravelNoteService;
+import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,16 +36,18 @@ public class BoardApiController {
 
     private final TravelNoteService travelNoteService;
 
+    private final MemberService memberService;
+
     private final AwsS3Service awsS3Service;
 
     @PostMapping("/new")
     public BoardIdDto createBoard(
+            Authentication authentication,
             @RequestPart(name = "pictures", required = false) List<MultipartFile> pictures,
             @RequestPart(name = "text") String text,
             @RequestPart(name = "travelNoteTag", required = false) Long travelNoteTag,
-            @RequestPart(name = "placeTag", required = false) List<Long> placeTag,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
+            @RequestPart(name = "placeTag", required = false) List<Long> placeTag) {
+        Member member = memberService.getMemberByAuth(authentication);
 
         boardService.validatePictures(pictures);
         List<String> pictureAddressList = awsS3Service.uploadFiles(
@@ -68,16 +66,17 @@ public class BoardApiController {
 
     @PutMapping("")
     public void editBoard(
+            Authentication authentication,
             @RequestPart(name = "boardId") Long boardId,
             @RequestPart(name = "pictureUrl", required = false) List<String> pictureUrl,
             @RequestPart(name = "pictures", required = false) List<MultipartFile> pictures,
             @RequestPart(name = "text") String text,
             @RequestPart(name = "travelNoteTag", required = false) Long travelNoteTag,
-            @RequestPart(name = "placeTag", required = false) List<Long> placeTag,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @RequestPart(name = "placeTag", required = false) List<Long> placeTag) {
         Board board = boardService.getBoardById(boardId);
 
-        if (Objects.isNull(member) || !Objects.equals(board.getMember().getId(), member.getId())) {
+        Member member = memberService.getMemberByAuth(authentication);
+        if (!Objects.equals(board.getMember().getId(), member.getId())) {
             throw new BadRequestException("여행 피드를 수정할 수 없습니다.");
         }
 
@@ -103,10 +102,12 @@ public class BoardApiController {
 
     @GetMapping("")
     public PageResult<List<BoardFullDto>> callBoards(
+            Authentication authentication,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
-            @RequestParam(value = "option", required = false, defaultValue = "0") int option,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @RequestParam(value = "option", required = false, defaultValue = "0") int option) {
+        Member member = memberService.getMemberByAuthNullable(authentication);
+
         return new PageResult<>(
                 boardService.getBoardList(member, page, limit, option)
                         .stream()
@@ -120,11 +121,12 @@ public class BoardApiController {
 
     @GetMapping("/modification/{boardId}")
     public BoardDto callBoardEditInfo(
-            @PathVariable("boardId") Long boardId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @PathVariable("boardId") Long boardId) {
         Board board = boardService.getBoardById(boardId);
 
-        if (Objects.isNull(member) || !Objects.equals(board.getMember().getId(), member.getId())) {
+        Member member = memberService.getMemberByAuth(authentication);
+        if (!Objects.equals(board.getMember().getId(), member.getId())) {
             throw new BadRequestException("여행 피드를 수정할 수 없습니다.");
         }
 
@@ -133,10 +135,10 @@ public class BoardApiController {
 
     @GetMapping("/my/{page}/{limit}")
     public PageResult<List<MyBoardDto>> callMyBoards(
+            Authentication authentication,
             @PathVariable("page") int page,
-            @PathVariable("limit") int limit,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
+            @PathVariable("limit") int limit) {
+        Member member = memberService.getMemberByAuth(authentication);
 
         List<Board> boardList = boardService.getMyBoardList(member, page, limit);
 
@@ -150,23 +152,26 @@ public class BoardApiController {
 
     @GetMapping("/like/{boardId}")
     public LikeItemDto callBoardLike(
-            @PathVariable("boardId") Long boardId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return boardService.getLikeInfo(boardService.getBoardById(boardId), member);
+            Authentication authentication,
+            @PathVariable("boardId") Long boardId) {
+        return boardService.getLikeInfo(
+                boardService.getBoardById(boardId), memberService.getMemberByAuthNullable(authentication));
     }
 
     @PatchMapping("/like")
     public void changeBoardLike(
-            @RequestBody @Valid LikeRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        boardService.changeBoardLike(member, boardService.getBoardById(requestDto.getId()), requestDto.isLike());
+            Authentication authentication,
+            @RequestBody @Valid LikeRequestDto requestDto) {
+        boardService.changeBoardLike(
+                memberService.getMemberByAuth(authentication),
+                boardService.getBoardById(requestDto.getId()), requestDto.isLike());
     }
 
     @DeleteMapping("/{boardId}")
     public void deleteBoard(
-            @PathVariable("boardId") Long boardId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        boardService.deleteBoard(member, boardService.getBoardById(boardId));
+            Authentication authentication,
+            @PathVariable("boardId") Long boardId) {
+        boardService.deleteBoard(memberService.getMemberByAuth(authentication), boardService.getBoardById(boardId));
     }
 
 }

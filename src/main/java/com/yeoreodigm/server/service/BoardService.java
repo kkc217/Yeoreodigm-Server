@@ -190,8 +190,6 @@ public class BoardService {
 
     @Transactional
     public void changeBoardLike(Member member, Board board, boolean like) {
-        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
-
         BoardLike boardLike = boardLikeRepository.findByBoardIdAndMemberId(board.getId(), member.getId());
 
         if (like) {
@@ -206,7 +204,7 @@ public class BoardService {
 
     @Transactional
     public void deleteBoard(Member member, Board board) {
-        if (Objects.isNull(member) || !Objects.equals(member.getId(), board.getMember().getId()))
+        if (!Objects.equals(member.getId(), board.getMember().getId()))
             throw new BadRequestException("피드를 삭제할 수 없습니다.");
 
         boardRepository.deleteById(board.getId());
