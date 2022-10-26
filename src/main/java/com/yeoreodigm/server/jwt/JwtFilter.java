@@ -27,8 +27,9 @@ public class JwtFilter extends OncePerRequestFilter {
         throws IOException, ServletException {
         String token = resolveToken(request);
 
-        if (Objects.nonNull(token)) {
+        if (Objects.nonNull(token) && !request.getServletPath().startsWith("/api/auth")) {
             int flag = tokenProvider.validateToken(token);
+            System.out.println(flag);
             if (Objects.equals(1, flag)) {
                 setAuthentication(token);
             } else if (Objects.equals(2, flag)) {
@@ -37,12 +38,14 @@ public class JwtFilter extends OncePerRequestFilter {
                 response.setCharacterEncoding("UTF-8");
                 PrintWriter out = response.getWriter();
                 out.println("{\"error\": \"401\", \"message\" : \"토큰이 만료되었습니다.\"}");
+                return;
             } else if (Objects.equals(3, flag)) {
                 response.setContentType("application/json");
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.setCharacterEncoding("UTF-8");
                 PrintWriter out = response.getWriter();
                 out.println("{\"error\": \"403\", \"message\" : \"다시 로그인해주시기 바랍니다.\"}");
+                return;
             }
         }
         filterChain.doFilter(request, response);
