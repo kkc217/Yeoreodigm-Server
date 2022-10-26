@@ -8,18 +8,17 @@ import com.yeoreodigm.server.dto.board.BoardDetailDto;
 import com.yeoreodigm.server.dto.comment.CommentLikeDto;
 import com.yeoreodigm.server.dto.comment.CommentRequestDto;
 import com.yeoreodigm.server.dto.comment.DateTimeStr;
-import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.service.BoardCommentService;
 import com.yeoreodigm.server.service.BoardService;
+import com.yeoreodigm.server.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,22 +29,17 @@ public class BoardDetailApiController {
 
     private final BoardCommentService boardCommentService;
 
+    private final MemberService memberService;
+
     @GetMapping("/{boardId}")
     public BoardDetailDto callBoardDetailInfo(
             Authentication authentication,
-            @PathVariable("boardId") Long boardId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (Objects.isNull(authentication)) {
-            System.out.println("HIHI");
-        } else {
-            System.out.println(authentication.getName());
-
-        }
+            @PathVariable("boardId") Long boardId) {
         Board board = boardService.getBoardById(boardId);
 
         return new BoardDetailDto(
                 board,
-                member,
+                memberService.getMemberByAuthNullable(authentication),
                 new DateTimeStr(board.getModifiedTime()));
     }
 
@@ -59,8 +53,10 @@ public class BoardDetailApiController {
 
     @GetMapping("/comment/{boardId}")
     public Result<List<CommentLikeDto>> callBoardComment(
-            @PathVariable("boardId") Long boardId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @PathVariable("boardId") Long boardId) {
+        Member member = memberService.getMemberByAuthNullable(authentication);
+
         return new Result<>(
                 boardCommentService.getBoardCommentsByBoard(boardService.getBoardById(boardId))
                         .stream()
@@ -71,34 +67,36 @@ public class BoardDetailApiController {
 
     @PostMapping("/comment")
     public void addBoardComment(
-            @RequestBody @Valid CommentRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @RequestBody @Valid CommentRequestDto requestDto) {
         boardCommentService.addBoardComment(
-                member,
+                memberService.getMemberByAuthNullable(authentication),
                 boardService.getBoardById(requestDto.getId()),
                 requestDto.getText());
     }
 
     @DeleteMapping("/comment/{commentId}")
     public void deleteBoardComment(
-            @PathVariable("commentId") Long commentId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        boardCommentService.deleteBoardComment(member, commentId);
+            Authentication authentication,
+            @PathVariable("commentId") Long commentId) {
+        boardCommentService.deleteBoardComment(memberService.getMemberByAuthNullable(authentication), commentId);
     }
 
     @GetMapping("/comment/like/{commentId}")
     public LikeItemDto callBoardCommentLike(
-            @PathVariable("commentId") Long commentId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return boardCommentService.getLikeInfo(boardCommentService.getBoardCommentById(commentId), member);
+            Authentication authentication,
+            @PathVariable("commentId") Long commentId) {
+        return boardCommentService.getLikeInfo(
+                boardCommentService.getBoardCommentById(commentId), memberService.getMemberByAuthNullable(authentication));
     }
 
     @PatchMapping("/comment/like")
     public void changeBoardCommentLike(
-            @RequestBody @Valid LikeRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @RequestBody @Valid LikeRequestDto requestDto) {
         boardCommentService.changeBoardCommentLike(
-                member, boardCommentService.getBoardCommentById(requestDto.getId()), requestDto.isLike());
+                memberService.getMemberByAuthNullable(authentication),
+                boardCommentService.getBoardCommentById(requestDto.getId()), requestDto.isLike());
     }
 
 }
