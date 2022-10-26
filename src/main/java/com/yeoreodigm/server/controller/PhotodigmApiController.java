@@ -6,13 +6,13 @@ import com.yeoreodigm.server.domain.Photodigm;
 import com.yeoreodigm.server.domain.Picture;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
-import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.photodigm.*;
 import com.yeoreodigm.server.exception.BadRequestException;
-import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.service.AwsS3Service;
+import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PhotodigmService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,11 +32,14 @@ public class PhotodigmApiController {
 
     private final PhotodigmService photodigmService;
 
+    private final MemberService memberService;
+
     private final AwsS3Service awsS3Service;
 
     @PostMapping("/new")
-    public PhotodigmIdDto createPhotodigm(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+    public PhotodigmIdDto createPhotodigm(Authentication authentication) {
+        Member member = memberService.getMemberByAuthNullable(authentication);
+
         Photodigm photodigm = photodigmService.createPhotodigm(member);
 
         List<Picture> pictureList = photodigmService.getPictureList(photodigm.getPictures());
@@ -50,8 +53,10 @@ public class PhotodigmApiController {
 
     @GetMapping("/{photodigmId}")
     public PhotodigmDto callPhotodigmInfo(
-            @PathVariable("photodigmId") Long photodigmId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @PathVariable("photodigmId") Long photodigmId) {
+        Member member = memberService.getMemberByAuthNullable(authentication);
+
         Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
 
         if (Objects.isNull(member)) {
@@ -68,10 +73,10 @@ public class PhotodigmApiController {
 
     @GetMapping("/{page}/{limit}")
     public PageResult<List<PhotodigmDto>> callMyPhotodigmInfos(
+            Authentication authentication,
             @PathVariable("page") int page,
-            @PathVariable("limit") int limit,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
+            @PathVariable("limit") int limit) {
+        Member member = memberService.getMemberByAuth(authentication);
 
         return new PageResult<>(
                 photodigmService.getPhotodigmByMember(member, page, limit)
@@ -92,12 +97,14 @@ public class PhotodigmApiController {
 
     @PutMapping("/picture")
     public void changePhotodigmImages(
+            Authentication authentication,
             @RequestPart(name = "photodigmId") Long photodigmId,
             @RequestPart(name = "picture1", required = false) MultipartFile picture1,
             @RequestPart(name = "picture2", required = false) MultipartFile picture2,
             @RequestPart(name = "picture3", required = false) MultipartFile picture3,
-            @RequestPart(name = "picture4", required = false) MultipartFile picture4,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @RequestPart(name = "picture4", required = false) MultipartFile picture4) {
+        Member member = memberService.getMemberByAuthNullable(authentication);
+
         Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
 
         if (Objects.isNull(member)) {
@@ -140,9 +147,11 @@ public class PhotodigmApiController {
 
     @DeleteMapping("/picture/{photodigmId}/{target}")
     public void deletePhotodigmImage(
+            Authentication authentication,
             @PathVariable(name = "photodigmId") Long photodigmId,
-            @PathVariable(name = "target") int target,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @PathVariable(name = "target") int target) {
+        Member member = memberService.getMemberByAuthNullable(authentication);
+
         Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
 
         if (Objects.isNull(member)) {
@@ -181,8 +190,10 @@ public class PhotodigmApiController {
 
     @PutMapping("/frame")
     public void changePhotodigmFrame(
-            @RequestBody HashMap<String, Long> request,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @RequestBody HashMap<String, Long> request) {
+        Member member = memberService.getMemberByAuthNullable(authentication);
+
         Photodigm photodigm = photodigmService.getPhotodigm(request.get("photodigmId"));
 
         if (Objects.isNull(member)) {
@@ -207,11 +218,12 @@ public class PhotodigmApiController {
 
     @PatchMapping("/title")
     public void changePhotodigmTitle(
-            @RequestBody @Valid ChangePhotodigmTitleDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @RequestBody @Valid ChangePhotodigmTitleDto requestDto) {
         if (requestDto.getTitle().length() > 30) throw new BadRequestException("포토다임 제목은 30자 이하만 가능합니다.");
         Photodigm photodigm = photodigmService.getPhotodigm(requestDto.getPhotodigmId());
 
+        Member member = memberService.getMemberByAuthNullable(authentication);
         if (Objects.isNull(member) && Objects.isNull(photodigm.getMember())) {
             photodigmService.changePhotodigmTitle(photodigm, requestDto.getTitle());
             return;
