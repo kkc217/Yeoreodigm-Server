@@ -4,7 +4,6 @@ import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
-import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
@@ -17,6 +16,7 @@ import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.RestaurantService;
 import com.yeoreodigm.server.service.RouteInfoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -40,9 +40,11 @@ public class PlaceApiController {
 
     @GetMapping("/like/list/{page}/{limit}")
     public PageResult<List<PlaceLikeDto>> callPlaceLikeList(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member,
+            Authentication authentication,
             @PathVariable("page") int page,
             @PathVariable("limit") int limit) {
+        Member member = memberService.getMemberByAuthNullable(authentication);
+
         List<PlaceLike> placeLikeList
                 = placeService.getPlaceLikesByMemberPaging(member, page, limit);
 
@@ -61,10 +63,12 @@ public class PlaceApiController {
 
     @GetMapping("/like/list")
     public PageResult<List<PlaceLikeDto>> callPlaceLikeListV2(
+            Authentication authentication,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
-            @RequestParam(value = "option", required = false, defaultValue = "0") int option,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            @RequestParam(value = "option", required = false, defaultValue = "0") int option) {
+        Member member = memberService.getMemberByAuthNullable(authentication);
+
         if (Objects.equals(SEARCH_OPTION_LIKE_DESC, option)) {
             return new PageResult<>(
                     placeService.getPlacesOrderByLike(member, page, limit)
@@ -84,7 +88,7 @@ public class PlaceApiController {
 
     @GetMapping("/like/list/{memberId}/{page}/{limit}")
     public PageResult<List<PlaceLikeDto>> callMemberPlaceLikeList(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member,
+            Authentication authentication,
             @PathVariable("memberId") Long memberId,
             @PathVariable("page") int page,
             @PathVariable("limit") int limit) {
@@ -99,7 +103,8 @@ public class PlaceApiController {
 
         List<PlaceLikeDto> response = new ArrayList<>();
         for (Places place : placeList) {
-            LikeItemDto likeInfo = placeService.getLikeInfo(place, member);
+            LikeItemDto likeInfo
+                    = placeService.getLikeInfo(place, memberService.getMemberByAuthNullable(authentication));
             response.add(new PlaceLikeDto(place, likeInfo));
         }
 
@@ -108,16 +113,19 @@ public class PlaceApiController {
 
     @GetMapping("/like/{placeId}")
     public LikeItemDto callPlaceLikeInfo(
-            @PathVariable("placeId") Long placeId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return placeService.getLikeInfo(placeService.getPlaceById(placeId), member);
+            Authentication authentication,
+            @PathVariable("placeId") Long placeId) {
+        return placeService.getLikeInfo(
+                placeService.getPlaceById(placeId),
+                memberService.getMemberByAuthNullable(authentication));
     }
 
     @PatchMapping("/like")
     public void changePlaceLike(
-            @RequestBody LikeRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        placeService.changePlaceLike(member, requestDto.getId(), requestDto.isLike());
+            Authentication authentication,
+            @RequestBody LikeRequestDto requestDto) {
+        placeService.changePlaceLike(
+                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
     }
 
     @GetMapping("/popular")

@@ -4,7 +4,6 @@ import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.exception.BadRequestException;
-import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -146,8 +145,6 @@ public class PlaceService {
 
     @Transactional
     public void changePlaceLike(Member member, Long placeId, boolean like) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         PlaceLike placeLike = placeLikeRepository.findByPlaceIdAndMemberId(placeId, member.getId());
 
         if (like) {
