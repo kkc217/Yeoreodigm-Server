@@ -99,7 +99,7 @@ public class RecommendService {
         }
 
         if (placeString.length() == 0) {
-            placeString.append(",");
+            placeString.append("0,");
         }
 
         WebClient webClient = WebClient.create(EnvConst.PLACE_RECOMMEND_URL);
@@ -177,20 +177,6 @@ public class RecommendService {
     public List<TravelNote> getRandomNotes(int limit) {
         int page = (int) (Math.random() * RANDOM_PAGING);
         return travelNoteRepository.findPublicPagingAndLimiting(page, limit);
-//        List<TravelNote> travelNoteList = travelNoteRepository.findByPublicLimiting(RANDOM_PAGING);
-//
-//        int index = (int) (Math.random() * travelNoteList.size());
-//
-//        List<TravelNote> result = new ArrayList<>();
-//
-//        for (int i = 0; i < limit; i++) {
-//            result.add(travelNoteList.get(index));
-//            index += 1;
-//            while (index >= travelNoteList.size()) {
-//                index -= travelNoteList.size();
-//            }
-//        }
-//        return result;
     }
 
 }
