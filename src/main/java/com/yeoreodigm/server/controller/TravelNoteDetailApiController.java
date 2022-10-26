@@ -1,21 +1,17 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Course;
-import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.ContentRequestDto;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentLikeDto;
-import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.travelnote.NoteDetailInfoResponseDto;
 import com.yeoreodigm.server.dto.travelnote.TravelNoteIdDto;
-import com.yeoreodigm.server.service.CourseService;
-import com.yeoreodigm.server.service.PlaceService;
-import com.yeoreodigm.server.service.TravelNoteCommentService;
-import com.yeoreodigm.server.service.TravelNoteService;
+import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -29,70 +25,70 @@ public class TravelNoteDetailApiController {
 
     private final TravelNoteService travelNoteService;
 
+    private final TravelNoteCommentService travelNoteCommentService;
+
     private final CourseService courseService;
 
     private final PlaceService placeService;
 
-    private final TravelNoteCommentService travelNoteCommentService;
+    private final MemberService memberService;
 
     @GetMapping("/{travelNoteId}")
-    public NoteDetailInfoResponseDto callTravelNoteDetail(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
-
-        travelNoteService.updateLog(travelNote, member);
-
-        return new NoteDetailInfoResponseDto(travelNoteService.getTravelNoteDetailInfo(travelNote));
+    public NoteDetailInfoResponseDto callTravelNoteDetail(@PathVariable("travelNoteId") Long travelNoteId) {
+        return new NoteDetailInfoResponseDto(
+                travelNoteService.getTravelNoteDetailInfo(travelNoteService.getTravelNoteById(travelNoteId)));
     }
 
     @GetMapping("/comment/{travelNoteId}")
     public Result<List<CommentLikeDto>> callTravelNoteComment(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @PathVariable("travelNoteId") Long travelNoteId) {
         return new Result<>(travelNoteCommentService.getNoteCommentInfo(
-                travelNoteService.getTravelNoteById(travelNoteId), member));
+                travelNoteService.getTravelNoteById(travelNoteId),
+                memberService.getMemberByAuthNullable(authentication)));
     }
 
     @PostMapping("/comment")
     public void addTravelNoteComment(
-            @RequestBody @Valid ContentRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @RequestBody @Valid ContentRequestDto requestDto) {
         travelNoteCommentService.addNoteComment(
-                member,
+                memberService.getMemberByAuth(authentication),
                 travelNoteService.getTravelNoteById(requestDto.getId()),
                 requestDto.getContent());
     }
 
     @DeleteMapping("/comment/{commentId}")
     public void deleteTravelNoteComment(
-            @PathVariable(name = "commentId") Long commentId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        travelNoteCommentService.deleteNoteComment(member, commentId);
+            Authentication authentication,
+            @PathVariable(name = "commentId") Long commentId) {
+        travelNoteCommentService.deleteNoteComment(memberService.getMemberByAuth(authentication), commentId);
     }
 
     @GetMapping("/comment/like/{commentId}")
     public LikeItemDto callTravelNoteLike(
-            @PathVariable("commentId") Long commentId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return travelNoteCommentService.getLikeInfo(commentId, member);
+            Authentication authentication,
+            @PathVariable("commentId") Long commentId) {
+        return travelNoteCommentService.getLikeInfo(
+                commentId, memberService.getMemberByAuthNullable(authentication));
     }
 
     @PatchMapping("/comment/like")
     public void changeTravelNoteCommentLike(
-            @RequestBody @Valid LikeRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        travelNoteCommentService.changeTravelNoteCommentLike(member, requestDto.getId(), requestDto.isLike());
+            Authentication authentication,
+            @RequestBody @Valid LikeRequestDto requestDto) {
+        travelNoteCommentService.changeTravelNoteCommentLike(
+                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
     }
 
     @PostMapping("/new")
     public TravelNoteIdDto makeMyTravelNote(
-            @RequestBody HashMap<String, Long> request,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @RequestBody HashMap<String, Long> request) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(request.get("travelNoteId"));
 
-
-        TravelNote newTravelNote = travelNoteService.createTravelNoteFromOther(travelNote, member, placeService.getRandomImageUrl());
+        TravelNote newTravelNote = travelNoteService.createTravelNoteFromOther(
+                travelNote, memberService.getMemberByAuth(authentication), placeService.getRandomImageUrl());
 
         List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
         for (Course course : courseList)
