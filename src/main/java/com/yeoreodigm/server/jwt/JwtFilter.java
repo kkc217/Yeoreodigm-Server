@@ -29,7 +29,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (Objects.nonNull(token) && !request.getServletPath().startsWith("/api/auth")) {
             int flag = tokenProvider.validateToken(token);
-            System.out.println(flag);
             if (Objects.equals(1, flag)) {
                 setAuthentication(token);
             } else if (Objects.equals(2, flag)) {
