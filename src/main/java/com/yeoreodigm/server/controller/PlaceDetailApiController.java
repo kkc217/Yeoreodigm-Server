@@ -9,6 +9,7 @@ import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.place.PlaceDetailDto;
+import com.yeoreodigm.server.dto.place.PlaceExtraInfoDto;
 import com.yeoreodigm.server.service.PlaceCommentService;
 import com.yeoreodigm.server.service.PlaceService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,12 @@ public class PlaceDetailApiController {
 
         placeService.updateLog(place, member);
         return new PlaceDetailDto(place);
+    }
+
+    @GetMapping("/info/{placeId}")
+    public PlaceExtraInfoDto callPlaceExtraInfo(
+            @PathVariable("placeId") Long placeId) {
+        return new PlaceExtraInfoDto(placeService.getPlaceExtraInfo(placeService.getPlaceById(placeId)));
     }
 
     @GetMapping("/comment/{placeId}")
