@@ -5,10 +5,7 @@ import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
-import com.yeoreodigm.server.repository.LogRepository;
-import com.yeoreodigm.server.repository.PlaceLikeRepository;
-import com.yeoreodigm.server.repository.PlacesLogRepository;
-import com.yeoreodigm.server.repository.PlacesRepository;
+import com.yeoreodigm.server.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +29,8 @@ public class PlaceService {
     private final PlaceLikeRepository placeLikeRepository;
 
     private final PlacesLogRepository placesLogRepository;
+
+    private final PlacesExtraInfoRepository placesExtraInfoRepository;
 
     private final LogRepository logRepository;
 
@@ -175,4 +174,9 @@ public class PlaceService {
             placesLogRepository.saveAndFlush(placeLog);
         }
     }
+
+    public PlacesExtraInfo getPlaceExtraInfo(Places place) {
+        return placesExtraInfoRepository.findByPlaceId(place.getId());
+    }
+
 }
