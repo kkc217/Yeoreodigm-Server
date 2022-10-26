@@ -31,13 +31,18 @@ public class JwtFilter extends OncePerRequestFilter {
             int flag = tokenProvider.validateToken(token);
             if (Objects.equals(1, flag)) {
                 setAuthentication(token);
-            } else if (Objects.equals(2, flag) || Objects.equals(3, flag)) {
+            } else if (Objects.equals(2, flag)) {
                 response.setContentType("application/json");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setCharacterEncoding("UTF-8");
                 PrintWriter out = response.getWriter();
-                out.println("{\"error\": \"401\", \"message\" : \"다시 로그인해주시기 바랍니다.\"}");
-                return;
+                out.println("{\"error\": \"401\", \"message\" : \"토큰이 만료되었습니다.\"}");
+            } else if (Objects.equals(3, flag)) {
+                response.setContentType("application/json");
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setCharacterEncoding("UTF-8");
+                PrintWriter out = response.getWriter();
+                out.println("{\"error\": \"403\", \"message\" : \"다시 로그인해주시기 바랍니다.\"}");
             }
         }
         filterChain.doFilter(request, response);
