@@ -1,18 +1,17 @@
 package com.yeoreodigm.server.controller;
 
-import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentLikeDto;
 import com.yeoreodigm.server.dto.comment.CommentRequestDto;
-import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.place.PlaceDetailDto;
 import com.yeoreodigm.server.dto.place.PlaceExtraInfoDto;
+import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceCommentService;
 import com.yeoreodigm.server.service.PlaceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,14 +26,12 @@ public class PlaceDetailApiController {
 
     private final PlaceCommentService placeCommentService;
 
+    private final MemberService memberService;
+
     @GetMapping("/{placeId}")
     public PlaceDetailDto callPlaceDetailInfo(
-            @PathVariable("placeId") Long placeId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        Places place = placeService.getPlaceById(placeId);
-
-        placeService.updateLog(place, member);
-        return new PlaceDetailDto(place);
+            @PathVariable("placeId") Long placeId) {
+        return new PlaceDetailDto(placeService.getPlaceById(placeId));
     }
 
     @GetMapping("/info/{placeId}")
@@ -45,41 +42,43 @@ public class PlaceDetailApiController {
 
     @GetMapping("/comment/{placeId}")
     public Result<List<CommentLikeDto>> callPlaceComment(
-            @PathVariable("placeId") Long placeId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return new Result<>(
-                placeCommentService.getPlaceCommentItems(placeService.getPlaceById(placeId), member));
+            Authentication authentication,
+            @PathVariable("placeId") Long placeId) {
+        return new Result<>(placeCommentService.getPlaceCommentItems(
+                placeService.getPlaceById(placeId),
+                memberService.getMemberByAuthNullable(authentication)));
     }
 
     @PostMapping("/comment")
     public void addPlaceComment(
-            @RequestBody @Valid CommentRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @RequestBody @Valid CommentRequestDto requestDto) {
         placeCommentService.addPlaceComment(
-                member,
+                memberService.getMemberByAuth(authentication),
                 placeService.getPlaceById(requestDto.getId()),
                 requestDto.getText());
     }
 
     @DeleteMapping("/comment/{commentId}")
     public void deletePlaceComment(
-            @PathVariable(name = "commentId") Long commentId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        placeCommentService.deletePlaceComment(member, commentId);
+            Authentication authentication,
+            @PathVariable(name = "commentId") Long commentId) {
+        placeCommentService.deletePlaceComment(memberService.getMemberByAuth(authentication), commentId);
     }
 
     @GetMapping("/comment/like/{placeCommentId}")
     public LikeItemDto callPlaceCommentLike(
-            @PathVariable(name = "placeCommentId") Long placeCommentId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return placeCommentService.getLikeInfo(placeCommentId, member);
+            Authentication authentication,
+            @PathVariable(name = "placeCommentId") Long placeCommentId) {
+        return placeCommentService.getLikeInfo(placeCommentId, memberService.getMemberByAuthNullable(authentication));
     }
 
     @PatchMapping("/comment/like")
     public void changePlaceCommentLike(
-            @RequestBody @Valid LikeRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        placeCommentService.changeLike(member, requestDto.getId(), requestDto.isLike());
+            Authentication authentication,
+            @RequestBody @Valid LikeRequestDto requestDto) {
+        placeCommentService.changeLike(
+                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
     }
 
 }
