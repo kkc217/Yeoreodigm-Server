@@ -53,7 +53,7 @@ public class TravelNoteDetailApiController {
             Authentication authentication,
             @RequestBody @Valid ContentRequestDto requestDto) {
         travelNoteCommentService.addNoteComment(
-                memberService.getMemberByAuth(authentication),
+                memberService.getMemberByAuthNullable(authentication),
                 travelNoteService.getTravelNoteById(requestDto.getId()),
                 requestDto.getContent());
     }
@@ -62,7 +62,7 @@ public class TravelNoteDetailApiController {
     public void deleteTravelNoteComment(
             Authentication authentication,
             @PathVariable(name = "commentId") Long commentId) {
-        travelNoteCommentService.deleteNoteComment(memberService.getMemberByAuth(authentication), commentId);
+        travelNoteCommentService.deleteNoteComment(memberService.getMemberByAuthNullable(authentication), commentId);
     }
 
     @GetMapping("/comment/like/{commentId}")
@@ -78,7 +78,7 @@ public class TravelNoteDetailApiController {
             Authentication authentication,
             @RequestBody @Valid LikeRequestDto requestDto) {
         travelNoteCommentService.changeTravelNoteCommentLike(
-                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
+                memberService.getMemberByAuthNullable(authentication), requestDto.getId(), requestDto.isLike());
     }
 
     @PostMapping("/new")
@@ -88,7 +88,7 @@ public class TravelNoteDetailApiController {
         TravelNote travelNote = travelNoteService.getTravelNoteById(request.get("travelNoteId"));
 
         TravelNote newTravelNote = travelNoteService.createTravelNoteFromOther(
-                travelNote, memberService.getMemberByAuth(authentication), placeService.getRandomImageUrl());
+                travelNote, memberService.getMemberByAuthNullable(authentication), placeService.getRandomImageUrl());
 
         List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
         for (Course course : courseList)
