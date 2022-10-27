@@ -32,6 +32,8 @@ import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.BoardConst.MAX_NUM_OF_BOARD_PICTURE;
 import static com.yeoreodigm.server.dto.constraint.BoardConst.MAX_NUM_OF_BOARD_PLACE;
+import static com.yeoreodigm.server.dto.constraint.TravelNoteConst.ID_SIZE_MAX;
+import static com.yeoreodigm.server.dto.constraint.TravelNoteConst.ID_SIZE_MIN;
 
 @Service
 @Transactional(readOnly = true)
@@ -64,7 +66,7 @@ public class BoardService {
     @Transactional
     public Board createBoard(Member member, List<String> pictureAddress, String text) {
         if (text.length() > 500) throw new BadRequestException("피드의 최대 글자 수는 500자입니다.");
-        Board board = new Board(member, text, pictureAddress);
+        Board board = new Board(getRandomId(), member, text, pictureAddress);
         boardRepository.saveAndFlush(board);
         return board;
     }
@@ -220,4 +222,19 @@ public class BoardService {
         }
         return result;
     }
+
+    private long getRandomId() {
+        long id = Long.parseLong(Integer.toString((int) (Math.random() * (ID_SIZE_MAX - ID_SIZE_MIN) + ID_SIZE_MIN))
+                + (int) (Math.random() * (ID_SIZE_MAX - ID_SIZE_MIN) + ID_SIZE_MIN));
+
+        Board board = boardRepository.findById(id);
+        while (Objects.nonNull(board)) {
+            id = Long.parseLong(Integer.toString((int) (Math.random() * (ID_SIZE_MAX - ID_SIZE_MIN) + ID_SIZE_MIN))
+                    + (int) (Math.random() * (ID_SIZE_MAX - ID_SIZE_MIN) + ID_SIZE_MIN));
+            board = boardRepository.findById(id);
+        }
+
+        return id;
+    }
+
 }
