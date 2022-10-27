@@ -32,14 +32,14 @@ public class SurveyApiController {
             Authentication authentication,
             @RequestBody HashMap<String, String> request) {
         surveyService.submitSurveyResult(
-                memberService.getMemberByAuth(authentication),
+                memberService.getMemberByAuthNullable(authentication),
                 Long.parseLong(request.get("contentId")),
                 Integer.parseInt(request.get("progress")));
     }
 
     @GetMapping("/progress")
     public SurveyProgressResponseDto callSurveyProgress(Authentication authentication) {
-        return new SurveyProgressResponseDto(surveyService.getProgress(memberService.getMemberByAuth(authentication)));
+        return new SurveyProgressResponseDto(surveyService.getProgress(memberService.getMemberByAuthNullable(authentication)));
     }
 
 }
