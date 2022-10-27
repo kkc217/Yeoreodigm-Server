@@ -101,6 +101,8 @@ public class SpringSecurityConfig {
                 .mvcMatchers("/api/course").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                 .mvcMatchers("/api/course/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 
+                .mvcMatchers(GET, "api/photodigm/picture/{photodigmId}").permitAll()
+                .mvcMatchers(GET, "api/photodigm/{page}/{limit}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                 .mvcMatchers("/api/photodigm/**").permitAll()
 
                 .mvcMatchers(GET,"/api/board/detail/**").permitAll()

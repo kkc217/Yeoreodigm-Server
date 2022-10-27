@@ -76,7 +76,7 @@ public class PhotodigmApiController {
             Authentication authentication,
             @PathVariable("page") int page,
             @PathVariable("limit") int limit) {
-        Member member = memberService.getMemberByAuth(authentication);
+        Member member = memberService.getMemberByAuthNullable(authentication);
 
         return new PageResult<>(
                 photodigmService.getPhotodigmByMember(member, page, limit)
