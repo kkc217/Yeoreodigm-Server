@@ -2,8 +2,6 @@ package com.yeoreodigm.server.repository;
 
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.PlacesLog;
 import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +28,10 @@ public class PlacesLogRepository {
         em.flush();
     }
 
-    public PlacesLog findByPlaceAndMember(Places place, Member member) {
+    public PlacesLog findByPlaceAndMember(Long placeId, Long memberId) {
         try {
             return queryFactory.selectFrom(placesLog)
-                    .where(placesLog.placeId.eq(place.getId()), placesLog.memberId.eq(member.getId()))
+                    .where(placesLog.placeId.eq(placeId), placesLog.memberId.eq(memberId))
                     .fetchOne();
         } catch (NonUniqueResultException e) {
             throw new BadRequestException("여행지 정보를 불러오는데 실패하였습니다.");

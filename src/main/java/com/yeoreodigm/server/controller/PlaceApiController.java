@@ -175,7 +175,7 @@ public class PlaceApiController {
     @GetMapping("/{placeId}")
     public PlaceDetailDto callPlaceBoard(
             @PathVariable("placeId") Long placeId) {
-        return new PlaceDetailDto(placeService.getPlaceById(placeId));
+        return new PlaceDetailDto(null, placeService.getPlaceById(placeId));
     }
 
 }
