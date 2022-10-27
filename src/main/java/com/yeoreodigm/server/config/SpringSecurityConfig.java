@@ -109,6 +109,7 @@ public class SpringSecurityConfig {
                 .mvcMatchers("/api/board/detail/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 
                 .mvcMatchers(GET, "/api/board/modification/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .mvcMatchers(GET, "/api/board/my/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                 .mvcMatchers(GET, "/api/board").permitAll()
                 .mvcMatchers(GET, "/api/board/**").permitAll()
                 .mvcMatchers("/api/board").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
