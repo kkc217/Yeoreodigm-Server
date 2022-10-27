@@ -54,7 +54,7 @@ public class PlaceDetailApiController {
             Authentication authentication,
             @RequestBody @Valid CommentRequestDto requestDto) {
         placeCommentService.addPlaceComment(
-                memberService.getMemberByAuth(authentication),
+                memberService.getMemberByAuthNullable(authentication),
                 placeService.getPlaceById(requestDto.getId()),
                 requestDto.getText());
     }
@@ -63,7 +63,7 @@ public class PlaceDetailApiController {
     public void deletePlaceComment(
             Authentication authentication,
             @PathVariable(name = "commentId") Long commentId) {
-        placeCommentService.deletePlaceComment(memberService.getMemberByAuth(authentication), commentId);
+        placeCommentService.deletePlaceComment(memberService.getMemberByAuthNullable(authentication), commentId);
     }
 
     @GetMapping("/comment/like/{placeCommentId}")
@@ -78,7 +78,7 @@ public class PlaceDetailApiController {
             Authentication authentication,
             @RequestBody @Valid LikeRequestDto requestDto) {
         placeCommentService.changeLike(
-                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
+                memberService.getMemberByAuthNullable(authentication), requestDto.getId(), requestDto.isLike());
     }
 
 }
