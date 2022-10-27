@@ -8,6 +8,7 @@ import com.yeoreodigm.server.domain.board.Follow;
 import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.dto.constraint.MemberConst;
 import com.yeoreodigm.server.dto.jwt.TokenDto;
+import com.yeoreodigm.server.dto.jwt.TokenMemberInfoDto;
 import com.yeoreodigm.server.dto.member.LoginRequestDto;
 import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
@@ -119,7 +120,7 @@ public class MemberService {
     }
 
     @Transactional
-    public TokenDto loginV2(LoginRequestDto requestDto) {
+    public TokenMemberInfoDto loginV2(LoginRequestDto requestDto) {
         CustomEmailPasswordAuthToken customEmailPasswordAuthToken
                 = new CustomEmailPasswordAuthToken(requestDto.getEmail(), requestDto.getPassword());
         Authentication authentication = authenticationManager.authenticate(customEmailPasswordAuthToken);
@@ -140,11 +141,12 @@ public class MemberService {
             refreshTokenRepository.save(originRefreshToken);
         }
 
-        return tokenProvider.createTokenDto(accessToken, refreshToken, BEARER_TYPE);
+        return new TokenMemberInfoDto(
+                tokenProvider.createTokenDto(accessToken, refreshToken, BEARER_TYPE), member);
     }
 
     @Transactional
-    public TokenDto reissue(TokenDto tokenDto) {
+    public TokenMemberInfoDto reissue(TokenDto tokenDto) {
         String originAccessToken = tokenDto.getAccessToken();
         String originRefreshToken = tokenDto.getRefreshToken();
 
@@ -173,11 +175,12 @@ public class MemberService {
         refreshToken.changeValue(newRefreshToken);
         refreshTokenRepository.saveAndFlush(refreshToken);
 
-        return tokenProvider.createTokenDto(newAccessToken, newRefreshToken, BEARER_TYPE);
+        return new TokenMemberInfoDto(
+                tokenProvider.createTokenDto(newAccessToken, newRefreshToken, BEARER_TYPE), member);
     }
 
     @Transactional
-    public TokenDto autoLogin(String originAccessToken) {
+    public TokenMemberInfoDto autoLogin(String originAccessToken) {
         Authentication authentication = tokenProvider.getAuthentication(originAccessToken);
 
         RefreshToken refreshToken = refreshTokenRepository.findByKey(authentication.getName())
@@ -200,7 +203,8 @@ public class MemberService {
         refreshToken.changeValue(newRefreshToken);
         refreshTokenRepository.saveAndFlush(refreshToken);
 
-        return tokenProvider.createTokenDto(newAccessToken, newRefreshToken, BEARER_TYPE);
+        return new TokenMemberInfoDto(
+                tokenProvider.createTokenDto(newAccessToken, newRefreshToken, BEARER_TYPE), member);
     }
 
     @Transactional

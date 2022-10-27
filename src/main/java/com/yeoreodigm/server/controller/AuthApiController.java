@@ -2,6 +2,7 @@ package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.dto.constraint.MemberConst;
 import com.yeoreodigm.server.dto.jwt.TokenDto;
+import com.yeoreodigm.server.dto.jwt.TokenMemberInfoDto;
 import com.yeoreodigm.server.dto.member.LoginRequestDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.service.MemberService;
@@ -29,15 +30,15 @@ public class AuthApiController {
     }
 
     @PostMapping("/login")
-    public TokenDto login(
+    public TokenMemberInfoDto login(
             HttpServletResponse response,
             @Value("${jwt.remember-me-cookie-expire-time}") int rememberMeExpireTime,
             @RequestBody @Valid LoginRequestDto requestDto) {
-        TokenDto tokenDto = memberService.loginV2(requestDto);
+        TokenMemberInfoDto tokenMemberInfoDto = memberService.loginV2(requestDto);
 
         Cookie cookie;
         if (requestDto.isRememberMe()) {
-            cookie = new Cookie("remember-me", tokenDto.getAccessToken());
+            cookie = new Cookie("remember-me", tokenMemberInfoDto.getAccessToken());
             cookie.setMaxAge(rememberMeExpireTime);
         } else {
             cookie = new Cookie("remember-me", null);
@@ -46,16 +47,16 @@ public class AuthApiController {
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        return tokenDto;
+        return tokenMemberInfoDto;
     }
 
     @PostMapping("/reissue")
-    public TokenDto reissue(@RequestBody @Valid TokenDto requestDto) {
+    public TokenMemberInfoDto reissue(@RequestBody @Valid TokenDto requestDto) {
         return memberService.reissue(requestDto);
     }
 
     @PostMapping("/auto-login")
-    public TokenDto autoLogin(
+    public TokenMemberInfoDto autoLogin(
             @CookieValue("remember-me") String accessToken) {
         return memberService.autoLogin(accessToken);
     }
