@@ -32,6 +32,7 @@ public class AuthApiController {
         if (requestDto.isRememberMe()) {
             Cookie cookie = new Cookie("remember-me", tokenDto.getAccessToken());
             cookie.setMaxAge(rememberMeExpireTime);
+            cookie.setPath("/");
             response.addCookie(cookie);
         }
 
