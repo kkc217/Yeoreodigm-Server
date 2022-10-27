@@ -60,7 +60,7 @@ public class SpringSecurityConfig {
                 .authorizeRequests()
                 .mvcMatchers("/api/auth/**").permitAll()
 
-                .mvcMatchers("/api/member/auth").hasAnyAuthority("ROLE_NOT_PERMITTED", "ROLE_ADMIN")
+                .mvcMatchers("/api/member/auth").permitAll()
                 .mvcMatchers(PATCH, "/api/member/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                 .mvcMatchers(DELETE, "/api/member").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                 .mvcMatchers(DELETE, "/api/member/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
