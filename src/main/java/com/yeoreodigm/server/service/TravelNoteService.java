@@ -267,6 +267,7 @@ public class TravelNoteService {
         theme.addAll(travelNote.getTheme());
 
         return new TravelNoteDetailInfo(
+                travelNote.getId(),
                 travelNote.getTitle(),
                 period,
                 travelNote.getRegion(),
@@ -301,15 +302,14 @@ public class TravelNoteService {
     }
 
     @Transactional
-    public void updateLog(TravelNote travelNote, Member member) {
-        if (member == null) return;
+    public void updateLog(Long travelNoteId, Long memberId) {
+        if (Objects.isNull(memberId)) return;
 
         TravelNoteLog travelNoteLog
-                = travelNoteLogRepository.findByTravelNoteIdAndMemberId(travelNote.getId(), member.getId());
+                = travelNoteLogRepository.findByTravelNoteIdAndMemberId(travelNoteId, memberId);
 
         if (travelNoteLog == null) {
-            TravelNoteLog newTravelNoteLog = new TravelNoteLog(travelNote, member);
-            travelNoteLogRepository.saveAndFlush(newTravelNoteLog);
+            travelNoteLogRepository.saveAndFlush(new TravelNoteLog(travelNoteId, memberId));
         } else {
             travelNoteLog.changeVisitTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
             travelNoteLogRepository.saveAndFlush(travelNoteLog);

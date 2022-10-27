@@ -34,8 +34,11 @@ public class TravelNoteDetailApiController {
     private final MemberService memberService;
 
     @GetMapping("/{travelNoteId}")
-    public NoteDetailInfoResponseDto callTravelNoteDetail(@PathVariable("travelNoteId") Long travelNoteId) {
+    public NoteDetailInfoResponseDto callTravelNoteDetail(
+            Authentication authentication,
+            @PathVariable("travelNoteId") Long travelNoteId) {
         return new NoteDetailInfoResponseDto(
+                memberService.getMemberByAuth(authentication),
                 travelNoteService.getTravelNoteDetailInfo(travelNoteService.getTravelNoteById(travelNoteId)));
     }
 

@@ -158,14 +158,13 @@ public class PlaceService {
     }
 
     @Transactional
-    public void updateLog(Places place, Member member) {
-        if (member == null) return;
+    public void updateLog(Long placeId, Long memberId) {
+        if (Objects.isNull(memberId)) return;
 
-        PlacesLog placeLog = placesLogRepository.findByPlaceAndMember(place, member);
+        PlacesLog placeLog = placesLogRepository.findByPlaceAndMember(placeId, memberId);
 
         if (placeLog == null) {
-            PlacesLog newPlaceLog = new PlacesLog(place, member);
-            placesLogRepository.saveAndFlush(newPlaceLog);
+            placesLogRepository.saveAndFlush(new PlacesLog(placeId, memberId));
         } else {
             placeLog.changeVisitTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
             placesLogRepository.saveAndFlush(placeLog);

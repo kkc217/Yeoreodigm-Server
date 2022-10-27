@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.dto.place;
 
+import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.Places;
 import lombok.Data;
 
@@ -10,6 +11,8 @@ import static com.yeoreodigm.server.dto.constraint.PlaceConst.NUMBER_OF_PET;
 
 @Data
 public class PlaceDetailDto {
+
+    private Long requestorId;
 
     private Long placeId;
 
@@ -31,7 +34,8 @@ public class PlaceDetailDto {
 
     private boolean animal;
 
-    public PlaceDetailDto(Places place) {
+    public PlaceDetailDto(Member member, Places place) {
+        if (Objects.nonNull(member)) this.requestorId = member.getId();
         this.placeId = place.getId();
         this.title = place.getTitle();
         this.tag = place.getTag();

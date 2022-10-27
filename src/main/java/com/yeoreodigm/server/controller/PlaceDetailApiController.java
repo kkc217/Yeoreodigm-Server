@@ -30,8 +30,10 @@ public class PlaceDetailApiController {
 
     @GetMapping("/{placeId}")
     public PlaceDetailDto callPlaceDetailInfo(
+            Authentication authentication,
             @PathVariable("placeId") Long placeId) {
-        return new PlaceDetailDto(placeService.getPlaceById(placeId));
+        return new PlaceDetailDto(
+                memberService.getMemberByAuth(authentication), placeService.getPlaceById(placeId));
     }
 
     @GetMapping("/info/{placeId}")

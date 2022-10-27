@@ -37,6 +37,12 @@ public class PlacesLog {
         this.visitTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
+    public PlacesLog(Long placeId, Long memberId) {
+        this.placeId = placeId;
+        this.memberId = memberId;
+        this.visitTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+    }
+
     public void changeVisitTime(LocalDateTime dateTime) {
         this.visitTime = dateTime;
     }
