@@ -47,7 +47,7 @@ public class RecommendApiController {
 
     @GetMapping("/place")
     public Result<List<PlaceLikeDto>> getRecommendedPlaces(Authentication authentication) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
         if (member != null) {
             return new Result<>(
                     placeService.getPlaceLikeDtoList(
@@ -62,7 +62,7 @@ public class RecommendApiController {
 
     @GetMapping("/note")
     public Result<List<TravelNoteLikeDto>> getRecommendedTravelNote(Authentication authentication) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         return new Result<>(travelNoteService.getTravelNoteItemList(
                 recommendService.getRecommendedNotes(MainPageConst.NUMBER_OF_RECOMMENDED_NOTES, member), member));
@@ -72,7 +72,7 @@ public class RecommendApiController {
     public Result<List<TravelNoteLikeDto>> getSimilarTravelNote(
             Authentication authentication,
             @PathVariable(name = "travelNoteId") Long travelNoteId) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         List<TravelNote> travelNoteList = recommendService.getSimilarTravelNotes(
                 travelNoteService.getTravelNoteById(travelNoteId),

@@ -43,7 +43,7 @@ public class MemberApiController {
     @GetMapping("")
     public MemberInfoDto callMemberInfo(Authentication authentication) {
         return new MemberInfoDto(
-                memberService.getMemberByAuthNullable(authentication));
+                memberService.getMemberByAuth(authentication));
     }
 
     @PostMapping("/email")
@@ -62,7 +62,7 @@ public class MemberApiController {
     public void changeNickname(
             Authentication authentication,
             @RequestBody HashMap<String, String> request) {
-        memberService.changeNickname(memberService.getMemberByAuthNullable(authentication), request.get("nickname"));
+        memberService.changeNickname(memberService.getMemberByAuth(authentication), request.get("nickname"));
     }
 
     @PostMapping("/auth")
@@ -99,7 +99,7 @@ public class MemberApiController {
     public void checkPassword(
             Authentication authentication,
             @RequestBody HashMap<String, String> request) {
-        memberService.checkPassword(request.get("password"), memberService.getMemberByAuthNullable(authentication));
+        memberService.checkPassword(request.get("password"), memberService.getMemberByAuth(authentication));
     }
 
     @PutMapping("/password")
@@ -113,12 +113,12 @@ public class MemberApiController {
     public void changePassword(
             Authentication authentication,
             @RequestBody HashMap<String, String> request) {
-        memberService.changePassword(request.get("password"), memberService.getMemberByAuthNullable(authentication));
+        memberService.changePassword(request.get("password"), memberService.getMemberByAuth(authentication));
     }
 
     @GetMapping("/profile")
     public ProfileDto callProfileInfo(Authentication authentication) {
-        return new ProfileDto(memberService.getMemberByAuthNullable(authentication));
+        return new ProfileDto(memberService.getMemberByAuth(authentication));
     }
 
     @GetMapping("/profile/{memberId}")
@@ -131,14 +131,14 @@ public class MemberApiController {
     public void changeIntroduction(
             Authentication authentication,
             @RequestBody HashMap<String, String> request) {
-        memberService.changeIntroduction(memberService.getMemberByAuthNullable(authentication), request.get("introduction"));
+        memberService.changeIntroduction(memberService.getMemberByAuth(authentication), request.get("introduction"));
     }
 
     @PatchMapping("/profile/image")
     public void changeProfileImage(
             Authentication authentication,
             @RequestPart(name = "file") MultipartFile multipartFile) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         memberService.changeProfileImage(
                 member,
@@ -151,7 +151,7 @@ public class MemberApiController {
     @DeleteMapping("/profile/image")
     public void deleteProfileImage(
             Authentication authentication) {
-        memberService.deleteProfileImage(memberService.getMemberByAuthNullable(authentication));
+        memberService.deleteProfileImage(memberService.getMemberByAuth(authentication));
     }
 
     @DeleteMapping("")
@@ -159,7 +159,7 @@ public class MemberApiController {
             HttpServletResponse response,
             Authentication authentication,
             HttpServletRequest httpServletRequest) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
         memberService.deleteMember(member);
         travelNoteService.resetTitle(member);
 
@@ -179,14 +179,14 @@ public class MemberApiController {
     public CountDto callFollowerCount(
             Authentication authentication) {
         return new CountDto(
-                memberService.getFollowerCountByMember(memberService.getMemberByAuthNullable(authentication)));
+                memberService.getFollowerCountByMember(memberService.getMemberByAuth(authentication)));
     }
 
     @GetMapping("/follower/my")
     public Result<List<MemberItemDto>> callFollower(
             Authentication authentication) {
         return new Result<>(
-                memberService.getFollowerByMember(memberService.getMemberByAuthNullable(authentication))
+                memberService.getFollowerByMember(memberService.getMemberByAuth(authentication))
                         .stream()
                         .map(MemberItemDto::new)
                         .toList());
@@ -196,14 +196,14 @@ public class MemberApiController {
     public CountDto callFolloweeCount(
             Authentication authentication) {
         return new CountDto(
-                memberService.getFolloweeCountByMember(memberService.getMemberByAuthNullable(authentication)));
+                memberService.getFolloweeCountByMember(memberService.getMemberByAuth(authentication)));
     }
 
     @GetMapping("/followee/my")
     public Result<List<MemberItemDto>> callFollowee(
             Authentication authentication) {
         return new Result<>(
-                memberService.getFolloweeByMember(memberService.getMemberByAuthNullable(authentication))
+                memberService.getFolloweeByMember(memberService.getMemberByAuth(authentication))
                         .stream()
                         .map(MemberItemDto::new)
                         .toList());
@@ -214,7 +214,7 @@ public class MemberApiController {
             Authentication authentication,
             @PathVariable("memberId") Long memberId) {
         return new FollowCheckDto(memberService.checkFollow(
-                        memberService.getMemberByAuthNullable(authentication),
+                        memberService.getMemberByAuth(authentication),
                         memberService.getMemberById(memberId)));
     }
 
@@ -223,7 +223,7 @@ public class MemberApiController {
             Authentication authentication,
             @RequestBody @Valid FollowRequestDto requestDto) {
         memberService.changeFollow(
-                memberService.getMemberByAuthNullable(authentication),
+                memberService.getMemberByAuth(authentication),
                 memberService.getMemberById(requestDto.getMemberId()), requestDto.isFollow());
     }
 

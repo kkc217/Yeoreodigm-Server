@@ -45,7 +45,7 @@ public class TravelNoteDetailApiController {
             @PathVariable("travelNoteId") Long travelNoteId) {
         return new Result<>(travelNoteCommentService.getNoteCommentInfo(
                 travelNoteService.getTravelNoteById(travelNoteId),
-                memberService.getMemberByAuthNullable(authentication)));
+                memberService.getMemberByAuth(authentication)));
     }
 
     @PostMapping("/comment")
@@ -53,7 +53,7 @@ public class TravelNoteDetailApiController {
             Authentication authentication,
             @RequestBody @Valid ContentRequestDto requestDto) {
         travelNoteCommentService.addNoteComment(
-                memberService.getMemberByAuthNullable(authentication),
+                memberService.getMemberByAuth(authentication),
                 travelNoteService.getTravelNoteById(requestDto.getId()),
                 requestDto.getContent());
     }
@@ -62,7 +62,7 @@ public class TravelNoteDetailApiController {
     public void deleteTravelNoteComment(
             Authentication authentication,
             @PathVariable(name = "commentId") Long commentId) {
-        travelNoteCommentService.deleteNoteComment(memberService.getMemberByAuthNullable(authentication), commentId);
+        travelNoteCommentService.deleteNoteComment(memberService.getMemberByAuth(authentication), commentId);
     }
 
     @GetMapping("/comment/like/{commentId}")
@@ -70,7 +70,7 @@ public class TravelNoteDetailApiController {
             Authentication authentication,
             @PathVariable("commentId") Long commentId) {
         return travelNoteCommentService.getLikeInfo(
-                commentId, memberService.getMemberByAuthNullable(authentication));
+                commentId, memberService.getMemberByAuth(authentication));
     }
 
     @PatchMapping("/comment/like")
@@ -78,7 +78,7 @@ public class TravelNoteDetailApiController {
             Authentication authentication,
             @RequestBody @Valid LikeRequestDto requestDto) {
         travelNoteCommentService.changeTravelNoteCommentLike(
-                memberService.getMemberByAuthNullable(authentication), requestDto.getId(), requestDto.isLike());
+                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
     }
 
     @PostMapping("/new")
@@ -88,7 +88,7 @@ public class TravelNoteDetailApiController {
         TravelNote travelNote = travelNoteService.getTravelNoteById(request.get("travelNoteId"));
 
         TravelNote newTravelNote = travelNoteService.createTravelNoteFromOther(
-                travelNote, memberService.getMemberByAuthNullable(authentication), placeService.getRandomImageUrl());
+                travelNote, memberService.getMemberByAuth(authentication), placeService.getRandomImageUrl());
 
         List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
         for (Course course : courseList)

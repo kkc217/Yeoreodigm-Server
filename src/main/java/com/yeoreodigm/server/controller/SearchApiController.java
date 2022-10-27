@@ -101,7 +101,7 @@ public class SearchApiController {
                         .map(place -> new PlaceLikeDto(
                                 place,
                                 placeService.getLikeInfo(
-                                        place, memberService.getMemberByAuthNullable(authentication))))
+                                        place, memberService.getMemberByAuth(authentication))))
                         .toList(),
                 placeService.checkNextSearchPage(content, page, limit, option));
     }
@@ -117,7 +117,7 @@ public class SearchApiController {
                 travelNoteService.searchTravelNote(content, page, limit, option)
                         .stream()
                         .map(travelNote -> travelNoteService.getPublicTravelNoteDto(
-                                travelNote, memberService.getMemberByAuthNullable(authentication)))
+                                travelNote, memberService.getMemberByAuth(authentication)))
                         .toList(),
                 travelNoteService.checkNextSearchTravelNote(content, page, limit, option));
     }

@@ -38,7 +38,7 @@ public class PhotodigmApiController {
 
     @PostMapping("/new")
     public PhotodigmIdDto createPhotodigm(Authentication authentication) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         Photodigm photodigm = photodigmService.createPhotodigm(member);
 
@@ -55,7 +55,7 @@ public class PhotodigmApiController {
     public PhotodigmDto callPhotodigmInfo(
             Authentication authentication,
             @PathVariable("photodigmId") Long photodigmId) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
 
@@ -76,7 +76,7 @@ public class PhotodigmApiController {
             Authentication authentication,
             @PathVariable("page") int page,
             @PathVariable("limit") int limit) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         return new PageResult<>(
                 photodigmService.getPhotodigmByMember(member, page, limit)
@@ -103,7 +103,7 @@ public class PhotodigmApiController {
             @RequestPart(name = "picture2", required = false) MultipartFile picture2,
             @RequestPart(name = "picture3", required = false) MultipartFile picture3,
             @RequestPart(name = "picture4", required = false) MultipartFile picture4) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
 
@@ -150,7 +150,7 @@ public class PhotodigmApiController {
             Authentication authentication,
             @PathVariable(name = "photodigmId") Long photodigmId,
             @PathVariable(name = "target") int target) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
 
@@ -192,7 +192,7 @@ public class PhotodigmApiController {
     public void changePhotodigmFrame(
             Authentication authentication,
             @RequestBody HashMap<String, Long> request) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         Photodigm photodigm = photodigmService.getPhotodigm(request.get("photodigmId"));
 
@@ -223,7 +223,7 @@ public class PhotodigmApiController {
         if (requestDto.getTitle().length() > 30) throw new BadRequestException("포토다임 제목은 30자 이하만 가능합니다.");
         Photodigm photodigm = photodigmService.getPhotodigm(requestDto.getPhotodigmId());
 
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
         if (Objects.isNull(member) && Objects.isNull(photodigm.getMember())) {
             photodigmService.changePhotodigmTitle(photodigm, requestDto.getTitle());
             return;

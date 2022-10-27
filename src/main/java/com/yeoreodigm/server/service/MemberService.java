@@ -55,15 +55,6 @@ public class MemberService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     public Member getMemberByAuth(Authentication authentication) {
-        if (Objects.isNull(authentication)) throw new LoginRequiredException("로그인이 필요합니다.");
-
-        Member member = memberRepository.findByEmail(authentication.getName());
-
-        if (Objects.isNull(member)) throw new BadRequestException("일치하는 회원 정보가 없습니다.");
-        return member;
-    }
-
-    public Member getMemberByAuthNullable(Authentication authentication) {
         if (Objects.isNull(authentication)) return null;
 
         Member member = memberRepository.findByEmail(authentication.getName());

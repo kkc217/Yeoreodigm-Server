@@ -43,7 +43,7 @@ public class PlaceApiController {
             Authentication authentication,
             @PathVariable("page") int page,
             @PathVariable("limit") int limit) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         List<PlaceLike> placeLikeList
                 = placeService.getPlaceLikesByMemberPaging(member, page, limit);
@@ -67,7 +67,7 @@ public class PlaceApiController {
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
             @RequestParam(value = "option", required = false, defaultValue = "0") int option) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         if (Objects.equals(SEARCH_OPTION_LIKE_DESC, option)) {
             return new PageResult<>(
@@ -104,7 +104,7 @@ public class PlaceApiController {
         List<PlaceLikeDto> response = new ArrayList<>();
         for (Places place : placeList) {
             LikeItemDto likeInfo
-                    = placeService.getLikeInfo(place, memberService.getMemberByAuthNullable(authentication));
+                    = placeService.getLikeInfo(place, memberService.getMemberByAuth(authentication));
             response.add(new PlaceLikeDto(place, likeInfo));
         }
 
@@ -117,7 +117,7 @@ public class PlaceApiController {
             @PathVariable("placeId") Long placeId) {
         return placeService.getLikeInfo(
                 placeService.getPlaceById(placeId),
-                memberService.getMemberByAuthNullable(authentication));
+                memberService.getMemberByAuth(authentication));
     }
 
     @PatchMapping("/like")
@@ -125,7 +125,7 @@ public class PlaceApiController {
             Authentication authentication,
             @RequestBody LikeRequestDto requestDto) {
         placeService.changePlaceLike(
-                memberService.getMemberByAuthNullable(authentication), requestDto.getId(), requestDto.isLike());
+                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
     }
 
     @GetMapping("/popular")

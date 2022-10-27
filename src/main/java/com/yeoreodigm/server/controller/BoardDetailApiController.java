@@ -39,7 +39,7 @@ public class BoardDetailApiController {
 
         return new BoardDetailDto(
                 board,
-                memberService.getMemberByAuthNullable(authentication),
+                memberService.getMemberByAuth(authentication),
                 new DateTimeStr(board.getModifiedTime()));
     }
 
@@ -55,7 +55,7 @@ public class BoardDetailApiController {
     public Result<List<CommentLikeDto>> callBoardComment(
             Authentication authentication,
             @PathVariable("boardId") Long boardId) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         return new Result<>(
                 boardCommentService.getBoardCommentsByBoard(boardService.getBoardById(boardId))
@@ -70,7 +70,7 @@ public class BoardDetailApiController {
             Authentication authentication,
             @RequestBody @Valid CommentRequestDto requestDto) {
         boardCommentService.addBoardComment(
-                memberService.getMemberByAuthNullable(authentication),
+                memberService.getMemberByAuth(authentication),
                 boardService.getBoardById(requestDto.getId()),
                 requestDto.getText());
     }
@@ -79,7 +79,7 @@ public class BoardDetailApiController {
     public void deleteBoardComment(
             Authentication authentication,
             @PathVariable("commentId") Long commentId) {
-        boardCommentService.deleteBoardComment(memberService.getMemberByAuthNullable(authentication), commentId);
+        boardCommentService.deleteBoardComment(memberService.getMemberByAuth(authentication), commentId);
     }
 
     @GetMapping("/comment/like/{commentId}")
@@ -87,7 +87,7 @@ public class BoardDetailApiController {
             Authentication authentication,
             @PathVariable("commentId") Long commentId) {
         return boardCommentService.getLikeInfo(
-                boardCommentService.getBoardCommentById(commentId), memberService.getMemberByAuthNullable(authentication));
+                boardCommentService.getBoardCommentById(commentId), memberService.getMemberByAuth(authentication));
     }
 
     @PatchMapping("/comment/like")
@@ -95,7 +95,7 @@ public class BoardDetailApiController {
             Authentication authentication,
             @RequestBody @Valid LikeRequestDto requestDto) {
         boardCommentService.changeBoardCommentLike(
-                memberService.getMemberByAuthNullable(authentication),
+                memberService.getMemberByAuth(authentication),
                 boardCommentService.getBoardCommentById(requestDto.getId()), requestDto.isLike());
     }
 

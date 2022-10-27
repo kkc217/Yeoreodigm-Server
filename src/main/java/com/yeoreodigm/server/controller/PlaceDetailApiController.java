@@ -46,7 +46,7 @@ public class PlaceDetailApiController {
             @PathVariable("placeId") Long placeId) {
         return new Result<>(placeCommentService.getPlaceCommentItems(
                 placeService.getPlaceById(placeId),
-                memberService.getMemberByAuthNullable(authentication)));
+                memberService.getMemberByAuth(authentication)));
     }
 
     @PostMapping("/comment")
@@ -54,7 +54,7 @@ public class PlaceDetailApiController {
             Authentication authentication,
             @RequestBody @Valid CommentRequestDto requestDto) {
         placeCommentService.addPlaceComment(
-                memberService.getMemberByAuthNullable(authentication),
+                memberService.getMemberByAuth(authentication),
                 placeService.getPlaceById(requestDto.getId()),
                 requestDto.getText());
     }
@@ -63,14 +63,14 @@ public class PlaceDetailApiController {
     public void deletePlaceComment(
             Authentication authentication,
             @PathVariable(name = "commentId") Long commentId) {
-        placeCommentService.deletePlaceComment(memberService.getMemberByAuthNullable(authentication), commentId);
+        placeCommentService.deletePlaceComment(memberService.getMemberByAuth(authentication), commentId);
     }
 
     @GetMapping("/comment/like/{placeCommentId}")
     public LikeItemDto callPlaceCommentLike(
             Authentication authentication,
             @PathVariable(name = "placeCommentId") Long placeCommentId) {
-        return placeCommentService.getLikeInfo(placeCommentId, memberService.getMemberByAuthNullable(authentication));
+        return placeCommentService.getLikeInfo(placeCommentId, memberService.getMemberByAuth(authentication));
     }
 
     @PatchMapping("/comment/like")
@@ -78,7 +78,7 @@ public class PlaceDetailApiController {
             Authentication authentication,
             @RequestBody @Valid LikeRequestDto requestDto) {
         placeCommentService.changeLike(
-                memberService.getMemberByAuthNullable(authentication), requestDto.getId(), requestDto.isLike());
+                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
     }
 
 }

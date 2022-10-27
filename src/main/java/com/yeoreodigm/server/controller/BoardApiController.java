@@ -47,7 +47,7 @@ public class BoardApiController {
             @RequestPart(name = "text") String text,
             @RequestPart(name = "travelNoteTag", required = false) Long travelNoteTag,
             @RequestPart(name = "placeTag", required = false) List<Long> placeTag) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         boardService.validatePictures(pictures);
         List<String> pictureAddressList = awsS3Service.uploadFiles(
@@ -75,7 +75,7 @@ public class BoardApiController {
             @RequestPart(name = "placeTag", required = false) List<Long> placeTag) {
         Board board = boardService.getBoardById(boardId);
 
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
         if (!Objects.equals(board.getMember().getId(), member.getId())) {
             throw new BadRequestException("여행 피드를 수정할 수 없습니다.");
         }
@@ -106,7 +106,7 @@ public class BoardApiController {
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
             @RequestParam(value = "option", required = false, defaultValue = "0") int option) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         return new PageResult<>(
                 boardService.getBoardList(member, page, limit, option)
@@ -125,7 +125,7 @@ public class BoardApiController {
             @PathVariable("boardId") Long boardId) {
         Board board = boardService.getBoardById(boardId);
 
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
         if (!Objects.equals(board.getMember().getId(), member.getId())) {
             throw new BadRequestException("여행 피드를 수정할 수 없습니다.");
         }
@@ -138,7 +138,7 @@ public class BoardApiController {
             Authentication authentication,
             @PathVariable("page") int page,
             @PathVariable("limit") int limit) {
-        Member member = memberService.getMemberByAuthNullable(authentication);
+        Member member = memberService.getMemberByAuth(authentication);
 
         List<Board> boardList = boardService.getMyBoardList(member, page, limit);
 
@@ -155,7 +155,7 @@ public class BoardApiController {
             Authentication authentication,
             @PathVariable("boardId") Long boardId) {
         return boardService.getLikeInfo(
-                boardService.getBoardById(boardId), memberService.getMemberByAuthNullable(authentication));
+                boardService.getBoardById(boardId), memberService.getMemberByAuth(authentication));
     }
 
     @PatchMapping("/like")
@@ -163,7 +163,7 @@ public class BoardApiController {
             Authentication authentication,
             @RequestBody @Valid LikeRequestDto requestDto) {
         boardService.changeBoardLike(
-                memberService.getMemberByAuthNullable(authentication),
+                memberService.getMemberByAuth(authentication),
                 boardService.getBoardById(requestDto.getId()), requestDto.isLike());
     }
 
@@ -171,7 +171,7 @@ public class BoardApiController {
     public void deleteBoard(
             Authentication authentication,
             @PathVariable("boardId") Long boardId) {
-        boardService.deleteBoard(memberService.getMemberByAuthNullable(authentication), boardService.getBoardById(boardId));
+        boardService.deleteBoard(memberService.getMemberByAuth(authentication), boardService.getBoardById(boardId));
     }
 
 }
