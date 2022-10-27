@@ -3,6 +3,7 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.dto.constraint.MemberConst;
 import com.yeoreodigm.server.dto.jwt.TokenDto;
 import com.yeoreodigm.server.dto.member.LoginRequestDto;
+import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,11 @@ import java.util.Objects;
 public class AuthApiController {
 
     private final MemberService memberService;
+
+    @PostMapping("/new")
+    public void join(@RequestBody @Valid MemberJoinRequestDto requestDto) {
+        memberService.join(requestDto);
+    }
 
     @PostMapping("/login")
     public TokenDto login(
