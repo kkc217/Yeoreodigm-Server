@@ -49,7 +49,7 @@ public class RecommendApiController {
             return new Result<>(
                     placeService.getPlaceLikeDtoList(
                             recommendService.getRecommendedPlaces(
-                                    member, new ArrayList<>(), NUMBER_OF_RECOMMENDED_PLACES), member));
+                                    List.of(member), new ArrayList<>(), NUMBER_OF_RECOMMENDED_PLACES), member));
 
         return new Result<>(
                 placeService.getPlaceLikeDtoList(
