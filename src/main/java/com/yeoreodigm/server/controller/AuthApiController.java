@@ -29,12 +29,16 @@ public class AuthApiController {
             @RequestBody @Valid LoginRequestDto requestDto) {
         TokenDto tokenDto = memberService.loginV2(requestDto);
 
+        Cookie cookie;
         if (requestDto.isRememberMe()) {
-            Cookie cookie = new Cookie("remember-me", tokenDto.getAccessToken());
+            cookie = new Cookie("remember-me", tokenDto.getAccessToken());
             cookie.setMaxAge(rememberMeExpireTime);
-            cookie.setPath("/");
-            response.addCookie(cookie);
+        } else {
+            cookie = new Cookie("remember-me", null);
+            cookie.setMaxAge(0);
         }
+        cookie.setPath("/");
+        response.addCookie(cookie);
 
         return tokenDto;
     }
