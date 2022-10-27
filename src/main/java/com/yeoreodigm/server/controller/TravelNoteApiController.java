@@ -46,7 +46,7 @@ public class TravelNoteApiController {
             Authentication authentication,
             @RequestBody @Valid NewTravelNoteRequestDto requestDto) {
         TravelNote travelNote = travelNoteService.createTravelNote(
-                memberService.getMemberByAuth(authentication), requestDto, placeService.getRandomImageUrl());
+                memberService.getMemberByAuthNullable(authentication), requestDto, placeService.getRandomImageUrl());
 
         List<List<Long>> recommendCourseList = recommendService.getRecommendedCourses(travelNote);
 
@@ -65,7 +65,7 @@ public class TravelNoteApiController {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
         NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(
-                memberService.getMemberByAuth(authentication), travelNote);
+                memberService.getMemberByAuthNullable(authentication), travelNote);
 
         travelNoteService.updateModified(travelNote);
 
@@ -112,7 +112,7 @@ public class TravelNoteApiController {
             @RequestBody @Valid ContentRequestDto requestDto) {
         travelNoteService.addNoteCompanion(
                 travelNoteService.getTravelNoteById(requestDto.getId()),
-                memberService.getMemberByAuth(authentication),
+                memberService.getMemberByAuthNullable(authentication),
                 memberService.searchMember(requestDto.getContent()));
     }
 
@@ -123,7 +123,7 @@ public class TravelNoteApiController {
             @PathVariable(name = "memberId") Long memberId) {
         travelNoteService.deleteCompanion(
                 travelNoteService.getTravelNoteById(travelNoteId),
-                memberService.getMemberByAuth(authentication),
+                memberService.getMemberByAuthNullable(authentication),
                 memberId);
     }
 
@@ -147,7 +147,7 @@ public class TravelNoteApiController {
             @RequestBody @Valid CourseCommentRequestDto requestDto) {
         commentService.addCourseComment(
                 travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()),
-                memberService.getMemberByAuth(authentication),
+                memberService.getMemberByAuthNullable(authentication),
                 requestDto.getDay(),
                 requestDto.getText());
     }
@@ -156,7 +156,7 @@ public class TravelNoteApiController {
     public void deleteCourseComment(
             Authentication authentication,
             @PathVariable(name = "commentId") Long commentId) {
-        commentService.deleteCourseComment(memberService.getMemberByAuth(authentication), commentId);
+        commentService.deleteCourseComment(memberService.getMemberByAuthNullable(authentication), commentId);
     }
 
     @GetMapping("/week")
@@ -179,7 +179,7 @@ public class TravelNoteApiController {
             Authentication authentication,
             @RequestBody @Valid LikeRequestDto requestDto) {
         travelNoteService.changeTravelNoteLike(
-                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
+                memberService.getMemberByAuthNullable(authentication), requestDto.getId(), requestDto.isLike());
     }
 
     @GetMapping("/like/list/{page}/{limit}")
@@ -250,7 +250,7 @@ public class TravelNoteApiController {
             Authentication authentication,
             @PathVariable("page") int page,
             @PathVariable("limit") int limit) {
-        Member member = memberService.getMemberByAuth(authentication);
+        Member member = memberService.getMemberByAuthNullable(authentication);
 
         return new PageResult<>(
                 travelNoteService.getMyTravelNoteDtoList(travelNoteService.getMyTravelNote(member, page, limit)),
@@ -259,7 +259,7 @@ public class TravelNoteApiController {
 
     @GetMapping("/my/count")
     public CountDto callMyTravelNoteCount(Authentication authentication) {
-        return new CountDto(travelNoteService.getMyTravelNoteCount(memberService.getMemberByAuth(authentication)));
+        return new CountDto(travelNoteService.getMyTravelNoteCount(memberService.getMemberByAuthNullable(authentication)));
     }
 
     @GetMapping("/my/board/{page}/{limit}")
@@ -267,7 +267,7 @@ public class TravelNoteApiController {
             Authentication authentication,
             @PathVariable("page") int page,
             @PathVariable("limit") int limit) {
-        Member member = memberService.getMemberByAuth(authentication);
+        Member member = memberService.getMemberByAuthNullable(authentication);
 
         return new PageResult<>(
                 travelNoteService.getMyTravelNote(member, page, limit)
