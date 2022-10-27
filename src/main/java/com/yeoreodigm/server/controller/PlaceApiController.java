@@ -125,7 +125,7 @@ public class PlaceApiController {
             Authentication authentication,
             @RequestBody LikeRequestDto requestDto) {
         placeService.changePlaceLike(
-                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
+                memberService.getMemberByAuthNullable(authentication), requestDto.getId(), requestDto.isLike());
     }
 
     @GetMapping("/popular")
