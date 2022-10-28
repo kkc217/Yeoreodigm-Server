@@ -58,6 +58,8 @@ public class SpringSecurityConfig {
 
         http.httpBasic().disable()
                 .authorizeRequests()
+                .mvcMatchers("/v3/api-docs/**", "/swagger*/**").permitAll()
+
                 .mvcMatchers("/api/auth/**").permitAll()
 
                 .mvcMatchers("/api/member/auth").permitAll()

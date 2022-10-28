@@ -6,6 +6,12 @@ import com.yeoreodigm.server.dto.jwt.TokenMemberInfoDto;
 import com.yeoreodigm.server.dto.member.LoginRequestDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -17,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Objects;
 
+@Tag(name = "Auth", description = "인증 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -25,11 +32,19 @@ public class AuthApiController {
     private final MemberService memberService;
 
     @PostMapping("/new")
+    @Operation(summary = "회원 가입")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
     public void join(@RequestBody @Valid MemberJoinRequestDto requestDto) {
         memberService.join(requestDto);
     }
 
     @PostMapping("/login")
+    @Operation(summary = "로그인")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = TokenMemberInfoDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true)))})
     public TokenMemberInfoDto login(
             HttpServletResponse response,
             @Value("${jwt.remember-me-cookie-expire-time}") int rememberMeExpireTime,
