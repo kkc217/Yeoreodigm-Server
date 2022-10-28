@@ -27,7 +27,9 @@ public class JwtFilter extends OncePerRequestFilter {
         throws IOException, ServletException {
         String token = resolveToken(request);
 
-        if (Objects.nonNull(token) && !request.getServletPath().startsWith("/api/auth")) {
+        if (Objects.nonNull(token) &&
+                (!request.getServletPath().startsWith("/api/auth")
+                        || request.getServletPath().equals("/api/auth/auto-login"))) {
             int flag = tokenProvider.validateToken(token);
             if (Objects.equals(1, flag)) {
                 setAuthentication(token);
