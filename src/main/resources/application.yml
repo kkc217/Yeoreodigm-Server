@@ -23,7 +23,7 @@ spring:
       matching-strategy: ant_path_matcher
 
   session:
-    store-type: jdbc
+    store-type: redis
     jdbc:
       initialize-schema: embedded
       table-name: SPRING_SESSION

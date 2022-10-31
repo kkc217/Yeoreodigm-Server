@@ -5,6 +5,7 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.RefreshToken;
 import com.yeoreodigm.server.domain.SurveyResult;
 import com.yeoreodigm.server.domain.board.Follow;
+import com.yeoreodigm.server.dto.constraint.CacheConst;
 import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.dto.constraint.MemberConst;
 import com.yeoreodigm.server.dto.jwt.TokenDto;
@@ -21,6 +22,7 @@ import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.RefreshTokenRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -55,6 +57,7 @@ public class MemberService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @Cacheable(value = CacheConst.POST)
     public Member getMemberByAuth(Authentication authentication) {
         if (Objects.isNull(authentication)) return null;
 
