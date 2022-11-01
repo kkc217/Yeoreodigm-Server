@@ -2,18 +2,27 @@ package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.domain.RefreshToken;
 import com.yeoreodigm.server.domain.SurveyResult;
 import com.yeoreodigm.server.domain.board.Follow;
 import com.yeoreodigm.server.dto.constraint.EmailConst;
 import com.yeoreodigm.server.dto.constraint.MemberConst;
+import com.yeoreodigm.server.dto.jwt.TokenDto;
+import com.yeoreodigm.server.dto.jwt.TokenMemberInfoDto;
+import com.yeoreodigm.server.dto.member.LoginRequestDto;
 import com.yeoreodigm.server.dto.member.MemberAuthDto;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.exception.LoginRequiredException;
+import com.yeoreodigm.server.jwt.CustomEmailPasswordAuthToken;
+import com.yeoreodigm.server.jwt.TokenProvider;
 import com.yeoreodigm.server.repository.FollowRepository;
 import com.yeoreodigm.server.repository.MemberRepository;
+import com.yeoreodigm.server.repository.RefreshTokenRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
+import static com.yeoreodigm.server.dto.constraint.JWTConst.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -35,7 +47,22 @@ public class MemberService {
 
     private final FollowRepository followRepository;
 
+    private final AuthenticationManager authenticationManager;
+
+    private final TokenProvider tokenProvider;
+
     private final PasswordEncoder passwordEncoder;
+
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    public Member getMemberByAuth(Authentication authentication) {
+        if (Objects.isNull(authentication)) return null;
+
+        Member member = memberRepository.findByEmail(authentication.getName());
+
+        if (Objects.isNull(member)) throw new BadRequestException("일치하는 회원 정보가 없습니다.");
+        return member;
+    }
 
     public Member getMemberByEmail(String email) {
         Member member = memberRepository.findByEmail(email);
@@ -92,6 +119,104 @@ public class MemberService {
         throw new BadRequestException("이메일 또는 비밀번호를 잘못 입력했습니다.");
     }
 
+    @Transactional
+    public TokenMemberInfoDto loginV2(LoginRequestDto requestDto) {
+        CustomEmailPasswordAuthToken customEmailPasswordAuthToken
+                = new CustomEmailPasswordAuthToken(requestDto.getEmail(), requestDto.getPassword());
+        Authentication authentication = authenticationManager.authenticate(customEmailPasswordAuthToken);
+
+        String email = authentication.getName();
+        Member member = memberRepository.findByEmail(email);
+        if (Objects.isNull(member)) throw new BadRequestException("일치하는 회원 정보가 없습니다.");
+
+        String accessToken = tokenProvider.createAccessToken(email, member.getAuthority());
+        String refreshToken = tokenProvider.createRefreshToken(email, member.getAuthority());
+
+        Optional<RefreshToken> originRefreshTokenOpt = refreshTokenRepository.findByKey(email);
+        if (originRefreshTokenOpt.isEmpty()) {
+            refreshTokenRepository.save(new RefreshToken(email, refreshToken));
+        } else {
+            RefreshToken originRefreshToken = originRefreshTokenOpt.get();
+            originRefreshToken.changeValue(refreshToken);
+            refreshTokenRepository.save(originRefreshToken);
+        }
+
+        return new TokenMemberInfoDto(
+                tokenProvider.createTokenDto(accessToken, refreshToken, BEARER_TYPE), member);
+    }
+
+    @Transactional
+    public TokenMemberInfoDto reissue(TokenDto tokenDto) {
+        String originAccessToken = tokenDto.getAccessToken();
+        String originRefreshToken = tokenDto.getRefreshToken();
+
+        int refreshTokenFlag = tokenProvider.validateToken(originRefreshToken);
+
+        if (Objects.equals(WRONG_TOKEN_FLAG, refreshTokenFlag) //잘못된 토큰
+                || Objects.equals(EXPIRED_TOKEN_FLAG, refreshTokenFlag)) //만료된 토큰
+            throw new LoginRequiredException("다시 로그인해주시기 바랍니다.");
+
+        Authentication authentication = tokenProvider.getAuthentication(originAccessToken);
+
+        RefreshToken refreshToken = refreshTokenRepository.findByKey(authentication.getName())
+                .orElseThrow(() -> new LoginRequiredException("다시 로그인해주시기 바랍니다."));
+
+        if (!Objects.equals(originRefreshToken, refreshToken.getValue()))
+            throw new LoginRequiredException("다시 로그인해주시기 바랍니다.");
+
+        String email = tokenProvider.getEmailByToken(originAccessToken);
+        Member member = memberRepository.findByEmail(email);
+
+        if (Objects.isNull(member)) throw new BadRequestException("일치하는 사용자가 없습니다.");
+
+        String newAccessToken = tokenProvider.createAccessToken(email, member.getAuthority());
+        String newRefreshToken = tokenProvider.createRefreshToken(email, member.getAuthority());
+
+        refreshToken.changeValue(newRefreshToken);
+        refreshTokenRepository.saveAndFlush(refreshToken);
+
+        return new TokenMemberInfoDto(
+                tokenProvider.createTokenDto(newAccessToken, newRefreshToken, BEARER_TYPE), member);
+    }
+
+    @Transactional
+    public TokenMemberInfoDto autoLogin(String originAccessToken) {
+        Authentication authentication = tokenProvider.getAuthentication(originAccessToken);
+
+        RefreshToken refreshToken = refreshTokenRepository.findByKey(authentication.getName())
+                .orElseThrow(() -> new LoginRequiredException("다시 로그인해주시기 바랍니다."));
+
+        int refreshTokenFlag = tokenProvider.validateToken(refreshToken.getValue());
+
+        if (Objects.equals(WRONG_TOKEN_FLAG, refreshTokenFlag) //잘못된 토큰
+                || Objects.equals(EXPIRED_TOKEN_FLAG, refreshTokenFlag))
+            throw new LoginRequiredException("다시 로그인해주시기 바랍니다.");
+
+        String email = tokenProvider.getEmailByToken(originAccessToken);
+        Member member = memberRepository.findByEmail(email);
+
+        if (Objects.isNull(member)) throw new BadRequestException("일치하는 사용자가 없습니다.");
+
+        String newAccessToken = tokenProvider.createAccessToken(email, member.getAuthority());
+        String newRefreshToken = tokenProvider.createRefreshToken(email, member.getAuthority());
+
+        refreshToken.changeValue(newRefreshToken);
+        refreshTokenRepository.saveAndFlush(refreshToken);
+
+        return new TokenMemberInfoDto(
+                tokenProvider.createTokenDto(newAccessToken, newRefreshToken, BEARER_TYPE), member);
+    }
+
+    @Transactional
+    public void logout(String email) {
+        Optional<RefreshToken> refreshTokenOpt = refreshTokenRepository.findByKey(email);
+
+        if (refreshTokenOpt.isEmpty()) return;
+
+        RefreshToken refreshToken = refreshTokenOpt.get();
+        refreshTokenRepository.deleteByKey(refreshToken.getKey());
+    }
+
     public void checkDuplicateEmail(String email) {
         Member member = memberRepository.findByEmail(email);
         if (member != null) {
@@ -140,19 +265,14 @@ public class MemberService {
     }
 
     public void checkPassword(String password, Member member) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         if (!passwordEncoder.matches(password, member.getPassword()))
             throw new BadRequestException("비밀번호가 일치하지 않습니다.");
     }
 
     @Transactional
     public void changePassword(String password, Member member) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         member.changePassword(encodePassword(password));
-        memberRepository.merge(member);
-        memberRepository.flush();
+        memberRepository.saveAndFlush(member);
     }
 
     public Member searchMember(String content) {
@@ -176,8 +296,6 @@ public class MemberService {
 
     @Transactional
     public void changeIntroduction(Member member, String newIntroduction) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         member.changeIntroduction(newIntroduction);
         memberRepository.merge(member);
         memberRepository.flush();
@@ -186,8 +304,7 @@ public class MemberService {
     @Transactional
     public void changeProfileImage(Member member, String newProfileImageUrl) {
         member.changeProfileImage(newProfileImageUrl);
-        memberRepository.merge(member);
-        memberRepository.flush();
+        memberRepository.saveAndFlush(member);
     }
 
     @Transactional
@@ -201,20 +318,26 @@ public class MemberService {
 
     @Transactional
     public void deleteMember(Member member) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다");
-
         memberRepository.deleteMember(member);
+        deleteRefreshToken(member);
+    }
+
+    @Transactional
+    public void deleteRefreshToken(Member member) {
+        Optional<RefreshToken> refreshTokenOp = refreshTokenRepository.findByKey(member.getEmail());
+
+        if (refreshTokenOp.isPresent()) {
+            RefreshToken refreshToken = refreshTokenOp.get();
+            refreshTokenRepository.deleteByKey(refreshToken.getKey());
+        }
     }
 
     @Transactional
     public void changeNickname(Member member, String nickname) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         checkDuplicateNickname(nickname);
 
         member.changeNickname(nickname);
-        memberRepository.merge(member);
-        memberRepository.flush();
+        memberRepository.saveAndFlush(member);
     }
 
     public Long getFollowerCountByMember(Member member) {

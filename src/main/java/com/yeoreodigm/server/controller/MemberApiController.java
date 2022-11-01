@@ -1,6 +1,5 @@
 package com.yeoreodigm.server.controller;
 
-import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.CountDto;
 import com.yeoreodigm.server.dto.Result;
@@ -9,13 +8,16 @@ import com.yeoreodigm.server.dto.follow.FollowCheckDto;
 import com.yeoreodigm.server.dto.follow.FollowRequestDto;
 import com.yeoreodigm.server.dto.member.*;
 import com.yeoreodigm.server.exception.BadRequestException;
-import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -32,64 +34,16 @@ public class MemberApiController {
 
     private final MemberService memberService;
 
-    private final SurveyService surveyService;
-
     private final TravelNoteService travelNoteService;
 
     private final EmailService emailService;
 
     private final AwsS3Service awsS3Service;
 
-    @PostMapping("/new")
-    public void join(@RequestBody @Valid MemberJoinRequestDto requestDto) {
-        memberService.join(requestDto);
-    }
-
-    @PostMapping("/login")
-    public LoginResponseDto login(
-            @RequestBody @Valid MemberLoginRequestDto requestDto,
-            HttpServletRequest httpServletRequest) {
-        //회원 유무, 비밀번호 일치 확인
-        Member member = memberService.login(requestDto.getEmail(), requestDto.getPassword());
-
-        LoginResponseDto responseDto = new LoginResponseDto(member);
-
-        if (member.getAuthority() == Authority.ROLE_NOT_PERMITTED) {
-            return responseDto;
-        } else if (member.getAuthority() == Authority.ROLE_SURVEY) {
-            responseDto.setSurveyIndex(surveyService.getProgress(member));
-        }
-
-        //세션에 회원 정보 저장
-        HttpSession session = httpServletRequest.getSession(true);
-        session.setAttribute(SessionConst.LOGIN_MEMBER, member);
-
-        return responseDto;
-    }
-
-    @GetMapping("/auto-login")
-    public LoginResponseDto autoLogin(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (member != null) {
-            LoginResponseDto responseDto = new LoginResponseDto(member);
-
-            if (member.getAuthority() == Authority.ROLE_SURVEY) {
-                responseDto.setSurveyIndex(surveyService.getProgress(member));
-            }
-
-            return responseDto;
-        } else {
-            throw new LoginRequiredException("다시 로그인해주시기 바랍니다.");
-        }
-    }
-
-    @PostMapping("/logout")
-    public void logout(
-            HttpServletRequest httpServletRequest) {
-        HttpSession session = httpServletRequest.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
+    @GetMapping("")
+    public MemberInfoDto callMemberInfo(Authentication authentication) {
+        return new MemberInfoDto(
+                memberService.getMemberByAuth(authentication));
     }
 
     @PostMapping("/email")
@@ -106,9 +60,9 @@ public class MemberApiController {
 
     @PatchMapping("/nickname")
     public void changeNickname(
-            @RequestBody HashMap<String, String> request,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        memberService.changeNickname(member, request.get("nickname"));
+            Authentication authentication,
+            @RequestBody HashMap<String, String> request) {
+        memberService.changeNickname(memberService.getMemberByAuth(authentication), request.get("nickname"));
     }
 
     @PostMapping("/auth")
@@ -143,9 +97,9 @@ public class MemberApiController {
 
     @PostMapping("/password")
     public void checkPassword(
-            @RequestBody HashMap<String, String> request,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        memberService.checkPassword(request.get("password"), member);
+            Authentication authentication,
+            @RequestBody HashMap<String, String> request) {
+        memberService.checkPassword(request.get("password"), memberService.getMemberByAuth(authentication));
     }
 
     @PutMapping("/password")
@@ -157,19 +111,14 @@ public class MemberApiController {
 
     @PatchMapping("/password")
     public void changePassword(
-            @RequestBody HashMap<String, String> request,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        memberService.changePassword(request.get("password"), member);
+            Authentication authentication,
+            @RequestBody HashMap<String, String> request) {
+        memberService.changePassword(request.get("password"), memberService.getMemberByAuth(authentication));
     }
 
     @GetMapping("/profile")
-    public ProfileDto callProfileInfo(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (member == null) {
-            throw new LoginRequiredException("로그인이 필요합니다.");
-        } else {
-            return new ProfileDto(member);
-        }
+    public ProfileDto callProfileInfo(Authentication authentication) {
+        return new ProfileDto(memberService.getMemberByAuth(authentication));
     }
 
     @GetMapping("/profile/{memberId}")
@@ -180,16 +129,16 @@ public class MemberApiController {
 
     @PatchMapping("/profile/introduction")
     public void changeIntroduction(
-            @RequestBody HashMap<String, String> request,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        memberService.changeIntroduction(member, request.get("introduction"));
+            Authentication authentication,
+            @RequestBody HashMap<String, String> request) {
+        memberService.changeIntroduction(memberService.getMemberByAuth(authentication), request.get("introduction"));
     }
 
     @PatchMapping("/profile/image")
     public void changeProfileImage(
-            @RequestPart(value = "file") MultipartFile multipartFile,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
+            Authentication authentication,
+            @RequestPart(name = "file") MultipartFile multipartFile) {
+        Member member = memberService.getMemberByAuth(authentication);
 
         memberService.changeProfileImage(
                 member,
@@ -201,39 +150,43 @@ public class MemberApiController {
 
     @DeleteMapping("/profile/image")
     public void deleteProfileImage(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        memberService.deleteProfileImage(member);
+            Authentication authentication) {
+        memberService.deleteProfileImage(memberService.getMemberByAuth(authentication));
     }
 
     @DeleteMapping("")
     public void deleteMember(
+            HttpServletResponse response,
+            Authentication authentication,
             HttpServletRequest httpServletRequest) {
-        HttpSession session = httpServletRequest.getSession(false);
+        Member member = memberService.getMemberByAuth(authentication);
+        memberService.deleteMember(member);
+        travelNoteService.resetTitle(member);
 
-        if (session != null) {
-            Member member = (Member) session.getAttribute(SessionConst.LOGIN_MEMBER);
-            memberService.deleteMember(member);
-            travelNoteService.resetTitle(member);
+        HttpSession session = httpServletRequest.getSession(false);
+        if (Objects.nonNull(session))
             session.invalidate();
-        } else {
-            throw new LoginRequiredException("로그인이 필요합니다.");
-        }
+
+        Cookie cookie = new Cookie("remember-me", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        SecurityContextHolder.clearContext();
     }
 
     @GetMapping("/follower/my/count")
     public CountDto callFollowerCount(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
+            Authentication authentication) {
         return new CountDto(
-                memberService.getFollowerCountByMember(member));
+                memberService.getFollowerCountByMember(memberService.getMemberByAuth(authentication)));
     }
 
     @GetMapping("/follower/my")
     public Result<List<MemberItemDto>> callFollower(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
+            Authentication authentication) {
         return new Result<>(
-                memberService.getFollowerByMember(member)
+                memberService.getFollowerByMember(memberService.getMemberByAuth(authentication))
                         .stream()
                         .map(MemberItemDto::new)
                         .toList());
@@ -241,18 +194,16 @@ public class MemberApiController {
 
     @GetMapping("/followee/my/count")
     public CountDto callFolloweeCount(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
+            Authentication authentication) {
         return new CountDto(
-                memberService.getFolloweeCountByMember(member));
+                memberService.getFolloweeCountByMember(memberService.getMemberByAuth(authentication)));
     }
 
     @GetMapping("/followee/my")
     public Result<List<MemberItemDto>> callFollowee(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
+            Authentication authentication) {
         return new Result<>(
-                memberService.getFolloweeByMember(member)
+                memberService.getFolloweeByMember(memberService.getMemberByAuth(authentication))
                         .stream()
                         .map(MemberItemDto::new)
                         .toList());
@@ -260,17 +211,20 @@ public class MemberApiController {
 
     @GetMapping("/follow/{memberId}")
     public FollowCheckDto checkFollow(
-            @PathVariable("memberId") Long memberId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return new FollowCheckDto(memberService.checkFollow(member, memberService.getMemberById(memberId)));
+            Authentication authentication,
+            @PathVariable("memberId") Long memberId) {
+        return new FollowCheckDto(memberService.checkFollow(
+                        memberService.getMemberByAuth(authentication),
+                        memberService.getMemberById(memberId)));
     }
 
     @PatchMapping("/follow")
     public void changeFollow(
-            @RequestBody @Valid FollowRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @RequestBody @Valid FollowRequestDto requestDto) {
         memberService.changeFollow(
-                member, memberService.getMemberById(requestDto.getMemberId()), requestDto.isFollow());
+                memberService.getMemberByAuth(authentication),
+                memberService.getMemberById(requestDto.getMemberId()), requestDto.isFollow());
     }
 
 }

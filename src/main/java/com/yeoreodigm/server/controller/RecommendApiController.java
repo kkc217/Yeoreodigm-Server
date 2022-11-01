@@ -6,15 +6,16 @@ import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.constraint.DetailPageConst;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
-import com.yeoreodigm.server.dto.constraint.SessionConst;
 import com.yeoreodigm.server.dto.constraint.TravelNoteConst;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.dto.travelnote.TravelNoteLikeDto;
+import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.RecommendService;
 import com.yeoreodigm.server.service.TravelNoteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ public class RecommendApiController {
 
     private final PlaceService placeService;
 
+    private final MemberService memberService;
+
     @GetMapping("/place/{travelNoteId}")
     public Result<List<PlaceCoordinateDto>> getRecommendedPlacesFromNote(
             @PathVariable(name = "travelNoteId") Long travelNoteId) {
@@ -43,13 +46,14 @@ public class RecommendApiController {
     }
 
     @GetMapping("/place")
-    public Result<List<PlaceLikeDto>> getRecommendedPlaces(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        if (member != null)
+    public Result<List<PlaceLikeDto>> getRecommendedPlaces(Authentication authentication) {
+        Member member = memberService.getMemberByAuth(authentication);
+        if (member != null) {
             return new Result<>(
                     placeService.getPlaceLikeDtoList(
                             recommendService.getRecommendedPlaces(
-                                    List.of(member), new ArrayList<>(), NUMBER_OF_RECOMMENDED_PLACES), member));
+                                    member, new ArrayList<>(), NUMBER_OF_RECOMMENDED_PLACES), member));
+        }
 
         return new Result<>(
                 placeService.getPlaceLikeDtoList(
@@ -57,18 +61,19 @@ public class RecommendApiController {
     }
 
     @GetMapping("/note")
-    public Result<List<TravelNoteLikeDto>> getRecommendedTravelNote(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        List<TravelNote> travelNoteList
-                = recommendService.getRecommendedNotes(MainPageConst.NUMBER_OF_RECOMMENDED_NOTES, member);
-        
-        return new Result<>(travelNoteService.getTravelNoteItemList(travelNoteList, member));
+    public Result<List<TravelNoteLikeDto>> getRecommendedTravelNote(Authentication authentication) {
+        Member member = memberService.getMemberByAuth(authentication);
+
+        return new Result<>(travelNoteService.getTravelNoteItemList(
+                recommendService.getRecommendedNotes(MainPageConst.NUMBER_OF_RECOMMENDED_NOTES, member), member));
     }
 
     @GetMapping("/similar/note/{travelNoteId}")
     public Result<List<TravelNoteLikeDto>> getSimilarTravelNote(
-            @PathVariable(name = "travelNoteId") Long travelNoteId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+            Authentication authentication,
+            @PathVariable(name = "travelNoteId") Long travelNoteId) {
+        Member member = memberService.getMemberByAuth(authentication);
+
         List<TravelNote> travelNoteList = recommendService.getSimilarTravelNotes(
                 travelNoteService.getTravelNoteById(travelNoteId),
                 DetailPageConst.NUMBER_OF_SIMILAR_TRAVEL_NOTE,

@@ -5,7 +5,6 @@ import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
 import com.yeoreodigm.server.dto.constraint.SurveyConst;
 import com.yeoreodigm.server.dto.survey.SurveyItemDto;
-import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +32,6 @@ public class SurveyService {
 
     @Transactional
     public void submitSurveyResult(Member member, Long contentId, int progress) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         SurveyResult surveyResult = surveyRepository.findSurveyResultByMember(member);
         surveyResult.changeProgress(progress + 1);
 
@@ -51,8 +48,6 @@ public class SurveyService {
     }
 
     public int getProgress(Member member) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         return surveyRepository.findSurveyResultByMember(member).getProgress();
     }
 

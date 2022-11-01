@@ -4,7 +4,10 @@ import com.yeoreodigm.server.domain.Gender;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.member.MemberJoinRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.jwt.TokenProvider;
+import com.yeoreodigm.server.repository.FollowRepository;
 import com.yeoreodigm.server.repository.MemberRepository;
+import com.yeoreodigm.server.repository.RefreshTokenRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +36,19 @@ public class MemberServiceTest {
     private SurveyRepository surveyRepository;
 
     @Mock
+    private FollowRepository followRepository;
+
+    @Mock
+    private AuthenticationManager authenticationManager;
+
+    @Mock
+    private TokenProvider tokenProvider;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
 
     @InjectMocks
     private MemberService memberService;
@@ -56,7 +72,11 @@ public class MemberServiceTest {
         memberService = new MemberService(
                 mockMemberRepository,
                 surveyRepository,
-                passwordEncoder);
+                followRepository,
+                authenticationManager,
+                tokenProvider,
+                passwordEncoder,
+                refreshTokenRepository);
     }
 
     @Test(expected = BadRequestException.class)

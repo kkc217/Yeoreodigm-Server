@@ -19,17 +19,10 @@ import java.util.List;
 @TypeDef(
         name = "list-array",
         typeClass = ListArrayType.class)
-@SequenceGenerator(
-        name = "BOARD_ID_SEQ_GENERATOR",
-        sequenceName = "board_id_seq",
-        allocationSize = 1)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Board {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "BOARD_ID_SEQ_GENERATOR")
     @Column(name = "board_id")
     private Long id;
 
@@ -55,7 +48,8 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     private List<BoardPlace> boardPlaceList = new ArrayList<>();
 
-    public Board(Member member, String text, List<String> imageList) {
+    public Board(Long id, Member member, String text, List<String> imageList) {
+        this.id = id;
         this.member = member;
         this.text = text;
         this.createdTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
