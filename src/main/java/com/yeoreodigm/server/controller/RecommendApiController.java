@@ -61,7 +61,7 @@ public class RecommendApiController {
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
         List<TravelNote> travelNoteList
                 = recommendService.getRecommendedNotes(MainPageConst.NUMBER_OF_RECOMMENDED_NOTES, member);
-        
+
         return new Result<>(travelNoteService.getTravelNoteItemList(travelNoteList, member));
     }
 

@@ -9,6 +9,8 @@ import java.util.List;
 @AllArgsConstructor
 public class TravelNoteDetailInfo {
 
+    private Long travelNoteId;
+
     private String title;
 
     private String period;

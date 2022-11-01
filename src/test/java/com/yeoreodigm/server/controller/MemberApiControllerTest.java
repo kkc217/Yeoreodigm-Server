@@ -29,9 +29,6 @@ public class MemberApiControllerTest {
     private MemberService memberService;
 
     @Mock
-    private SurveyService surveyService;
-
-    @Mock
     private TravelNoteService travelNoteService;
 
     @Mock
@@ -53,7 +50,7 @@ public class MemberApiControllerTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         memberApiController
-                = new MemberApiController(memberService, surveyService, travelNoteService, emailService, awsS3Service);
+                = new MemberApiController(memberService, travelNoteService, emailService, awsS3Service);
         mockMvc = MockMvcBuilders.standaloneSetup(memberApiController).build();
         objectMapper = new ObjectMapper();
 
@@ -71,7 +68,6 @@ public class MemberApiControllerTest {
         memberJoinRequestDto.setEmail("kkc217123@naver.com");
         memberJoinRequestDto.setNickname("testJoin");
         memberJoinRequestDto.setPassword("qwer1234!");
-        memberApiController.join(memberJoinRequestDto);
 
         verify(memberService).join(memberJoinRequestDto);
     }

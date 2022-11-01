@@ -55,8 +55,6 @@ public class BoardCommentService {
 
     @Transactional
     public void addBoardComment(Member member, Board board, String text) {
-        if (Objects.isNull(member)) throw new LoginRequiredException("로그인이 필요합니다.");
-
         boardCommentRepository.saveAndFlush(new BoardComment(board, member, text));
     }
 

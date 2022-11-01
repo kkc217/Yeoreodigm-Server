@@ -7,7 +7,6 @@ import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.comment.CommentLikeDto;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
-import com.yeoreodigm.server.exception.LoginRequiredException;
 import com.yeoreodigm.server.repository.NoteCommentLikeRepository;
 import com.yeoreodigm.server.repository.NoteCommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,14 +40,11 @@ public class TravelNoteCommentService {
 
     @Transactional
     public void addNoteComment(Member member, TravelNote travelNote, String text) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         noteCommentRepository.saveAndFlush(new NoteComment(travelNote.getId(), member, text));
     }
 
     @Transactional
     public void deleteNoteComment(Member member, Long commentId) {
-        if (member == null) throw new BadRequestException("댓글을 삭제할 수 없습니다.");
         NoteComment noteComment = noteCommentRepository.findById(commentId);
 
         if (noteComment == null) return;
@@ -75,8 +71,6 @@ public class TravelNoteCommentService {
 
     @Transactional
     public void changeTravelNoteCommentLike(Member member, Long noteCommentId, boolean like) {
-        if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
-
         NoteCommentLike noteCommentLike
                 = noteCommentLikeRepository.findByNoteCommentIdAndMemberId(noteCommentId, member.getId());
 
