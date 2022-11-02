@@ -1,14 +1,12 @@
 package com.yeoreodigm.server.service;
 
-import com.yeoreodigm.server.domain.Course;
-import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.Places;
-import com.yeoreodigm.server.domain.TravelNote;
+import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.constraint.EnvConst;
 import com.yeoreodigm.server.dto.recommend.RecommendedCoursesDto;
 import com.yeoreodigm.server.dto.recommend.RecommendedPlacesDto;
 import com.yeoreodigm.server.dto.recommend.RecommendedTravelNoteDto;
 import com.yeoreodigm.server.exception.BadRequestException;
+import com.yeoreodigm.server.repository.CompanionRepository;
 import com.yeoreodigm.server.repository.PlacesRepository;
 import com.yeoreodigm.server.repository.TravelNoteRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +29,8 @@ public class RecommendService {
     private final PlacesRepository placesRepository;
 
     private final TravelNoteRepository travelNoteRepository;
+
+    private final CompanionRepository companionRepository;
 
     private final static int RANDOM_PAGING = 3000;
 
@@ -88,10 +88,16 @@ public class RecommendService {
             placeIdList.addAll(coursePlaces);
         }
 
-        return getRecommendedPlaces(travelNote.getMember(), placeIdList, limit);
+        List<Member> memberList = new ArrayList<>();
+        memberList.add(travelNote.getMember());
+
+        List<Companion> companionList = companionRepository.findCompanionsByTravelNote(travelNote);
+        memberList.addAll(companionList.stream().map(Companion::getMember).toList());
+
+        return getRecommendedPlaces(memberList, placeIdList, limit);
     }
 
-    public List<Places> getRecommendedPlaces(Member member, List<Long> placeIdList, int limit) {
+    public List<Places> getRecommendedPlaces(List<Member> memberList, List<Long> placeIdList, int limit) {
         StringBuilder placeString = new StringBuilder();
 
         for (Long placeId : placeIdList) {
@@ -102,13 +108,19 @@ public class RecommendService {
             placeString.append("0,");
         }
 
+        StringBuilder memberString = new StringBuilder();
+
+        for (Member member : memberList) {
+            memberString.append(member.getId()).append(",");
+        }
+
         WebClient webClient = WebClient.create(EnvConst.PLACE_RECOMMEND_URL);
 
         Mono<RecommendedPlacesDto> apiResult = webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path(EnvConst.PLACE_RECOMMEND_URI)
-                        .queryParam("memberId", member.getId())
+                        .queryParam("memberId", memberString.substring(0, memberString.length() - 1))
                         .queryParam("placesInCourse", placeString.substring(0, placeString.length() - 1))
                         .queryParam("numOfResult", limit)
                         .build())
