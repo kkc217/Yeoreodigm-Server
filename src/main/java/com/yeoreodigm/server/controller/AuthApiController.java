@@ -22,10 +22,10 @@ import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.MemberConst.ANONYMOUS_USER;
 
-@Tag(name = "Auth", description = "인증 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
+@Tag(name = "Auth", description = "인증 API")
 public class AuthApiController {
 
     private final MemberService memberService;
