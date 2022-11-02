@@ -49,11 +49,22 @@ public class AuthApiController {
     }
 
     @PostMapping("/reissue")
+    @Operation(summary = "토큰 재발급")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = TokenMemberInfoDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public TokenMemberInfoDto reissue(@RequestBody @Valid TokenDto requestDto) {
         return memberService.reissue(requestDto);
     }
 
     @PostMapping("/auto-login")
+    @Operation(summary = "자동 로그인")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MemberInfoDto.class))),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true)))
+    })
     public MemberInfoDto autoLogin(Authentication authentication) {
         if (Objects.isNull(authentication) || Objects.equals(ANONYMOUS_USER, authentication.getName()))
             return null;
@@ -62,6 +73,10 @@ public class AuthApiController {
     }
 
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK")
+    })
     public void logout(Authentication authentication) {
         if (Objects.nonNull(authentication) && !Objects.equals(ANONYMOUS_USER, authentication.getName())) {
             memberService.logout(authentication.getName());
