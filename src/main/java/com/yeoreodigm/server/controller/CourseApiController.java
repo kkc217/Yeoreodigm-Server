@@ -48,7 +48,7 @@ public class CourseApiController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
     public Result<List<CourseItemDto>> callCourseInfos(
             @PathVariable("travelNoteId") Long travelNoteId) {
@@ -74,7 +74,7 @@ public class CourseApiController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
     public Result<List<RouteItemDto>> callRouteInfos(
             @PathVariable("travelNoteId") Long travelNoteId) {
@@ -97,7 +97,7 @@ public class CourseApiController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
     public Result<CourseRouteDto> callCourseInfo(
             @PathVariable("travelNoteId") Long travelNoteId,
@@ -124,7 +124,7 @@ public class CourseApiController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
     public Result<List<CoordinateItemDto>> callCoordinateInfos(
             @PathVariable("travelNoteId") Long travelNoteId) {
@@ -149,7 +149,7 @@ public class CourseApiController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
     })
     public void saveCourses(
@@ -163,7 +163,7 @@ public class CourseApiController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
     })
     public void addPlaces(
@@ -178,7 +178,7 @@ public class CourseApiController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
     })
     public void optimizeCourse(
@@ -191,7 +191,7 @@ public class CourseApiController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
     public AccommodationListDto callNearAccommodation(
             @RequestParam("travelNoteId") Long travelNoteId,
