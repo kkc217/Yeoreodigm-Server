@@ -19,7 +19,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
-        out.println("{\"error\": \"403\", \"message\" : \"접근 권한이 없습니다.\"}");
+        out.println("{\"status\": \"403\", \"error\" : \"접근 권한이 없습니다.\"}");
     }
 
 }

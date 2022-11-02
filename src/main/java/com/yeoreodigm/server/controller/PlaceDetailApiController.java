@@ -10,6 +10,12 @@ import com.yeoreodigm.server.dto.place.PlaceExtraInfoDto;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceCommentService;
 import com.yeoreodigm.server.service.PlaceService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +26,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/place/detail")
+@Tag(name = "Place Detail", description = "여행지 상세 페이지 API")
 public class PlaceDetailApiController {
 
     private final PlaceService placeService;
@@ -29,6 +36,12 @@ public class PlaceDetailApiController {
     private final MemberService memberService;
 
     @GetMapping("/{placeId}")
+    @Operation(summary = "기본 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PlaceDetailDto callPlaceDetailInfo(
             Authentication authentication,
             @PathVariable("placeId") Long placeId) {
@@ -37,12 +50,24 @@ public class PlaceDetailApiController {
     }
 
     @GetMapping("/info/{placeId}")
+    @Operation(summary = "추가 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PlaceExtraInfoDto callPlaceExtraInfo(
             @PathVariable("placeId") Long placeId) {
         return new PlaceExtraInfoDto(placeService.getPlaceExtraInfo(placeService.getPlaceById(placeId)));
     }
 
     @GetMapping("/comment/{placeId}")
+    @Operation(summary = "댓글 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public Result<List<CommentLikeDto>> callPlaceComment(
             Authentication authentication,
             @PathVariable("placeId") Long placeId) {
@@ -52,6 +77,13 @@ public class PlaceDetailApiController {
     }
 
     @PostMapping("/comment")
+    @Operation(summary = "댓글 추가")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void addPlaceComment(
             Authentication authentication,
             @RequestBody @Valid CommentRequestDto requestDto) {
@@ -62,6 +94,13 @@ public class PlaceDetailApiController {
     }
 
     @DeleteMapping("/comment/{commentId}")
+    @Operation(summary = "댓글 삭제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void deletePlaceComment(
             Authentication authentication,
             @PathVariable(name = "commentId") Long commentId) {
@@ -69,6 +108,12 @@ public class PlaceDetailApiController {
     }
 
     @GetMapping("/comment/like/{placeCommentId}")
+    @Operation(summary = "댓글 좋아요 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public LikeItemDto callPlaceCommentLike(
             Authentication authentication,
             @PathVariable(name = "placeCommentId") Long placeCommentId) {
@@ -76,6 +121,13 @@ public class PlaceDetailApiController {
     }
 
     @PatchMapping("/comment/like")
+    @Operation(summary = "댓글 좋아요 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changePlaceCommentLike(
             Authentication authentication,
             @RequestBody @Valid LikeRequestDto requestDto) {
