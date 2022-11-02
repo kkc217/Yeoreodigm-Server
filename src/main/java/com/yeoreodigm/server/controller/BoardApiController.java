@@ -12,6 +12,12 @@ import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +34,7 @@ import static com.yeoreodigm.server.dto.constraint.BoardConst.MAX_NUM_OF_BOARD_P
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/board")
+@Tag(name = "Board", description = "피드 API")
 public class BoardApiController {
 
     private final BoardService boardService;
@@ -41,6 +48,13 @@ public class BoardApiController {
     private final AwsS3Service awsS3Service;
 
     @PostMapping("/new")
+    @Operation(summary = "새 피드 생성")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public BoardIdDto createBoard(
             Authentication authentication,
             @RequestPart(name = "pictures", required = false) List<MultipartFile> pictures,
@@ -65,6 +79,13 @@ public class BoardApiController {
     }
 
     @PutMapping("")
+    @Operation(summary = "피드 수정")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void editBoard(
             Authentication authentication,
             @RequestPart(name = "boardId") Long boardId,
@@ -101,6 +122,12 @@ public class BoardApiController {
     }
 
     @GetMapping("")
+    @Operation(summary = "피드 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PageResult<List<BoardFullDto>> callBoards(
             Authentication authentication,
             @RequestParam("page") int page,
@@ -120,6 +147,13 @@ public class BoardApiController {
     }
 
     @GetMapping("/modification/{boardId}")
+    @Operation(summary = "피드 수정 페이지 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public BoardDto callBoardEditInfo(
             Authentication authentication,
             @PathVariable("boardId") Long boardId) {
@@ -134,6 +168,13 @@ public class BoardApiController {
     }
 
     @GetMapping("/my/{page}/{limit}")
+    @Operation(summary = "내 피드 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PageResult<List<MyBoardDto>> callMyBoards(
             Authentication authentication,
             @PathVariable("page") int page,
@@ -151,6 +192,12 @@ public class BoardApiController {
     }
 
     @GetMapping("/like/{boardId}")
+    @Operation(summary = "피드 좋아요 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public LikeItemDto callBoardLike(
             Authentication authentication,
             @PathVariable("boardId") Long boardId) {
@@ -159,6 +206,13 @@ public class BoardApiController {
     }
 
     @PatchMapping("/like")
+    @Operation(summary = "피드 좋아요 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changeBoardLike(
             Authentication authentication,
             @RequestBody @Valid LikeRequestDto requestDto) {
@@ -168,6 +222,13 @@ public class BoardApiController {
     }
 
     @DeleteMapping("/{boardId}")
+    @Operation(summary = "피드 삭제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void deleteBoard(
             Authentication authentication,
             @PathVariable("boardId") Long boardId) {

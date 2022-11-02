@@ -10,6 +10,12 @@ import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.dto.travelnote.NoteDetailInfoResponseDto;
 import com.yeoreodigm.server.dto.travelnote.TravelNoteIdDto;
 import com.yeoreodigm.server.service.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +27,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/note/detail")
+@Tag(name = "Travel Note Detail", description = "여행 노트 상세 페이지 API")
 public class TravelNoteDetailApiController {
 
     private final TravelNoteService travelNoteService;
@@ -34,6 +41,12 @@ public class TravelNoteDetailApiController {
     private final MemberService memberService;
 
     @GetMapping("/{travelNoteId}")
+    @Operation(summary = "기본 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public NoteDetailInfoResponseDto callTravelNoteDetail(
             Authentication authentication,
             @PathVariable("travelNoteId") Long travelNoteId) {
@@ -43,6 +56,12 @@ public class TravelNoteDetailApiController {
     }
 
     @GetMapping("/comment/{travelNoteId}")
+    @Operation(summary = "댓글 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public Result<List<CommentLikeDto>> callTravelNoteComment(
             Authentication authentication,
             @PathVariable("travelNoteId") Long travelNoteId) {
@@ -52,6 +71,13 @@ public class TravelNoteDetailApiController {
     }
 
     @PostMapping("/comment")
+    @Operation(summary = "댓글 추가")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void addTravelNoteComment(
             Authentication authentication,
             @RequestBody @Valid ContentRequestDto requestDto) {
@@ -62,6 +88,13 @@ public class TravelNoteDetailApiController {
     }
 
     @DeleteMapping("/comment/{commentId}")
+    @Operation(summary = "댓글 삭제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void deleteTravelNoteComment(
             Authentication authentication,
             @PathVariable(name = "commentId") Long commentId) {
@@ -69,6 +102,12 @@ public class TravelNoteDetailApiController {
     }
 
     @GetMapping("/comment/like/{commentId}")
+    @Operation(summary = "댓글 좋아요 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public LikeItemDto callTravelNoteLike(
             Authentication authentication,
             @PathVariable("commentId") Long commentId) {
@@ -77,6 +116,13 @@ public class TravelNoteDetailApiController {
     }
 
     @PatchMapping("/comment/like")
+    @Operation(summary = "댓글 좋아요 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changeTravelNoteCommentLike(
             Authentication authentication,
             @RequestBody @Valid LikeRequestDto requestDto) {
@@ -85,6 +131,13 @@ public class TravelNoteDetailApiController {
     }
 
     @PostMapping("/new")
+    @Operation(summary = "이 일정으로 계획 만들기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public TravelNoteIdDto makeMyTravelNote(
             Authentication authentication,
             @RequestBody HashMap<String, Long> request) {
