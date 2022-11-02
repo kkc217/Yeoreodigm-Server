@@ -10,6 +10,12 @@ import com.yeoreodigm.server.dto.course.*;
 import com.yeoreodigm.server.dto.route.RouteItemDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +28,7 @@ import java.util.Objects;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/course")
+@Tag(name = "Course", description = "코스 API")
 public class CourseApiController {
 
     private final CourseService courseService;
@@ -37,6 +44,12 @@ public class CourseApiController {
     private final AccommodationService accommodationService;
 
     @GetMapping("/{travelNoteId}")
+    @Operation(summary = "코스 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+    })
     public Result<List<CourseItemDto>> callCourseInfos(
             @PathVariable("travelNoteId") Long travelNoteId) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
@@ -57,6 +70,12 @@ public class CourseApiController {
     }
 
     @GetMapping("/route/{travelNoteId}")
+    @Operation(summary = "경로 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+    })
     public Result<List<RouteItemDto>> callRouteInfos(
             @PathVariable("travelNoteId") Long travelNoteId) {
         List<Course> courseList
@@ -74,6 +93,12 @@ public class CourseApiController {
     }
 
     @GetMapping("/{travelNoteId}/{day}")
+    @Operation(summary = "코스 정보 조회 (일차)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+    })
     public Result<CourseRouteDto> callCourseInfo(
             @PathVariable("travelNoteId") Long travelNoteId,
             @PathVariable("day") int day) {
@@ -95,6 +120,12 @@ public class CourseApiController {
     }
 
     @GetMapping("/coordinate/{travelNoteId}")
+    @Operation(summary = "좌표 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+    })
     public Result<List<CoordinateItemDto>> callCoordinateInfos(
             @PathVariable("travelNoteId") Long travelNoteId) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
@@ -114,6 +145,13 @@ public class CourseApiController {
     }
 
     @PutMapping("")
+    @Operation(summary = "코스 저장")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void saveCourses(
             @RequestBody @Valid SaveCourseRequestDto requestDto) {
         travelNoteService.updateCourse(
@@ -121,6 +159,13 @@ public class CourseApiController {
     }
 
     @PatchMapping("")
+    @Operation(summary = "여행지 추가")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void addPlaces(
             @RequestBody @Valid RecommendPlaceRequestDto requestDto) {
         courseService.addPlaces(
@@ -129,12 +174,25 @@ public class CourseApiController {
     }
 
     @PostMapping("/optimize")
+    @Operation(summary = "동선 최적화")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void optimizeCourse(
             @RequestBody HashMap<String, Long> request) {
         courseService.optimizeCourse(travelNoteService.getTravelNoteById(request.get("travelNoteId")));
     }
 
     @GetMapping("/accommodation")
+    @Operation(summary = "근처 숙소 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+    })
     public AccommodationListDto callNearAccommodation(
             @RequestParam("travelNoteId") Long travelNoteId,
             @RequestParam(name = "day", required = false, defaultValue = "1") int day,
