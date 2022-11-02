@@ -11,6 +11,12 @@ import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.AwsS3Service;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PhotodigmService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +34,7 @@ import static com.yeoreodigm.server.dto.constraint.PhotodigmConst.PHOTODIGM_NUMB
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/photodigm")
+@Tag(name = "Photodigm", description = "포토다임 API")
 public class PhotodigmApiController {
 
     private final PhotodigmService photodigmService;
@@ -37,6 +44,12 @@ public class PhotodigmApiController {
     private final AwsS3Service awsS3Service;
 
     @PostMapping("/new")
+    @Operation(summary = "새 포토다임 생성")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PhotodigmIdDto createPhotodigm(Authentication authentication) {
         Member member = memberService.getMemberByAuth(authentication);
 
@@ -52,6 +65,12 @@ public class PhotodigmApiController {
     }
 
     @GetMapping("/{photodigmId}")
+    @Operation(summary = "포토다임 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PhotodigmDto callPhotodigmInfo(
             Authentication authentication,
             @PathVariable("photodigmId") Long photodigmId) {
@@ -72,6 +91,13 @@ public class PhotodigmApiController {
     }
 
     @GetMapping("/{page}/{limit}")
+    @Operation(summary = "내 포토다임 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PageResult<List<PhotodigmDto>> callMyPhotodigmInfos(
             Authentication authentication,
             @PathVariable("page") int page,
@@ -87,6 +113,12 @@ public class PhotodigmApiController {
     }
 
     @GetMapping("/picture/{photodigmId}")
+    @Operation(summary = "사진 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PhotodigmImageDto callPhotodigmImageInfos(
             @PathVariable("photodigmId") Long photodigmId) {
         Photodigm photodigm = photodigmService.getPhotodigm(photodigmId);
@@ -96,6 +128,12 @@ public class PhotodigmApiController {
     }
 
     @PutMapping("/picture")
+    @Operation(summary = "사진 수정")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changePhotodigmImages(
             Authentication authentication,
             @RequestPart(name = "photodigmId") Long photodigmId,
@@ -146,6 +184,12 @@ public class PhotodigmApiController {
     }
 
     @DeleteMapping("/picture/{photodigmId}/{target}")
+    @Operation(summary = "사진 삭제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void deletePhotodigmImage(
             Authentication authentication,
             @PathVariable(name = "photodigmId") Long photodigmId,
@@ -181,6 +225,12 @@ public class PhotodigmApiController {
     }
 
     @GetMapping("/frame")
+    @Operation(summary = "프레임 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public Result<List<FrameDto>> callFrames() {
         return new Result<>(photodigmService.getAllFrame()
                 .stream()
@@ -189,6 +239,12 @@ public class PhotodigmApiController {
     }
 
     @PutMapping("/frame")
+    @Operation(summary = "포토다임 프레임 수정")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changePhotodigmFrame(
             Authentication authentication,
             @RequestBody HashMap<String, Long> request) {
@@ -217,6 +273,12 @@ public class PhotodigmApiController {
     }
 
     @PatchMapping("/title")
+    @Operation(summary = "포토다임 제목 수정")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changePhotodigmTitle(
             Authentication authentication,
             @RequestBody @Valid ChangePhotodigmTitleDto requestDto) {
