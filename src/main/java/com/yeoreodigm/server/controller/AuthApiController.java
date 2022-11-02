@@ -34,7 +34,9 @@ public class AuthApiController {
     @Operation(summary = "회원 가입")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+    })
     public void join(@RequestBody @Valid MemberJoinRequestDto requestDto) {
         memberService.join(requestDto);
     }
@@ -43,7 +45,9 @@ public class AuthApiController {
     @Operation(summary = "로그인")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = TokenMemberInfoDto.class))),
-            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true)))})
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+    })
     public TokenMemberInfoDto login(@RequestBody @Valid LoginRequestDto requestDto) {
         return memberService.loginV2(requestDto);
     }
@@ -53,6 +57,7 @@ public class AuthApiController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = TokenMemberInfoDto.class))),
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED"),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
     })
     public TokenMemberInfoDto reissue(@RequestBody @Valid TokenDto requestDto) {
@@ -63,7 +68,8 @@ public class AuthApiController {
     @Operation(summary = "자동 로그인")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MemberInfoDto.class))),
-            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true)))
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
     })
     public MemberInfoDto autoLogin(Authentication authentication) {
         if (Objects.isNull(authentication) || Objects.equals(ANONYMOUS_USER, authentication.getName()))
@@ -75,7 +81,8 @@ public class AuthApiController {
     @PostMapping("/logout")
     @Operation(summary = "로그아웃")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
     })
     public void logout(Authentication authentication) {
         if (Objects.nonNull(authentication) && !Objects.equals(ANONYMOUS_USER, authentication.getName())) {
