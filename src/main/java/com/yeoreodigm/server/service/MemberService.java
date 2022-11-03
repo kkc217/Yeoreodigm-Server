@@ -147,7 +147,6 @@ public class MemberService {
 
     @Transactional
     public TokenMemberInfoDto reissue(TokenDto tokenDto) {
-        String originAccessToken = tokenDto.getAccessToken();
         String originRefreshToken = tokenDto.getRefreshToken();
 
         int refreshTokenFlag = tokenProvider.validateToken(originRefreshToken);
@@ -156,7 +155,7 @@ public class MemberService {
                 || Objects.equals(EXPIRED_TOKEN_FLAG, refreshTokenFlag)) //만료된 토큰
             throw new LoginRequiredException("다시 로그인해주시기 바랍니다.");
 
-        Authentication authentication = tokenProvider.getAuthentication(originAccessToken);
+        Authentication authentication = tokenProvider.getAuthentication(originRefreshToken);
 
         RefreshToken refreshToken = refreshTokenRepository.findByKey(authentication.getName())
                 .orElseThrow(() -> new LoginRequiredException("다시 로그인해주시기 바랍니다."));
@@ -164,7 +163,7 @@ public class MemberService {
         if (!Objects.equals(originRefreshToken, refreshToken.getValue()))
             throw new LoginRequiredException("다시 로그인해주시기 바랍니다.");
 
-        String email = tokenProvider.getEmailByToken(originAccessToken);
+        String email = tokenProvider.getEmailByToken(originRefreshToken);
         Member member = memberRepository.findByEmail(email);
 
         if (Objects.isNull(member)) throw new BadRequestException("일치하는 사용자가 없습니다.");
