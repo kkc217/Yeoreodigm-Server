@@ -8,9 +8,9 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${postgresql.datasource.url}
+    username: ${postgresql.datasource.username}
+    password: ${postgresql.datasource.password}
 
   jpa:
     hibernate:
@@ -31,8 +31,8 @@ spring:
   mail:
     host: smtp.naver.com
     port: 465
-    username: ${SPRING_MAIL_USERNAME}
-    password: ${SPRING_MAIL_PASSWORD}
+    username: ${naver.mail.username}
+    password: ${naver.mail.password}
     properties:
       mail.smtp.auth: true
       mail.smtp.ssl.enable: true
