@@ -22,6 +22,7 @@ import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.RefreshTokenRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -57,7 +58,8 @@ public class MemberService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    @Cacheable(value = CacheConst.POST)
+//    @Cacheable(value = "Member", key = "#authentication.getName()", cacheManager = "cacheManager")
+    @Cacheable(value = CacheConst.MEMBER)
     public Member getMemberByAuth(Authentication authentication) {
         if (Objects.isNull(authentication)) return null;
 
@@ -67,6 +69,7 @@ public class MemberService {
         return member;
     }
 
+    @Cacheable(value = CacheConst.MEMBER)
     public Member getMemberByEmail(String email) {
         Member member = memberRepository.findByEmail(email);
 
@@ -77,6 +80,7 @@ public class MemberService {
         }
     }
 
+    @Cacheable(value = CacheConst.MEMBER)
     public Member getMemberById(Long memberId) {
         Member member = memberRepository.findById(memberId);
 
@@ -336,11 +340,12 @@ public class MemberService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConst.MEMBER, allEntries = true)
     public void changeNickname(Member member, String nickname) {
         checkDuplicateNickname(nickname);
 
         member.changeNickname(nickname);
-        memberRepository.saveAndFlush(member);
+        memberRepository.merge(member);
     }
 
     public Long getFollowerCountByMember(Member member) {

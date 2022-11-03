@@ -22,6 +22,12 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+  cache:
+    type: redis
+  redis:
+    host: ${redis.cache.host}
+    port: ${redis.cache.port}
+
   session:
     store-type: redis
     jdbc:

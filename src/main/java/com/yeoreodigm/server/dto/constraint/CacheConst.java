@@ -2,6 +2,6 @@ package com.yeoreodigm.server.dto.constraint;
 
 public class CacheConst {
 
-    public static final String POST = "POST";
+    public static final String MEMBER = "Member";
 
 }

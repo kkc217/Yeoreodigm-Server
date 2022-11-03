@@ -55,6 +55,7 @@ public class MemberApiController {
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
     })
+//    @Cacheable(value = "POST")
     public MemberInfoDto callMemberInfo(Authentication authentication) {
         return new MemberInfoDto(
                 memberService.getMemberByAuth(authentication));
