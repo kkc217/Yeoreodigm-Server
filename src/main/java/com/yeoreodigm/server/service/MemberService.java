@@ -58,8 +58,7 @@ public class MemberService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-//    @Cacheable(value = "Member", key = "#authentication.getName()", cacheManager = "cacheManager")
-    @Cacheable(value = CacheConst.MEMBER)
+    @Cacheable(value = CacheConst.MEMBER, key = "#authentication.getName()", unless = "#authentication.getName() == null")
     public Member getMemberByAuth(Authentication authentication) {
         if (Objects.isNull(authentication)) return null;
 
@@ -69,7 +68,7 @@ public class MemberService {
         return member;
     }
 
-    @Cacheable(value = CacheConst.MEMBER)
+    @Cacheable(value = CacheConst.MEMBER, key = "#email", unless = "#email == null")
     public Member getMemberByEmail(String email) {
         Member member = memberRepository.findByEmail(email);
 
@@ -80,7 +79,6 @@ public class MemberService {
         }
     }
 
-    @Cacheable(value = CacheConst.MEMBER)
     public Member getMemberById(Long memberId) {
         Member member = memberRepository.findById(memberId);
 
@@ -92,6 +90,7 @@ public class MemberService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConst.MEMBER, key = "#memberJoinRequestDto.getEmail()", allEntries = true)
     public void join(MemberJoinRequestDto memberJoinRequestDto) {
         //중복 검사
         checkDuplicateEmail(memberJoinRequestDto.getEmail());
@@ -214,6 +213,7 @@ public class MemberService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConst.MEMBER, key = "#email", allEntries = true)
     public void logout(String email) {
         Optional<RefreshToken> refreshTokenOpt = refreshTokenRepository.findByKey(email);
 
@@ -250,6 +250,7 @@ public class MemberService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConst.MEMBER, key = "#email", allEntries = true)
     public String resetPassword(String email) {
         Member member = getMemberByEmail(email);
 
@@ -276,6 +277,7 @@ public class MemberService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConst.MEMBER, key = "#member.getEmail()", allEntries = true)
     public void changePassword(String password, Member member) {
         member.changePassword(encodePassword(password));
         memberRepository.saveAndFlush(member);
@@ -301,6 +303,7 @@ public class MemberService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConst.MEMBER, key = "#member.getEmail()", allEntries = true)
     public void changeIntroduction(Member member, String newIntroduction) {
         member.changeIntroduction(newIntroduction);
         memberRepository.merge(member);
@@ -308,12 +311,14 @@ public class MemberService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConst.MEMBER, key = "#member.getEmail()", allEntries = true)
     public void changeProfileImage(Member member, String newProfileImageUrl) {
         member.changeProfileImage(newProfileImageUrl);
         memberRepository.saveAndFlush(member);
     }
 
     @Transactional
+    @CacheEvict(value = CacheConst.MEMBER, key = "#member.getEmail()", allEntries = true)
     public void deleteProfileImage(Member member) {
         if (member == null) throw new LoginRequiredException("로그인이 필요합니다.");
 
@@ -323,6 +328,7 @@ public class MemberService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConst.MEMBER, key = "#member.getEmail()", allEntries = true)
     public void deleteMember(Member member) {
         memberRepository.deleteMember(member);
         deleteRefreshToken(member);
@@ -339,7 +345,7 @@ public class MemberService {
     }
 
     @Transactional
-    @CacheEvict(value = CacheConst.MEMBER, allEntries = true)
+    @CacheEvict(value = CacheConst.MEMBER, key = "#member.getEmail()", allEntries = true)
     public void changeNickname(Member member, String nickname) {
         checkDuplicateNickname(nickname);
 
