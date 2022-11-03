@@ -9,6 +9,12 @@ import com.yeoreodigm.server.dto.follow.FollowRequestDto;
 import com.yeoreodigm.server.dto.member.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,6 +36,7 @@ import static com.yeoreodigm.server.dto.constraint.AWSConst.AWS_S3_PROFILE_URI;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/member")
+@Tag(name = "Member", description = "멤버 API")
 public class MemberApiController {
 
     private final MemberService memberService;
@@ -41,24 +48,50 @@ public class MemberApiController {
     private final AwsS3Service awsS3Service;
 
     @GetMapping("")
+    @Operation(summary = "멤버 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public MemberInfoDto callMemberInfo(Authentication authentication) {
         return new MemberInfoDto(
                 memberService.getMemberByAuth(authentication));
     }
 
     @PostMapping("/email")
+    @Operation(summary = "이메일 중복 확인")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void checkEmail(
             @RequestBody HashMap<String, String> request) {
         memberService.checkDuplicateEmail(request.get("email"));
     }
 
     @PostMapping("/nickname")
+    @Operation(summary = "닉네임 중복 확인")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void checkNickname(
             @RequestBody HashMap<String, String> request) {
         memberService.checkDuplicateNickname(request.get("nickname"));
     }
 
     @PatchMapping("/nickname")
+    @Operation(summary = "닉네임 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changeNickname(
             Authentication authentication,
             @RequestBody HashMap<String, String> request) {
@@ -66,6 +99,12 @@ public class MemberApiController {
     }
 
     @PostMapping("/auth")
+    @Operation(summary = "이메일 인증 코드 요청")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void submitAuth(
             @RequestBody HashMap<String, String> request,
             HttpServletRequest httpServletRequest) {
@@ -81,6 +120,12 @@ public class MemberApiController {
     }
 
     @PatchMapping("/auth")
+    @Operation(summary = "이메일 인증 코드 확인")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void confirmAuth(
             @RequestBody HashMap<String, String> request,
             HttpServletRequest httpServletRequest) {
@@ -96,6 +141,13 @@ public class MemberApiController {
     }
 
     @PostMapping("/password")
+    @Operation(summary = "비밀번호 확인")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void checkPassword(
             Authentication authentication,
             @RequestBody HashMap<String, String> request) {
@@ -103,6 +155,12 @@ public class MemberApiController {
     }
 
     @PutMapping("/password")
+    @Operation(summary = "비밀번호 초기화")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void passwordReset(
             @RequestBody HashMap<String, String> request) {
         String email = request.get("email");
@@ -110,6 +168,13 @@ public class MemberApiController {
     }
 
     @PatchMapping("/password")
+    @Operation(summary = "비밀번호 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changePassword(
             Authentication authentication,
             @RequestBody HashMap<String, String> request) {
@@ -117,17 +182,37 @@ public class MemberApiController {
     }
 
     @GetMapping("/profile")
+    @Operation(summary = "내 프로필 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public ProfileDto callProfileInfo(Authentication authentication) {
         return new ProfileDto(memberService.getMemberByAuth(authentication));
     }
 
     @GetMapping("/profile/{memberId}")
+    @Operation(summary = "프로필 정보 조회 (멤버 상세 페이지)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public ProfileDto callMemberProfileInfo(
             @PathVariable("memberId") Long memberId) {
         return new ProfileDto(memberService.getMemberById(memberId));
     }
 
     @PatchMapping("/profile/introduction")
+    @Operation(summary = "자기 소개 수정")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changeIntroduction(
             Authentication authentication,
             @RequestBody HashMap<String, String> request) {
@@ -135,6 +220,13 @@ public class MemberApiController {
     }
 
     @PatchMapping("/profile/image")
+    @Operation(summary = "프로필 사진 수정")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changeProfileImage(
             Authentication authentication,
             @RequestPart(name = "file") MultipartFile multipartFile) {
@@ -149,12 +241,26 @@ public class MemberApiController {
     }
 
     @DeleteMapping("/profile/image")
+    @Operation(summary = "프로필 사진 삭제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void deleteProfileImage(
             Authentication authentication) {
         memberService.deleteProfileImage(memberService.getMemberByAuth(authentication));
     }
 
     @DeleteMapping("")
+    @Operation(summary = "회원 탈퇴")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void deleteMember(
             HttpServletResponse response,
             Authentication authentication,
@@ -176,6 +282,13 @@ public class MemberApiController {
     }
 
     @GetMapping("/follower/my/count")
+    @Operation(summary = "내 팔로워 수 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public CountDto callFollowerCount(
             Authentication authentication) {
         return new CountDto(
@@ -183,6 +296,13 @@ public class MemberApiController {
     }
 
     @GetMapping("/follower/my")
+    @Operation(summary = "내 팔로워 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public Result<List<MemberItemDto>> callFollower(
             Authentication authentication) {
         return new Result<>(
@@ -193,6 +313,13 @@ public class MemberApiController {
     }
 
     @GetMapping("/followee/my/count")
+    @Operation(summary = "내 팔로잉 수 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public CountDto callFolloweeCount(
             Authentication authentication) {
         return new CountDto(
@@ -200,6 +327,13 @@ public class MemberApiController {
     }
 
     @GetMapping("/followee/my")
+    @Operation(summary = "내 팔로잉 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public Result<List<MemberItemDto>> callFollowee(
             Authentication authentication) {
         return new Result<>(
@@ -210,6 +344,12 @@ public class MemberApiController {
     }
 
     @GetMapping("/follow/{memberId}")
+    @Operation(summary = "팔로우 여부 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public FollowCheckDto checkFollow(
             Authentication authentication,
             @PathVariable("memberId") Long memberId) {
@@ -219,6 +359,13 @@ public class MemberApiController {
     }
 
     @PatchMapping("/follow")
+    @Operation(summary = "팔로우 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changeFollow(
             Authentication authentication,
             @RequestBody @Valid FollowRequestDto requestDto) {

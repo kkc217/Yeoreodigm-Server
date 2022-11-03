@@ -14,6 +14,12 @@ import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.TravelNoteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +31,7 @@ import static com.yeoreodigm.server.dto.constraint.SearchConst.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/search")
+@Tag(name = "Search", description = "검색 API")
 public class SearchApiController {
 
     private final PlaceService placeService;
@@ -34,6 +41,12 @@ public class SearchApiController {
     private final MemberService memberService;
 
     @GetMapping("/place/{content}/{page}")
+    @Operation(summary = "여행지 검색 결과 전송")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PageResult<List<PlaceCoordinateDto>> searchPlaceCoordinates(
             @PathVariable("content") String content,
             @PathVariable("page") int page) {
@@ -51,6 +64,12 @@ public class SearchApiController {
     }
 
     @GetMapping("/member/{content}")
+    @Operation(summary = "멤버 검색")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public MemberEmailItemDto searchMember(
             @PathVariable("content") String content) {
         Member member = memberService.searchMember(content);
@@ -62,6 +81,12 @@ public class SearchApiController {
     }
 
     @GetMapping("")
+    @Operation(summary = "연관 검색")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public RelatedSearchDto relatedSearch(
             @RequestParam("content") String content) {
         List<Places> placeList = placeService.searchPlaces(
@@ -89,6 +114,12 @@ public class SearchApiController {
     }
 
     @GetMapping("/place")
+    @Operation(summary = "여행지 통합 검색")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PageResult<List<PlaceLikeDto>> searchPlaces(
             Authentication authentication,
             @RequestParam("content") String content,
@@ -107,6 +138,12 @@ public class SearchApiController {
     }
 
     @GetMapping("/note")
+    @Operation(summary = "여행 노트 통합 검색")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PageResult<List<PublicTravelNoteDto>> searchTravelNotes(
             Authentication authentication,
             @RequestParam("content") String content,
@@ -123,6 +160,12 @@ public class SearchApiController {
     }
 
     @GetMapping("/member")
+    @Operation(summary = "멤버 통합 검색")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PageResult<List<MemberEmailItemDto>> searchMembers(
             @RequestParam("content") String content,
             @RequestParam("page") int page,

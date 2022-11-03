@@ -15,6 +15,12 @@ import com.yeoreodigm.server.service.MemberService;
 import com.yeoreodigm.server.service.PlaceService;
 import com.yeoreodigm.server.service.RestaurantService;
 import com.yeoreodigm.server.service.RouteInfoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +34,7 @@ import static com.yeoreodigm.server.dto.constraint.SearchConst.SEARCH_OPTION_LIK
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/place")
+@Tag(name = "Place", description = "여행지 API")
 public class PlaceApiController {
 
     private final PlaceService placeService;
@@ -39,6 +46,12 @@ public class PlaceApiController {
     private final RouteInfoService routeInfoService;
 
     @GetMapping("/like/list/{page}/{limit}")
+    @Operation(summary = "좋아요 누른 여행지 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PageResult<List<PlaceLikeDto>> callPlaceLikeList(
             Authentication authentication,
             @PathVariable("page") int page,
@@ -62,6 +75,12 @@ public class PlaceApiController {
     }
 
     @GetMapping("/like/list")
+    @Operation(summary = "좋아요 누른 여행지 조회 v2")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PageResult<List<PlaceLikeDto>> callPlaceLikeListV2(
             Authentication authentication,
             @RequestParam("page") int page,
@@ -87,6 +106,12 @@ public class PlaceApiController {
     }
 
     @GetMapping("/like/list/{memberId}/{page}/{limit}")
+    @Operation(summary = "좋아요 누른 여행지 조회 (멤버 상세 페이지)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PageResult<List<PlaceLikeDto>> callMemberPlaceLikeList(
             Authentication authentication,
             @PathVariable("memberId") Long memberId,
@@ -112,6 +137,12 @@ public class PlaceApiController {
     }
 
     @GetMapping("/like/{placeId}")
+    @Operation(summary = "좋아요 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public LikeItemDto callPlaceLikeInfo(
             Authentication authentication,
             @PathVariable("placeId") Long placeId) {
@@ -121,6 +152,13 @@ public class PlaceApiController {
     }
 
     @PatchMapping("/like")
+    @Operation(summary = "좋아요 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changePlaceLike(
             Authentication authentication,
             @RequestBody LikeRequestDto requestDto) {
@@ -129,6 +167,12 @@ public class PlaceApiController {
     }
 
     @GetMapping("/popular")
+    @Operation(summary = "최근 많이 방문한 여행지 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public Result<List<PlaceCoordinateDto>> callPopularPlaces() {
         return new Result<>(placeService.getPopularPlaces(MainPageConst.NUMBER_OF_POPULAR_PLACES)
                 .stream()
@@ -137,6 +181,12 @@ public class PlaceApiController {
     }
 
     @GetMapping("/all")
+    @Operation(summary = "모든 여행지 ID 가져오기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public Result<List<PlaceStringIdDto>> callAllPlaceId() {
         return new Result<>(placeService.getAll()
                 .stream()
@@ -145,6 +195,12 @@ public class PlaceApiController {
     }
 
     @GetMapping("/restaurant")
+    @Operation(summary = "근처 음식점 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PageResult<List<RestaurantRouteDto>> callNearRestaurant(
             @RequestParam("placeId") Long placeId,
             @RequestParam(value = "type", required = false, defaultValue = "0") int type,
@@ -173,6 +229,12 @@ public class PlaceApiController {
     }
 
     @GetMapping("/{placeId}")
+    @Operation(summary = "여행지 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public PlaceDetailDto callPlaceBoard(
             @PathVariable("placeId") Long placeId) {
         return new PlaceDetailDto(null, placeService.getPlaceById(placeId));

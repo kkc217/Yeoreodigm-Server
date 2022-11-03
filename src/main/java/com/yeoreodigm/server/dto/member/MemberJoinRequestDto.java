@@ -1,13 +1,11 @@
 package com.yeoreodigm.server.dto.member;
 
 import com.yeoreodigm.server.domain.Gender;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 
 @Data
-@ApiModel(value = "회원 가입 요청")
 public class MemberJoinRequestDto {
 
         @NotEmpty

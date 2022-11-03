@@ -13,6 +13,12 @@ import com.yeoreodigm.server.dto.like.LikeRequestDto;
 import com.yeoreodigm.server.service.BoardCommentService;
 import com.yeoreodigm.server.service.BoardService;
 import com.yeoreodigm.server.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +29,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/board/detail")
+@Tag(name = "Board Detail", description = "피드 상세 페이지 API")
 public class BoardDetailApiController {
 
     private final BoardService boardService;
@@ -32,6 +39,12 @@ public class BoardDetailApiController {
     private final MemberService memberService;
 
     @GetMapping("/{boardId}")
+    @Operation(summary = "피드 정보 조회 (피드 상세 페이지)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public BoardDetailDto callBoardDetailInfo(
             Authentication authentication,
             @PathVariable("boardId") Long boardId) {
@@ -44,6 +57,12 @@ public class BoardDetailApiController {
     }
 
     @GetMapping("/comment/count/{boardId}")
+    @Operation(summary = "댓글 개수 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public CountDto callBoardCommentCount(
             @PathVariable("boardId") Long boardId) {
         return new CountDto(
@@ -52,6 +71,12 @@ public class BoardDetailApiController {
     }
 
     @GetMapping("/comment/{boardId}")
+    @Operation(summary = "댓글 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public Result<List<CommentLikeDto>> callBoardComment(
             Authentication authentication,
             @PathVariable("boardId") Long boardId) {
@@ -66,6 +91,13 @@ public class BoardDetailApiController {
     }
 
     @PostMapping("/comment")
+    @Operation(summary = "댓글 추가")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void addBoardComment(
             Authentication authentication,
             @RequestBody @Valid CommentRequestDto requestDto) {
@@ -76,6 +108,13 @@ public class BoardDetailApiController {
     }
 
     @DeleteMapping("/comment/{commentId}")
+    @Operation(summary = "댓글 삭제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void deleteBoardComment(
             Authentication authentication,
             @PathVariable("commentId") Long commentId) {
@@ -83,6 +122,12 @@ public class BoardDetailApiController {
     }
 
     @GetMapping("/comment/like/{commentId}")
+    @Operation(summary = "댓글 좋아요 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
     public LikeItemDto callBoardCommentLike(
             Authentication authentication,
             @PathVariable("commentId") Long commentId) {
@@ -91,6 +136,13 @@ public class BoardDetailApiController {
     }
 
     @PatchMapping("/comment/like")
+    @Operation(summary = "댓글 좋아요 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changeBoardCommentLike(
             Authentication authentication,
             @RequestBody @Valid LikeRequestDto requestDto) {
