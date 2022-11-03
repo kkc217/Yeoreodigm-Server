@@ -58,7 +58,7 @@ public class SpringSecurityConfig {
 
         http.httpBasic().disable()
                 .authorizeRequests()
-                .mvcMatchers("/v3/api-docs/**", "/swagger*/**").permitAll()
+//                .mvcMatchers("/v3/api-docs/**", "/swagger*/**").permitAll()
 
                 .mvcMatchers("/api/auth/**").permitAll()
 
@@ -134,10 +134,10 @@ public class SpringSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-//        configuration.addAllowedOrigin("https://yeoreodigm.com");
-//        configuration.addAllowedOrigin("https://www.yeoreodigm.com");
+        configuration.addAllowedOrigin("https://yeoreodigm.com");
+        configuration.addAllowedOrigin("https://www.yeoreodigm.com");
 //        configuration.addAllowedOrigin("http://localhost:3000");
-        configuration.addAllowedOriginPattern("*");
+//        configuration.addAllowedOriginPattern("*");
         configuration.addAllowedMethod(GET);
         configuration.addAllowedMethod(POST);
         configuration.addAllowedMethod(PUT);
