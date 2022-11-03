@@ -36,39 +36,23 @@ public class RecommendService {
 
     public List<List<Long>> getRecommendedCourses(TravelNote travelNote) {
         int day = Period.between(travelNote.getDayStart(), travelNote.getDayEnd()).getDays() + 1;
-        StringBuilder include = new StringBuilder();
-
-        List<Long> placeInput = travelNote.getPlacesInput();
-        if (placeInput.size() > 0) {
-            for (Long placeId : placeInput) {
-                include.append(placeId).append(",");
-            }
-            include.delete(include.length() - 1, include.length());
-        } else {
-            include.append(0);
-        }
-
-        StringBuilder location = new StringBuilder();
-        for (String region : travelNote.getRegion()) {
-            switch (region) {
-                case "제주" -> location.append("east,west,south,north,");
-                case "제주 동부" -> location.append("east,");
-                case "제주 서부" -> location.append("west,");
-                case "제주 남부" -> location.append("south,");
-                case "제주 북부" -> location.append("north,");
-            }
-        }
 
         WebClient webClient = WebClient.create(EnvConst.COURSE_RECOMMEND_URL);
 
+        System.out.println("children: " + (Objects.equals(0, travelNote.getChild()) ? 0 : 1));
+        System.out.println("pet: " + (Objects.equals(0, travelNote.getAnimal()) ? 0 : 1));
+        System.out.println("tags: " + getTags(travelNote.getTheme()));
         Mono<RecommendedCoursesDto> apiResult = webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path(EnvConst.COURSE_RECOMMEND_URI)
                         .queryParam("id", travelNote.getMember().getId())
                         .queryParam("day", day)
-                        .queryParam("include", include)
-                        .queryParam("location", location.substring(0, location.length() - 1))
+                        .queryParam("children", Objects.equals(0, travelNote.getChild()) ? 0 : 1)
+                        .queryParam("pet", Objects.equals(0, travelNote.getAnimal()) ? 0 : 1)
+                        .queryParam("tags", getTags(travelNote.getTheme()))
+                        .queryParam("include", getInclude(travelNote.getPlacesInput()))
+                        .queryParam("location", getLocation(travelNote.getRegion()))
                         .build())
                 .retrieve()
                 .bodyToMono(RecommendedCoursesDto.class);
@@ -78,6 +62,58 @@ public class RecommendService {
         } catch (WebClientResponseException | NullPointerException e) {
             throw new BadRequestException("추천 코스를 불러오는데 실패하였습니다.");
         }
+    }
+
+    private static String getTags(List<String> themeList) {
+        StringBuilder tags = new StringBuilder();
+
+        if (themeList.size() > 0) {
+            for (String theme : themeList) {
+                switch (theme) {
+                    case "자연경관" -> tags.append("nature,");
+                    case "액티비티" -> tags.append("activity,");
+                    case "바다" -> tags.append("sea,");
+                    case "산" -> tags.append("mountain,");
+                    case "힐링" -> tags.append("healing,");
+                    case "산책" -> tags.append("walking,");
+                    case "인문학" -> tags.append("culture,");
+                    case "실내" -> tags.append("indoor,");
+                    case "실외" -> tags.append("outdoor,");
+                }
+            }
+            return tags.substring(0, tags.length() - 1);
+        } else {
+            return "empty";
+        }
+    }
+
+    private static String getInclude(List<Long> placeInput) {
+        StringBuilder include = new StringBuilder();
+
+        if (placeInput.size() > 0) {
+            for (Long placeId : placeInput) {
+                include.append(placeId).append(",");
+            }
+            include.delete(include.length() - 1, include.length());
+        } else {
+            include.append(0);
+        }
+
+        return include.toString();
+    }
+
+    private static String getLocation(List<String> regionList) {
+        StringBuilder location = new StringBuilder();
+        for (String region : regionList) {
+            switch (region) {
+                case "제주" -> location.append("east,west,south,north,");
+                case "제주 동부" -> location.append("east,");
+                case "제주 서부" -> location.append("west,");
+                case "제주 남부" -> location.append("south,");
+                case "제주 북부" -> location.append("north,");
+            }
+        }
+        return location.substring(0, location.length() - 1);
     }
 
     public List<Places> getRecommendedPlacesByTravelNote(TravelNote travelNote, int limit) {
