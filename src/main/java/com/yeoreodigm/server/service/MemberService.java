@@ -58,7 +58,7 @@ public class MemberService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    @Cacheable(value = CacheConst.MEMBER, key = "#authentication.getName()", unless = "#authentication.getName() == null")
+    @Cacheable(value = CacheConst.MEMBER, key = "#authentication.getName()", condition = "#authentication != null and #authentication.getName() != 'anonymousUser'")
     public Member getMemberByAuth(Authentication authentication) {
         if (Objects.isNull(authentication)) return null;
 
@@ -68,7 +68,7 @@ public class MemberService {
         return member;
     }
 
-    @Cacheable(value = CacheConst.MEMBER, key = "#email", unless = "#email == null")
+    @Cacheable(value = CacheConst.MEMBER, key = "#email", condition = "#email != null")
     public Member getMemberByEmail(String email) {
         Member member = memberRepository.findByEmail(email);
 
