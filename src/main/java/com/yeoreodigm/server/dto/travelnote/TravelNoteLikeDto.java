@@ -5,11 +5,12 @@ import com.yeoreodigm.server.dto.like.LikeItemDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class TravelNoteLikeDto {
+public class TravelNoteLikeDto implements Serializable {
 
     private Long travelNoteId;
 

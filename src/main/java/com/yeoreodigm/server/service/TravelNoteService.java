@@ -1,11 +1,13 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
+import com.yeoreodigm.server.dto.constraint.CacheConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.travelnote.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -240,6 +242,8 @@ public class TravelNoteService {
                 .toList();
     }
 
+
+    @Cacheable(value = CacheConst.WEEKLY_TRAVEL_NOTE, key = "#limit")
     public List<TravelNoteLikeDto> getWeekNotes(int limit, Member member) {
         List<TravelNote> travelNoteList = travelNoteLogRepository
                 .findMostNoteIdLimiting(limit)
