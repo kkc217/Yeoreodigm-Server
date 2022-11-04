@@ -466,10 +466,7 @@ public class TravelNoteApiController {
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
     public Result<List<TravelNoteStringIdDto>> callAllTravelNoteId() {
-        return new Result<>(travelNoteService.getAll()
-                .stream()
-                .map(TravelNoteStringIdDto::new)
-                .toList());
+        return new Result<>(travelNoteService.GetAllTravelNoteStringIdDto());
     }
 
     @GetMapping("/all/count")

@@ -1,11 +1,15 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
+import com.yeoreodigm.server.dto.constraint.CacheConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
+import com.yeoreodigm.server.dto.place.PlaceStringIdDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +39,12 @@ public class PlaceService {
 
     private final static int RANDOM_PAGING = 1000;
 
-    public List<Places> getAll() {
-        return placesRepository.findAll();
+    @Cacheable(value = CacheConst.ALL_PLACE_ID)
+    public List<PlaceStringIdDto> getAllPlaceStringIdDto() {
+        return placesRepository.findAll()
+                .stream()
+                .map(PlaceStringIdDto::new)
+                .toList();
     }
 
     public Places getPlaceById(Long placeId) {
@@ -79,11 +87,11 @@ public class PlaceService {
         return searchPlaces(content, page + 1, limit, option).size() > 0 ? page + 1 : 0;
     }
 
-    public List<Places> getPopularPlaces(int limit) {
-        return logRepository
-                .findMostPlaceIdLimiting(limit)
+    @Cacheable(value = CacheConst.POPULAR_PLACES, key = "#limit")
+    public List<PlaceCoordinateDto> getPopularPlaces(int limit) {
+        return logRepository.findMostPlaceIdLimiting(limit)
                 .stream()
-                .map(placesRepository::findByPlaceId)
+                .map(placeId -> new PlaceCoordinateDto(placesRepository.findByPlaceId(placeId)))
                 .toList();
     }
 

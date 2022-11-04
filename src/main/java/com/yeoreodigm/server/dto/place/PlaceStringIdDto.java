@@ -4,9 +4,11 @@ import com.yeoreodigm.server.domain.Places;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @AllArgsConstructor
-public class PlaceStringIdDto {
+public class PlaceStringIdDto implements Serializable {
 
     private String placeId;
 

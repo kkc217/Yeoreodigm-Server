@@ -40,10 +40,15 @@ public class TravelNoteService {
 
     private final CompanionRepository companionRepository;
 
-    public List<TravelNote> getAll() {
-        return travelNoteRepository.findAll();
+    @Cacheable(value = CacheConst.ALL_TRAVEL_NOTE_ID)
+    public List<TravelNoteStringIdDto> GetAllTravelNoteStringIdDto() {
+        return travelNoteRepository.findAll()
+                .stream()
+                .map(TravelNoteStringIdDto::new)
+                .toList();
     }
 
+    @Cacheable(value = CacheConst.ALL_TRAVEL_NOTE_COUNT)
     public Long countAll() {
         return travelNoteRepository.countAll();
     }
@@ -243,7 +248,6 @@ public class TravelNoteService {
     }
 
 
-    @Cacheable(value = CacheConst.WEEKLY_TRAVEL_NOTE, key = "#limit")
     public List<TravelNoteLikeDto> getWeekNotes(int limit, Member member) {
         List<TravelNote> travelNoteList = travelNoteLogRepository
                 .findMostNoteIdLimiting(limit)
