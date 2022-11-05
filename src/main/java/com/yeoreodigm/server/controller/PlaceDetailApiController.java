@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.controller;
 
+import com.yeoreodigm.server.domain.Language;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentLikeDto;
 import com.yeoreodigm.server.dto.comment.CommentRequestDto;
@@ -42,11 +43,8 @@ public class PlaceDetailApiController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
-    public PlaceDetailDto callPlaceDetailInfo(
-            Authentication authentication,
-            @PathVariable("placeId") Long placeId) {
-        return new PlaceDetailDto(
-                memberService.getMemberByAuth(authentication), placeService.getPlaceById(placeId));
+    public PlaceDetailDto callPlaceDetailInfo(@PathVariable("placeId") Long placeId) {
+        return new PlaceDetailDto(placeService.getPlaceById(placeId));
     }
 
     @GetMapping("")
@@ -57,12 +55,10 @@ public class PlaceDetailApiController {
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
     public PlaceDetailDto callPlaceDetailInfoV2(
-            Authentication authentication,
             @RequestParam(name = "placeId") Long placeId,
             @RequestParam(name = "option", required = false, defaultValue = "KO") String option
     ) {
-        return placeService.getPlaceDetailDto(
-                memberService.getMemberByAuth(authentication), placeService.getPlaceById(placeId), option);
+        return placeService.getPlaceDetailDto(placeService.getPlaceById(placeId), Language.getEnum(option));
     }
 
     @GetMapping("/info/{placeId}")
@@ -88,7 +84,7 @@ public class PlaceDetailApiController {
             @RequestParam(name = "placeId") Long placeId,
             @RequestParam(name = "option", required = false, defaultValue = "KO") String option
     ) {
-        return placeService.getPlaceExtraInfoDto(placeService.getPlaceById(placeId), option);
+        return placeService.getPlaceExtraInfoDto(placeService.getPlaceById(placeId), Language.getEnum(option));
     }
 
     @GetMapping("/comment/{placeId}")

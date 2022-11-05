@@ -4,9 +4,11 @@ import com.yeoreodigm.server.domain.SurveyItem;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @AllArgsConstructor
-public class SurveyItemDto {
+public class SurveyItemDto implements Serializable {
 
     private Long contentId;
 

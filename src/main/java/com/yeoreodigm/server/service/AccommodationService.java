@@ -2,9 +2,14 @@ package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.Accommodation;
 import com.yeoreodigm.server.domain.NearAccommodation;
+import com.yeoreodigm.server.dto.PageResult;
+import com.yeoreodigm.server.dto.accommodation.AccommodationDto;
+import com.yeoreodigm.server.dto.accommodation.AccommodationListDto;
+import com.yeoreodigm.server.dto.constraint.CacheConst;
 import com.yeoreodigm.server.repository.AccommodationRepository;
 import com.yeoreodigm.server.repository.NearAccommodationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +28,7 @@ public class AccommodationService {
 
     private final NearAccommodationRepository nearAccommodationRepository;
 
+    @Cacheable(value = CacheConst.NEAR_ACCOMMODATION_ID, key = "'p' + #placeId + 'type' + #type")
     public List<Long> getNearAccommodationId(Long placeId, int type) {
         if (Objects.equals(PENSION.getIndex(), type)) {
             return nearAccommodationRepository.findByPlaceIdPension(placeId);
@@ -64,6 +70,20 @@ public class AccommodationService {
 
     public int checkNextAccommodations(List<Long> accommodationIdList, int page, int limit) {
         return limit * (page - 1) + limit < accommodationIdList.size() ? page + 1 : 0;
+    }
+
+    @Cacheable(value = CacheConst.ACCOMMODATION_LIST_DTO, key = "'p' + #lastPlaceId + 'type' + #type + 'page' + #page + 'limit' + #limit")
+    public AccommodationListDto getAccommodationListDto(
+            int day, int totalDay, Long lastPlaceId, int type, List<Long> accommodationIdList, int page, int limit) {
+        return new AccommodationListDto(
+                day,
+                totalDay,
+                new PageResult<>(
+                        getAccommodationPaging(accommodationIdList, page, limit)
+                                .stream()
+                                .map(AccommodationDto::new)
+                                .toList(),
+                        checkNextAccommodations(accommodationIdList, page, limit)));
     }
 
 }
