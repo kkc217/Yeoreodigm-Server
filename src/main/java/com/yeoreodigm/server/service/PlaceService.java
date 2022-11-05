@@ -3,6 +3,8 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.constraint.CacheConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.dto.place.PlaceDetailDto;
+import com.yeoreodigm.server.dto.place.PlaceExtraInfoDto;
 import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.dto.place.PlaceStringIdDto;
@@ -29,11 +31,19 @@ public class PlaceService {
 
     private final PlacesRepository placesRepository;
 
+    private final PlacesEnRepository placesEnRepository;
+
+    private final PlacesZhRepository placesZhRepository;
+
     private final PlaceLikeRepository placeLikeRepository;
 
     private final PlacesLogRepository placesLogRepository;
 
     private final PlacesExtraInfoRepository placesExtraInfoRepository;
+
+    private final PlacesExtraInfoEnRepository placesExtraInfoEnRepository;
+
+    private final PlacesExtraInfoZhRepository placesExtraInfoZhRepository;
 
     private final LogRepository logRepository;
 
@@ -54,6 +64,20 @@ public class PlaceService {
             return place;
         } else {
             throw new BadRequestException("일치하는 여행지가 없습니다.");
+        }
+    }
+
+    public PlaceDetailDto getPlaceDetailDto(Member member, Places place, String option) {
+        switch (Language.getEnum(option)) {
+            case EN -> {
+                return new PlaceDetailDto(member, place, placesEnRepository.findByPlaceId(place.getId()));
+            }
+            case ZH -> {
+                return new PlaceDetailDto(member, place, placesZhRepository.findByPlaceId(place.getId()));
+            }
+            default -> {
+                return new PlaceDetailDto(member, place);
+            }
         }
     }
 
@@ -181,6 +205,20 @@ public class PlaceService {
 
     public PlacesExtraInfo getPlaceExtraInfo(Places place) {
         return placesExtraInfoRepository.findByPlaceId(place.getId());
+    }
+
+    public PlaceExtraInfoDto getPlaceExtraInfoDto(Places place, String option) {
+        switch (Language.getEnum(option)) {
+            case EN -> {
+                return new PlaceExtraInfoDto(placesExtraInfoEnRepository.findByPlaceId(place.getId()));
+            }
+            case ZH -> {
+                return new PlaceExtraInfoDto(placesExtraInfoZhRepository.findByPlaceId(place.getId()));
+            }
+            default -> {
+                return new PlaceExtraInfoDto(placesExtraInfoRepository.findByPlaceId(place.getId()));
+            }
+        }
     }
 
 }
