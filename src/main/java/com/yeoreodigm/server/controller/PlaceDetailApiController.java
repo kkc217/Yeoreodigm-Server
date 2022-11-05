@@ -56,10 +56,10 @@ public class PlaceDetailApiController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
-    public PlaceDetailDto callPlaceDetailInfo(
+    public PlaceDetailDto callPlaceDetailInfoV2(
             Authentication authentication,
             @RequestParam(name = "placeId") Long placeId,
-            @RequestParam(name = "option", required = false, defaultValue = "KOR") String option
+            @RequestParam(name = "option", required = false, defaultValue = "KO") String option
     ) {
         return placeService.getPlaceDetailDto(
                 memberService.getMemberByAuth(authentication), placeService.getPlaceById(placeId), option);
@@ -75,6 +75,20 @@ public class PlaceDetailApiController {
     public PlaceExtraInfoDto callPlaceExtraInfo(
             @PathVariable("placeId") Long placeId) {
         return new PlaceExtraInfoDto(placeService.getPlaceExtraInfo(placeService.getPlaceById(placeId)));
+    }
+
+    @GetMapping("/info")
+    @Operation(summary = "추가 정보 조회 v2")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public PlaceExtraInfoDto callPlaceExtraInfoV2(
+            @RequestParam(name = "placeId") Long placeId,
+            @RequestParam(name = "option", required = false, defaultValue = "KO") String option
+    ) {
+        return placeService.getPlaceExtraInfoDto(placeService.getPlaceById(placeId), option);
     }
 
     @GetMapping("/comment/{placeId}")
