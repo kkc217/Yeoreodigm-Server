@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.controller;
 
+import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentLikeDto;
 import com.yeoreodigm.server.dto.comment.CommentRequestDto;
@@ -47,6 +48,22 @@ public class PlaceDetailApiController {
             @PathVariable("placeId") Long placeId) {
         return new PlaceDetailDto(
                 memberService.getMemberByAuth(authentication), placeService.getPlaceById(placeId));
+    }
+
+    @GetMapping("")
+    @Operation(summary = "기본 정보 조회 v2")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public PlaceDetailDto callPlaceDetailInfo(
+            Authentication authentication,
+            @RequestParam(name = "placeId") Long placeId,
+            @RequestParam(name = "option", required = false, defaultValue = "KOR") String option
+    ) {
+        return placeService.getPlaceDetailDto(
+                memberService.getMemberByAuth(authentication), placeService.getPlaceById(placeId), option);
     }
 
     @GetMapping("/info/{placeId}")

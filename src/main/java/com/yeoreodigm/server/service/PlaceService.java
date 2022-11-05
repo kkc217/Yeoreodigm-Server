@@ -2,6 +2,7 @@ package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.dto.place.PlaceDetailDto;
 import com.yeoreodigm.server.dto.place.PlaceLikeDto;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.repository.*;
@@ -31,6 +32,10 @@ public class PlaceService {
 
     private final PlacesExtraInfoRepository placesExtraInfoRepository;
 
+    private final PlacesEnRepository placesEnRepository;
+
+    private final PlacesZhRepository placesZhRepository;
+
     private final LogRepository logRepository;
 
     private final static int RANDOM_PAGING = 1000;
@@ -46,6 +51,20 @@ public class PlaceService {
             return place;
         } else {
             throw new BadRequestException("일치하는 여행지가 없습니다.");
+        }
+    }
+
+    public PlaceDetailDto getPlaceDetailDto(Member member, Places place, String option) {
+        switch (Language.getEnum(option)) {
+            case EN -> {
+                return new PlaceDetailDto(member, place, placesEnRepository.findByPlaceId(place.getId()));
+            }
+            case ZH -> {
+                return new PlaceDetailDto(member, place, placesZhRepository.findByPlaceId(place.getId()));
+            }
+            default -> {
+                return new PlaceDetailDto(member, place);
+            }
         }
     }
 
