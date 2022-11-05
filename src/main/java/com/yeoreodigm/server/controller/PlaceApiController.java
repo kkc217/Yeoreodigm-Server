@@ -174,10 +174,7 @@ public class PlaceApiController {
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
     public Result<List<PlaceCoordinateDto>> callPopularPlaces() {
-        return new Result<>(placeService.getPopularPlaces(MainPageConst.NUMBER_OF_POPULAR_PLACES)
-                .stream()
-                .map(PlaceCoordinateDto::new)
-                .toList());
+        return new Result<>(placeService.getPopularPlaces(MainPageConst.NUMBER_OF_POPULAR_PLACES));
     }
 
     @GetMapping("/all")
@@ -188,10 +185,7 @@ public class PlaceApiController {
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
     public Result<List<PlaceStringIdDto>> callAllPlaceId() {
-        return new Result<>(placeService.getAll()
-                .stream()
-                .map(PlaceStringIdDto::new)
-                .toList());
+        return new Result<>(placeService.getAllPlaceStringIdDto());
     }
 
     @GetMapping("/restaurant")

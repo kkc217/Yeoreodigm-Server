@@ -4,8 +4,10 @@ import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class MemberInfoDto {
+public class MemberInfoDto implements Serializable {
 
     private Long memberId;
 
