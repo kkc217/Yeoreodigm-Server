@@ -12,6 +12,8 @@ public class CacheConst {
 
     public static final String ALL_PLACE_ID = "AllPlaceId";
 
+    public static final String PLACE_DETAIL = "PlaceDetail";
+
     public static final String SURVEY_ITEM = "SurveyItem";
 
 }

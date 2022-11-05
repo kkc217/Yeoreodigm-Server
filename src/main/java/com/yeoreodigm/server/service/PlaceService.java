@@ -67,8 +67,9 @@ public class PlaceService {
         }
     }
 
-    public PlaceDetailDto getPlaceDetailDto(Places place, String option) {
-        switch (Language.getEnum(option)) {
+    @Cacheable(value = CacheConst.PLACE_DETAIL, key = "'p' + #place.getId() + 'opt' + #language.getIndex()", condition = "#place != null")
+    public PlaceDetailDto getPlaceDetailDto(Places place, Language language) {
+        switch (language) {
             case EN -> {
                 return new PlaceDetailDto(place, placesEnRepository.findByPlaceId(place.getId()));
             }

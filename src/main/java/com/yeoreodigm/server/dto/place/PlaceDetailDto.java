@@ -5,13 +5,14 @@ import com.yeoreodigm.server.domain.PlacesEn;
 import com.yeoreodigm.server.domain.PlacesZh;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import static com.yeoreodigm.server.dto.constraint.PlaceConst.NUMBER_OF_CHILDREN;
 import static com.yeoreodigm.server.dto.constraint.PlaceConst.NUMBER_OF_PET;
 
 @Data
-public class PlaceDetailDto {
+public class PlaceDetailDto implements Serializable {
 
     private Long placeId;
 

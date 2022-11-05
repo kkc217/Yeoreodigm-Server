@@ -1,5 +1,6 @@
 package com.yeoreodigm.server.controller;
 
+import com.yeoreodigm.server.domain.Language;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentLikeDto;
 import com.yeoreodigm.server.dto.comment.CommentRequestDto;
@@ -57,7 +58,7 @@ public class PlaceDetailApiController {
             @RequestParam(name = "placeId") Long placeId,
             @RequestParam(name = "option", required = false, defaultValue = "KO") String option
     ) {
-        return placeService.getPlaceDetailDto(placeService.getPlaceById(placeId), option);
+        return placeService.getPlaceDetailDto(placeService.getPlaceById(placeId), Language.getEnum(option));
     }
 
     @GetMapping("/info/{placeId}")
