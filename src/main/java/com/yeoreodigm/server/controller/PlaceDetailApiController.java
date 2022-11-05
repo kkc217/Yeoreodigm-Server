@@ -84,7 +84,7 @@ public class PlaceDetailApiController {
             @RequestParam(name = "placeId") Long placeId,
             @RequestParam(name = "option", required = false, defaultValue = "KO") String option
     ) {
-        return placeService.getPlaceExtraInfoDto(placeService.getPlaceById(placeId), option);
+        return placeService.getPlaceExtraInfoDto(placeService.getPlaceById(placeId), Language.getEnum(option));
     }
 
     @GetMapping("/comment/{placeId}")

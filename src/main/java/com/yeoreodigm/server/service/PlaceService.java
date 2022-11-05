@@ -208,8 +208,9 @@ public class PlaceService {
         return placesExtraInfoRepository.findByPlaceId(place.getId());
     }
 
-    public PlaceExtraInfoDto getPlaceExtraInfoDto(Places place, String option) {
-        switch (Language.getEnum(option)) {
+    @Cacheable(value = CacheConst.PLACE_EXTRA_INFO, key = "'p' + #place.getId() + 'opt' + #language.getIndex()", condition = "#place != null")
+    public PlaceExtraInfoDto getPlaceExtraInfoDto(Places place, Language language) {
+        switch (language) {
             case EN -> {
                 return new PlaceExtraInfoDto(placesExtraInfoEnRepository.findByPlaceId(place.getId()));
             }
