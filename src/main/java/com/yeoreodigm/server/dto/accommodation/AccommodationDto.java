@@ -3,10 +3,11 @@ package com.yeoreodigm.server.dto.accommodation;
 import com.yeoreodigm.server.domain.Accommodation;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class AccommodationDto {
+public class AccommodationDto implements Serializable {
 
     private Long accommodationId;
 

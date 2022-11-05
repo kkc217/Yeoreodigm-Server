@@ -20,4 +20,9 @@ public class CacheConst {
 
     public static final String NEAR_RESTAURANT = "NearRestaurant";
 
+    public static final String NEAR_ACCOMMODATION_ID = "NearAccommodationId";
+
+    public static final String ACCOMMODATION_LIST_DTO = "AccommodationListDto";
+
+
 }
