@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.NonUniqueResultException;
 
-import static com.yeoreodigm.server.domain.QPlacesZh.*;
+import static com.yeoreodigm.server.domain.QPlacesZh.placesZh;
 
 @Repository
 @RequiredArgsConstructor

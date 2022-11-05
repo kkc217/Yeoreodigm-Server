@@ -1,6 +1,9 @@
 package com.yeoreodigm.server.controller;
 
-import com.yeoreodigm.server.domain.*;
+import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.domain.NoteAuthority;
+import com.yeoreodigm.server.domain.TravelNote;
+import com.yeoreodigm.server.domain.TravelNoteLike;
 import com.yeoreodigm.server.dto.ContentRequestDto;
 import com.yeoreodigm.server.dto.CountDto;
 import com.yeoreodigm.server.dto.PageResult;

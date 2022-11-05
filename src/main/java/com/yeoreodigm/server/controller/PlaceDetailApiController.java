@@ -1,6 +1,5 @@
 package com.yeoreodigm.server.controller;
 
-import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.dto.Result;
 import com.yeoreodigm.server.dto.comment.CommentLikeDto;
 import com.yeoreodigm.server.dto.comment.CommentRequestDto;
