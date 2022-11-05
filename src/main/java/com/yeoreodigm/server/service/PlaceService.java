@@ -67,16 +67,16 @@ public class PlaceService {
         }
     }
 
-    public PlaceDetailDto getPlaceDetailDto(Member member, Places place, String option) {
+    public PlaceDetailDto getPlaceDetailDto(Places place, String option) {
         switch (Language.getEnum(option)) {
             case EN -> {
-                return new PlaceDetailDto(member, place, placesEnRepository.findByPlaceId(place.getId()));
+                return new PlaceDetailDto(place, placesEnRepository.findByPlaceId(place.getId()));
             }
             case ZH -> {
-                return new PlaceDetailDto(member, place, placesZhRepository.findByPlaceId(place.getId()));
+                return new PlaceDetailDto(place, placesZhRepository.findByPlaceId(place.getId()));
             }
             default -> {
-                return new PlaceDetailDto(member, place);
+                return new PlaceDetailDto(place);
             }
         }
     }

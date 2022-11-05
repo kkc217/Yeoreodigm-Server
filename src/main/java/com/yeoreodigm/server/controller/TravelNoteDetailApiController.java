@@ -48,10 +48,8 @@ public class TravelNoteDetailApiController {
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
     public NoteDetailInfoResponseDto callTravelNoteDetail(
-            Authentication authentication,
             @PathVariable("travelNoteId") Long travelNoteId) {
         return new NoteDetailInfoResponseDto(
-                memberService.getMemberByAuth(authentication),
                 travelNoteService.getTravelNoteDetailInfo(travelNoteService.getTravelNoteById(travelNoteId)));
     }
 

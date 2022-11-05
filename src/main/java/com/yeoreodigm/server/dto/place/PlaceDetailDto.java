@@ -1,6 +1,5 @@
 package com.yeoreodigm.server.dto.place;
 
-import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.Places;
 import com.yeoreodigm.server.domain.PlacesEn;
 import com.yeoreodigm.server.domain.PlacesZh;
@@ -13,8 +12,6 @@ import static com.yeoreodigm.server.dto.constraint.PlaceConst.NUMBER_OF_PET;
 
 @Data
 public class PlaceDetailDto {
-
-    private Long requestorId;
 
     private Long placeId;
 
@@ -36,8 +33,7 @@ public class PlaceDetailDto {
 
     private boolean animal;
 
-    public PlaceDetailDto(Member member, Places place) {
-        if (Objects.nonNull(member)) this.requestorId = member.getId();
+    public PlaceDetailDto(Places place) {
         this.placeId = place.getId();
         this.title = place.getTitle();
         this.tag = place.getTag();
@@ -50,8 +46,7 @@ public class PlaceDetailDto {
         this.animal = Objects.equals(place.getPet(), NUMBER_OF_PET);
     }
 
-    public PlaceDetailDto(Member member, Places place, PlacesEn placeEn) {
-        if (Objects.nonNull(member)) this.requestorId = member.getId();
+    public PlaceDetailDto(Places place, PlacesEn placeEn) {
         this.placeId = place.getId();
 
         this.title = placeEn.getTitle();
@@ -66,8 +61,7 @@ public class PlaceDetailDto {
         this.animal = Objects.equals(place.getPet(), NUMBER_OF_PET);
     }
 
-    public PlaceDetailDto(Member member, Places place, PlacesZh placeZh) {
-        if (Objects.nonNull(member)) this.requestorId = member.getId();
+    public PlaceDetailDto(Places place, PlacesZh placeZh) {
         this.placeId = place.getId();
 
         this.title = placeZh.getTitle();
