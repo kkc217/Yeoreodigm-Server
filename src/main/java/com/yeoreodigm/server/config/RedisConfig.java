@@ -1,6 +1,5 @@
 package com.yeoreodigm.server.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
@@ -23,8 +22,6 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class RedisConfig {
 
-    private final ObjectMapper objectMapper;
-
     @Value("${spring.redis.host}")
     private String redisHost;
 
@@ -38,24 +35,6 @@ public class RedisConfig {
 
     @Bean
     public RedisCacheManager redisCacheManager() {
-
-//        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration
-//                .defaultCacheConfig()
-//                .disableCachingNullValues()
-//                .serializeValuesWith(
-//                        RedisSerializationContext.SerializationPair
-//                                .fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper))
-//                );
-//
-//        Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>();
-//        redisCacheConfigurationMap
-//                .put("POST", redisCacheConfiguration.entryTtl(Duration.ofMinutes(5)));
-//
-//        return RedisCacheManager.RedisCacheManagerBuilder
-//                .fromConnectionFactory(redisConnectionFactory())
-//                .withInitialCacheConfigurations(redisCacheConfigurationMap)
-//                .cacheDefaults(redisCacheConfiguration)
-//                .build();
         RedisCacheConfiguration configuration = RedisCacheConfiguration
                 .defaultCacheConfig()
                 .disableCachingNullValues()
@@ -69,37 +48,5 @@ public class RedisConfig {
                 .build();
 
     }
-
-//    @Bean
-//    public CacheManager cacheManager() {
-//        RedisCacheManager.RedisCacheManagerBuilder builder
-//                = RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(redisConnectionFactory());
-//
-//        RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
-//                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())).entryTtl(Duration.ofMinutes(30));
-//        builder.cacheDefaults(configuration);
-//        return builder.build();
-//    }
-
-//    @Bean
-//    public RedisCacheManager redisCacheManager() {
-//        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration
-//                .defaultCacheConfig()
-//                .disableCachingNullValues()
-//                .serializeValuesWith(
-//                        RedisSerializationContext.SerializationPair
-//                                .fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper))
-//                );
-//
-//        Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>();
-//        redisCacheConfigurationMap
-//                .put(CacheConst.POST, redisCacheConfiguration.entryTtl(Duration.ofMinutes(5)));
-//
-//        return RedisCacheManager.RedisCacheManagerBuilder
-//                .fromConnectionFactory(redisConnectionFactory())
-//                .withInitialCacheConfigurations(redisCacheConfigurationMap)
-//                .cacheDefaults(redisCacheConfiguration)
-//                .build();
-//    }
 
 }
