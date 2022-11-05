@@ -18,4 +18,6 @@ public class CacheConst {
 
     public static final String SURVEY_ITEM = "SurveyItem";
 
+    public static final String NEAR_RESTAURANT = "NearRestaurant";
+
 }

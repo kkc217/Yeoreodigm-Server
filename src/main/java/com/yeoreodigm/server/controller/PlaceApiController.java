@@ -3,6 +3,7 @@ package com.yeoreodigm.server.controller;
 import com.yeoreodigm.server.domain.*;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
+import com.yeoreodigm.server.dto.constraint.CacheConst;
 import com.yeoreodigm.server.dto.constraint.MainPageConst;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
 import com.yeoreodigm.server.dto.like.LikeRequestDto;
@@ -22,6 +23,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -195,6 +197,7 @@ public class PlaceApiController {
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
     })
+    @Cacheable(value = CacheConst.NEAR_RESTAURANT, key = "'p' + #placeId + 'type' + #type + 'page' + #page + 'limit' + #limit")
     public PageResult<List<RestaurantRouteDto>> callNearRestaurant(
             @RequestParam("placeId") Long placeId,
             @RequestParam(value = "type", required = false, defaultValue = "0") int type,
