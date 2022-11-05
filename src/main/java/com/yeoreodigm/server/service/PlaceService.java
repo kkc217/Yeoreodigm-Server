@@ -67,16 +67,17 @@ public class PlaceService {
         }
     }
 
-    public PlaceDetailDto getPlaceDetailDto(Member member, Places place, String option) {
-        switch (Language.getEnum(option)) {
+    @Cacheable(value = CacheConst.PLACE_DETAIL, key = "'p' + #place.getId() + 'opt' + #language.getIndex()", condition = "#place != null")
+    public PlaceDetailDto getPlaceDetailDto(Places place, Language language) {
+        switch (language) {
             case EN -> {
-                return new PlaceDetailDto(member, place, placesEnRepository.findByPlaceId(place.getId()));
+                return new PlaceDetailDto(place, placesEnRepository.findByPlaceId(place.getId()));
             }
             case ZH -> {
-                return new PlaceDetailDto(member, place, placesZhRepository.findByPlaceId(place.getId()));
+                return new PlaceDetailDto(place, placesZhRepository.findByPlaceId(place.getId()));
             }
             default -> {
-                return new PlaceDetailDto(member, place);
+                return new PlaceDetailDto(place);
             }
         }
     }
@@ -207,8 +208,9 @@ public class PlaceService {
         return placesExtraInfoRepository.findByPlaceId(place.getId());
     }
 
-    public PlaceExtraInfoDto getPlaceExtraInfoDto(Places place, String option) {
-        switch (Language.getEnum(option)) {
+    @Cacheable(value = CacheConst.PLACE_EXTRA_INFO, key = "'p' + #place.getId() + 'opt' + #language.getIndex()", condition = "#place != null")
+    public PlaceExtraInfoDto getPlaceExtraInfoDto(Places place, Language language) {
+        switch (language) {
             case EN -> {
                 return new PlaceExtraInfoDto(placesExtraInfoEnRepository.findByPlaceId(place.getId()));
             }

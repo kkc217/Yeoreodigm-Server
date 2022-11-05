@@ -4,10 +4,11 @@ import com.yeoreodigm.server.domain.Restaurant;
 import com.yeoreodigm.server.dto.route.RouteData;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class RestaurantRouteDto {
+public class RestaurantRouteDto implements Serializable {
 
     private Long restaurantId;
 

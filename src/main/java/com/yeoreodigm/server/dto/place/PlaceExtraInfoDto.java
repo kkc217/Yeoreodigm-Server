@@ -5,8 +5,10 @@ import com.yeoreodigm.server.domain.PlacesExtraInfoEn;
 import com.yeoreodigm.server.domain.PlacesExtraInfoZh;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class PlaceExtraInfoDto {
+public class PlaceExtraInfoDto implements Serializable {
 
     private String operatingHours;
 

@@ -3,11 +3,13 @@ package com.yeoreodigm.server.service;
 import com.yeoreodigm.server.domain.Authority;
 import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.SurveyResult;
+import com.yeoreodigm.server.dto.constraint.CacheConst;
 import com.yeoreodigm.server.dto.constraint.SurveyConst;
 import com.yeoreodigm.server.dto.survey.SurveyItemDto;
 import com.yeoreodigm.server.repository.MemberRepository;
 import com.yeoreodigm.server.repository.SurveyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class SurveyService {
     
     private final MemberRepository memberRepository;
 
+    @Cacheable(value = CacheConst.SURVEY_ITEM, key = "#progress")
     public List<SurveyItemDto> getSurveyItemsByProgress(int progress) {
         return surveyRepository
                 .findSurveyItemsByProgress(progress)

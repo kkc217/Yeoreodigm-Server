@@ -3,11 +3,12 @@ package com.yeoreodigm.server.dto.accommodation;
 import com.yeoreodigm.server.dto.PageResult;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
 @Data
-public class AccommodationListDto {
+public class AccommodationListDto implements Serializable {
 
     private boolean hasPrev;
 

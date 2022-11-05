@@ -4,7 +4,6 @@ import com.yeoreodigm.server.domain.Course;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
-import com.yeoreodigm.server.dto.accommodation.AccommodationDto;
 import com.yeoreodigm.server.dto.accommodation.AccommodationListDto;
 import com.yeoreodigm.server.dto.course.*;
 import com.yeoreodigm.server.dto.route.RouteItemDto;
@@ -209,18 +208,12 @@ public class CourseApiController {
             return new AccommodationListDto(
                     day, travelNote.getCourses().size(), new PageResult<>(new ArrayList<>(), 0));
 
+        Long lastPlaceId = placeIdList.get(placeIdList.size() - 1);
         List<Long> accommodationIdList = accommodationService.getNearAccommodationId(
-                placeIdList.get(placeIdList.size() - 1), type);
+                lastPlaceId, type);
 
-        return new AccommodationListDto(
-                day,
-                travelNote.getCourses().size(),
-                new PageResult<>(
-                        accommodationService.getAccommodationPaging(accommodationIdList, page, limit)
-                                .stream()
-                                .map(AccommodationDto::new)
-                                .toList(),
-                        accommodationService.checkNextAccommodations(accommodationIdList, page, limit)));
+        return accommodationService.getAccommodationListDto(
+                day, travelNote.getCourses().size(), lastPlaceId, type, accommodationIdList, page, limit);
     }
 
 }
