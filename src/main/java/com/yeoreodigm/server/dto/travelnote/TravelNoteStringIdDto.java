@@ -4,9 +4,11 @@ import com.yeoreodigm.server.domain.TravelNote;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @AllArgsConstructor
-public class TravelNoteStringIdDto {
+public class TravelNoteStringIdDto implements Serializable {
 
     private String travelNoteId;
 

@@ -3,8 +3,10 @@ package com.yeoreodigm.server.dto.place;
 import com.yeoreodigm.server.domain.Places;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class PlaceCoordinateDto {
+public class PlaceCoordinateDto implements Serializable {
 
     private Long placeId;
 
