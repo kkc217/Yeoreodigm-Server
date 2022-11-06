@@ -314,7 +314,7 @@ public class MemberService {
     @CacheEvict(value = CacheConst.MEMBER, key = "#member.getEmail()", allEntries = true)
     public void changeProfileImage(Member member, String newProfileImageUrl) {
         member.changeProfileImage(newProfileImageUrl);
-        memberRepository.saveAndFlush(member);
+        memberRepository.merge(member);
     }
 
     @Transactional
