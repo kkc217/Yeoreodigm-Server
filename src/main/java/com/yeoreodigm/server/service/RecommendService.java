@@ -39,9 +39,6 @@ public class RecommendService {
 
         WebClient webClient = WebClient.create(EnvConst.COURSE_RECOMMEND_URL);
 
-        System.out.println("children: " + (Objects.equals(0, travelNote.getChild()) ? 0 : 1));
-        System.out.println("pet: " + (Objects.equals(0, travelNote.getAnimal()) ? 0 : 1));
-        System.out.println("tags: " + getTags(travelNote.getTheme()));
         Mono<RecommendedCoursesDto> apiResult = webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
