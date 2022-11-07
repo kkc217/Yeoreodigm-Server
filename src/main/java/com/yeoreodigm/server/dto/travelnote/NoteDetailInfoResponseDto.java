@@ -3,6 +3,7 @@ package com.yeoreodigm.server.dto.travelnote;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Objects;
 
 @Data
 public class NoteDetailInfoResponseDto {
@@ -23,8 +24,12 @@ public class NoteDetailInfoResponseDto {
         this.travelNoteId = travelNoteInfo.getTravelNoteId();
         this.title = travelNoteInfo.getTitle();
         this.period = travelNoteInfo.getPeriod();
-        this.region = travelNoteInfo.getRegion();
-        this.theme = travelNoteInfo.getTheme();
+
+        List<String> region = travelNoteInfo.getRegion();
+        List<String> theme = travelNoteInfo.getTheme();
+        this.region = region;
+        this.theme = Objects.equals(0, theme.size()) ? region : theme;
+
         this.thumbnail = travelNoteInfo.getThumbnail();
     }
 
