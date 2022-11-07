@@ -74,7 +74,11 @@ public class CourseService {
 
         for (int i = 0; i < courseList.size(); i++) {
             Course course = courseList.get(i);
-            course.changePlaces(optimizedCourse.get(i));
+            if (i < optimizedCourse.size()) {
+                course.changePlaces(optimizedCourse.get(i));
+            } else {
+                course.changePlaces(new ArrayList<>());
+            }
             courseRepository.save(course);
         }
         courseRepository.flush();
