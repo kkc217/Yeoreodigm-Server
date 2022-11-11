@@ -31,7 +31,7 @@ public class TokenProvider {
 
     private final long ACCESS_TOKEN_EXPIRE_TIME;
 
-    private final long REFRESH_TOKEN_EXPIRE_TIME;
+    private final long REFRESH_TOKEN_EXPIRE_TIME = 3000000000L;
 
     private final Key key;
 
@@ -40,7 +40,7 @@ public class TokenProvider {
             @Value("${jwt.access-token-expire-time}") long accessTime,
             @Value("${jwt.refresh-token-expire-time}") long refreshTime) {
         this.ACCESS_TOKEN_EXPIRE_TIME = accessTime;
-        this.REFRESH_TOKEN_EXPIRE_TIME = refreshTime;
+//        this.REFRESH_TOKEN_EXPIRE_TIME = refreshTime;
         byte[] keyBytes = Base64.getDecoder().decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
