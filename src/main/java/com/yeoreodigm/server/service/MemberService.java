@@ -99,7 +99,10 @@ public class MemberService {
         //비밀번호 암호화
         String password = encodePassword(memberJoinRequestDto.getPassword());
 
-        LocalDate birth = LocalDate.of(memberJoinRequestDto.getYear(), memberJoinRequestDto.getMonth(), memberJoinRequestDto.getDay());
+        LocalDate birth = null;
+        if (!Objects.equals(0, memberJoinRequestDto.getYear())) {
+            birth = LocalDate.of(memberJoinRequestDto.getYear(), memberJoinRequestDto.getMonth(), memberJoinRequestDto.getDay());
+        }
 
         Member member = new Member(
                 memberJoinRequestDto.getEmail(),

@@ -12,7 +12,7 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
-                .group("v1")
+                .group("Yeoreodigm")
                 .pathsToMatch("/api/**")
                 .build();
     }
