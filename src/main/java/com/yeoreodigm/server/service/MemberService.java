@@ -109,7 +109,7 @@ public class MemberService {
                 password,
                 memberJoinRequestDto.getNickname(),
                 birth,
-                memberJoinRequestDto.getGender(),
+                null,
                 memberJoinRequestDto.getRegion(),
                 memberJoinRequestDto.isOptional()
         );
