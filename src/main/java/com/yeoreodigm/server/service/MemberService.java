@@ -99,10 +99,8 @@ public class MemberService {
         //비밀번호 암호화
         String password = encodePassword(memberJoinRequestDto.getPassword());
 
-        LocalDate birth = null;
-        if (!Objects.equals(0, memberJoinRequestDto.getYear())) {
-            birth = LocalDate.of(memberJoinRequestDto.getYear(), memberJoinRequestDto.getMonth(), memberJoinRequestDto.getDay());
-        }
+        LocalDate birth = getBirth(
+                memberJoinRequestDto.getYear(), memberJoinRequestDto.getMonth(), memberJoinRequestDto.getDay());
 
         Member member = new Member(
                 memberJoinRequestDto.getEmail(),
@@ -117,6 +115,22 @@ public class MemberService {
         memberRepository.saveAndFlush(member);
 
         surveyRepository.saveAndFlush(new SurveyResult(member));
+    }
+
+    private LocalDate getBirth(int year, int month, int day) {
+        if (year < 1000 || year > 3000) {
+            return null;
+        }
+
+        if (month < 1 || month > 12) {
+            return null;
+        }
+
+        if (day < 1 || day > 31) {
+            return null;
+        }
+
+        return LocalDate.of(year, month, day);
     }
 
     public Member login(String email, String password) {
