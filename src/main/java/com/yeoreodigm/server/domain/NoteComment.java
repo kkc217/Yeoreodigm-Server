@@ -1,19 +1,27 @@
 package com.yeoreodigm.server.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SequenceGenerator(
+        name = "NOTE_COMMENT_ID_SEQ_GENERATOR",
+        sequenceName = "note_comment_id_seq",
+        allocationSize = 1)
 public class NoteComment {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "NOTE_COMMENT_ID_SEQ_GENERATOR"
+    )
     @Column(name = "note_comment_id")
     private Long id;
 
@@ -33,7 +41,7 @@ public class NoteComment {
         this.travelNoteId = travelNoteId;
         this.member = member;
         this.text = text;
-        this.created = LocalDateTime.now();
+        this.created = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         this.modified = created;
     }
 }

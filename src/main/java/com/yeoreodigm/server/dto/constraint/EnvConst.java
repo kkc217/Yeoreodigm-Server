@@ -16,6 +16,8 @@ public class EnvConst {
     public static String NOTE_SIMILAR_URI;
     public static String NOTE_RECOMMEND_URL;
     public static String NOTE_RECOMMEND_URI;
+    public static String PHOTODIGM_URL;
+    public static String PHOTODIGM_URI;
     public static String NAVER_API_URL;
     public static String NAVER_API_ID;
     public static String NAVER_API_KEY;
@@ -62,6 +64,16 @@ public class EnvConst {
 
     @Value("${webclient.note.recommend.uri}")
     public void setNoteRecommendUri(String noteRecommendUri) { NOTE_RECOMMEND_URI = noteRecommendUri; }
+
+    @Value("${webclient.photodigm.url}")
+    public void setPhotodigmUrl(String photodigmUrl) {
+        PHOTODIGM_URL = photodigmUrl;
+    }
+
+    @Value("${webclient.photodigm.uri}")
+    public void setPhotodigmUri(String photodigmUri) {
+        PHOTODIGM_URI = photodigmUri;
+    }
 
     @Value("${webclient.naver.api.url}")
     public void setNaverApiUrl(String naverApiUrl) {

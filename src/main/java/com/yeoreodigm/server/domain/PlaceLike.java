@@ -10,9 +10,17 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(indexes = @Index(name = "multiIndex1", columnList = "placeId, memberId"))
+@SequenceGenerator(
+        name = "PLACE_LIKE_ID_SEQ_GENERATOR",
+        sequenceName = "place_like_id_seq",
+        allocationSize = 1)
 public class PlaceLike {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "PLACE_LIKE_ID_SEQ_GENERATOR"
+    )
     private Long id;
 
     private Long placeId;

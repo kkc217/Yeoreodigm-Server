@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static com.yeoreodigm.server.domain.QCourse.*;
+import static com.yeoreodigm.server.domain.QCourse.course;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,16 +31,6 @@ public class CourseRepository {
 
     public void flush() {
         em.flush();
-    }
-
-    public List<Course> findCoursesByTravelNoteIdPaging(Long travelNoteId, int page, int limit) {
-        return queryFactory
-                .selectFrom(course)
-                .where(course.travelNote.id.eq(travelNoteId))
-                .orderBy(course.day.asc())
-                .offset(page)
-                .limit(limit)
-                .fetch();
     }
 
     public List<Course> findCoursesByTravelNoteId(Long travelNoteId) {

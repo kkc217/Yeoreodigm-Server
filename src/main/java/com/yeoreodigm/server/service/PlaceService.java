@@ -1,18 +1,28 @@
 package com.yeoreodigm.server.service;
 
 import com.yeoreodigm.server.domain.*;
-import com.yeoreodigm.server.dto.constraint.MainPageConst;
-import com.yeoreodigm.server.dto.mainpage.MainPagePlace;
+import com.yeoreodigm.server.dto.constraint.CacheConst;
+import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.dto.place.PlaceDetailDto;
+import com.yeoreodigm.server.dto.place.PlaceExtraInfoDto;
+import com.yeoreodigm.server.dto.place.PlaceCoordinateDto;
+import com.yeoreodigm.server.dto.place.PlaceLikeDto;
+import com.yeoreodigm.server.dto.place.PlaceStringIdDto;
 import com.yeoreodigm.server.exception.BadRequestException;
-import com.yeoreodigm.server.repository.LogRepository;
-import com.yeoreodigm.server.repository.PlacesRepository;
-import com.yeoreodigm.server.repository.RouteInfoRepository;
+import com.yeoreodigm.server.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static com.yeoreodigm.server.dto.constraint.SearchConst.SEARCH_OPTION_LIKE_ASC;
+import static com.yeoreodigm.server.dto.constraint.SearchConst.SEARCH_OPTION_LIKE_DESC;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,17 +31,31 @@ public class PlaceService {
 
     private final PlacesRepository placesRepository;
 
-    private final PlaceLikeService placeLikeService;
+    private final PlacesEnRepository placesEnRepository;
 
-    private final RouteInfoRepository routeInfoRepository;
+    private final PlacesZhRepository placesZhRepository;
 
-    private final RouteInfoService routeInfoService;
+    private final PlaceLikeRepository placeLikeRepository;
+
+    private final PlacesLogRepository placesLogRepository;
+
+    private final PlacesExtraInfoRepository placesExtraInfoRepository;
+
+    private final PlacesExtraInfoEnRepository placesExtraInfoEnRepository;
+
+    private final PlacesExtraInfoZhRepository placesExtraInfoZhRepository;
 
     private final LogRepository logRepository;
 
-    private final RecommendService recommendService;
-
     private final static int RANDOM_PAGING = 1000;
+
+    @Cacheable(value = CacheConst.ALL_PLACE_ID)
+    public List<PlaceStringIdDto> getAllPlaceStringIdDto() {
+        return placesRepository.findAll()
+                .stream()
+                .map(PlaceStringIdDto::new)
+                .toList();
+    }
 
     public Places getPlaceById(Long placeId) {
         Places place = placesRepository.findByPlaceId(placeId);
@@ -40,6 +64,21 @@ public class PlaceService {
             return place;
         } else {
             throw new BadRequestException("일치하는 여행지가 없습니다.");
+        }
+    }
+
+    @Cacheable(value = CacheConst.PLACE_DETAIL, key = "'p' + #place.getId() + 'opt' + #language.getIndex()", condition = "#place != null")
+    public PlaceDetailDto getPlaceDetailDto(Places place, Language language) {
+        switch (language) {
+            case EN -> {
+                return new PlaceDetailDto(place, placesEnRepository.findByPlaceId(place.getId()));
+            }
+            case ZH -> {
+                return new PlaceDetailDto(place, placesZhRepository.findByPlaceId(place.getId()));
+            }
+            default -> {
+                return new PlaceDetailDto(place);
+            }
         }
     }
 
@@ -57,36 +96,27 @@ public class PlaceService {
                 .toList();
     }
 
-    public List<Places> searchPlaces(String content, int page, int limit) {
+    public List<Places> searchPlaces(String content, int page, int limit, int option) {
+        if (Objects.equals(SEARCH_OPTION_LIKE_ASC, option)) {
+            return placesRepository.findByKeywordOrderByLikeAsc(
+                    content, limit * (page - 1), limit);
+        } else if (Objects.equals(SEARCH_OPTION_LIKE_DESC, option)) {
+            return placesRepository.findByKeywordOrderByLikeDesc(
+                    content, limit * (page - 1), limit);
+        }
+
         return placesRepository.findPlacesByKeywordPaging(content, limit * (page - 1), limit);
     }
 
-    public int checkNextSearchPage(String content, int page, int limit) {
-        return searchPlaces(content, page + 1, limit).size() > 0 ? page + 1 : 0;
+    public int checkNextSearchPage(String content, int page, int limit, int option) {
+        return searchPlaces(content, page + 1, limit, option).size() > 0 ? page + 1 : 0;
     }
 
-    @Transactional
-    public RouteInfo getRouteInfo(Long start, Long goal) {
-        if (start.equals(goal)) return new RouteInfo(start, goal, 0, 0, 0);
-        if (start > goal) {
-            Long tmp = start;
-            start = goal;
-            goal = tmp;
-        }
-
-        RouteInfo routeInfo = routeInfoRepository.findRouteInfoByPlaceIds(start, goal);
-        if (routeInfo != null) {
-            return routeInfo;
-        } else {
-            return routeInfoService.updateRouteInfo(start, goal);
-        }
-    }
-
-    public List<Places> getPopularPlaces(int limit) {
-        return logRepository
-                .findMostPlaceIdLimiting(limit)
+    @Cacheable(value = CacheConst.POPULAR_PLACES, key = "#limit")
+    public List<PlaceCoordinateDto> getPopularPlaces(int limit) {
+        return logRepository.findMostPlaceIdLimiting(limit)
                 .stream()
-                .map(placesRepository::findByPlaceId)
+                .map(placeId -> new PlaceCoordinateDto(placesRepository.findByPlaceId(placeId)))
                 .toList();
     }
 
@@ -95,29 +125,102 @@ public class PlaceService {
         return placesRepository.findPagingAndLimiting(page, limit);
     }
 
-    public List<MainPagePlace> getRandomPlacesMainPage(int limit, Member member) {
-        List<Places> placeList = getRandomPlaces(limit);
-
-        return getMainPageItemList(placeList, member);
-    }
-
     public String getRandomImageUrl() {
         return placesRepository.findOneImageUrl((int) (Math.random() * 1000));
     }
 
-    public List<MainPagePlace> getRecommendedPlacesMainPage(int limit, Member member) {
-        List<Places> placeList = recommendService.getRecommendedPlaces(member, new ArrayList<>(), limit);
-
-        return getMainPageItemList(placeList, member);
-    }
-
-    private List<MainPagePlace> getMainPageItemList(List<Places> placeList, Member member) {
-        List<MainPagePlace> result = new ArrayList<>();
+    public List<PlaceLikeDto> getPlaceLikeDtoList(List<Places> placeList, Member member) {
+        List<PlaceLikeDto> result = new ArrayList<>();
         for (Places place : placeList) {
-            result.add(new MainPagePlace(place, placeLikeService.getLikeInfo(place, member)));
+            result.add(new PlaceLikeDto(place, getLikeInfo(place, member)));
         }
 
         return result;
+    }
+
+    public List<PlaceLike> getPlaceLikesByMemberPaging(Member member, int page, int limit) {
+        if (member == null) return new ArrayList<>();
+
+        return placeLikeRepository
+                .findByMemberIdPaging(member.getId(), limit * (page - 1), limit);
+    }
+
+    public List<Places> getPlacesOrderByLike(Member member, int page, int limit) {
+        if (member == null) return new ArrayList<>();
+
+        return placeLikeRepository.findPlaceIdOrderByLikePaging(
+                placeLikeRepository.findPlaceIdByMemberId(member.getId()), limit * (page - 1), limit)
+                .stream()
+                .map(placesRepository::findByPlaceId)
+                .toList();
+    }
+
+    public int checkNextPlaceLikePage(Member member, int page, int limit) {
+        List<PlaceLike> placeLikeList = this.getPlaceLikesByMemberPaging(member, page + 1, limit);
+
+        return placeLikeList.size() > 0 ? page + 1 : 0;
+    }
+
+    public Long countPlaceLike(Places places) {
+        return placeLikeRepository.countByPlaceId(places.getId());
+    }
+
+    public boolean checkHasLiked(Places places, Member member) {
+        if (member == null) return false;
+        return placeLikeRepository.findByPlaceIdAndMemberId(places.getId(), member.getId()) != null;
+    }
+
+    public LikeItemDto getLikeInfo(Places place, Member member) {
+        return new LikeItemDto(
+                checkHasLiked(place, member),
+                countPlaceLike(place));
+    }
+
+    @Transactional
+    public void changePlaceLike(Member member, Long placeId, boolean like) {
+        PlaceLike placeLike = placeLikeRepository.findByPlaceIdAndMemberId(placeId, member.getId());
+
+        if (like) {
+            if (placeLike == null) {
+                PlaceLike newPlaceLike = new PlaceLike(placeId, member.getId());
+                placeLikeRepository.saveAndFlush(newPlaceLike);
+            }
+        } else if (placeLike != null) {
+            placeLikeRepository.deleteById(placeLike.getId());
+        }
+    }
+
+    @Transactional
+    public void updateLog(Long placeId, Long memberId) {
+        if (Objects.isNull(memberId)) return;
+
+        PlacesLog placeLog = placesLogRepository.findByPlaceAndMember(placeId, memberId);
+
+        if (placeLog == null) {
+            placesLogRepository.saveAndFlush(new PlacesLog(placeId, memberId));
+        } else {
+            placeLog.changeVisitTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
+            placesLogRepository.saveAndFlush(placeLog);
+        }
+    }
+
+    public PlacesExtraInfo getPlaceExtraInfo(Places place) {
+        return placesExtraInfoRepository.findByPlaceId(place.getId());
+    }
+
+    @Cacheable(value = CacheConst.PLACE_EXTRA_INFO, key = "'p' + #place.getId() + 'opt' + #language.getIndex()", condition = "#place != null")
+    public PlaceExtraInfoDto getPlaceExtraInfoDto(Places place, Language language) {
+        switch (language) {
+            case EN -> {
+                return new PlaceExtraInfoDto(placesExtraInfoEnRepository.findByPlaceId(place.getId()));
+            }
+            case ZH -> {
+                return new PlaceExtraInfoDto(placesExtraInfoZhRepository.findByPlaceId(place.getId()));
+            }
+            default -> {
+                return new PlaceExtraInfoDto(placesExtraInfoRepository.findByPlaceId(place.getId()));
+            }
+        }
     }
 
 }

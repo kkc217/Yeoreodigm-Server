@@ -18,9 +18,17 @@ import java.util.List;
         name = "list-array",
         typeClass = ListArrayType.class
 )
+@SequenceGenerator(
+        name = "SURVEY_RESULT_ID_SEQ_GENERATOR",
+        sequenceName = "survey_result_id_seq",
+        allocationSize = 1)
 public class SurveyResult {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "SURVEY_RESULT_ID_SEQ_GENERATOR"
+    )
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)

@@ -8,8 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
-import static com.yeoreodigm.server.domain.QMember.*;
+import static com.yeoreodigm.server.domain.QMember.member;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,6 +22,10 @@ public class MemberRepository {
 
     public void save(Member member) {
         em.persist(member);
+    }
+
+    public void flush() {
+        em.flush();
     }
 
     public void saveAndFlush(Member member) {
@@ -58,4 +63,21 @@ public class MemberRepository {
         }
     }
 
+    public List<Member> findMembersByNickname(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(member)
+                .where(member.nickname.lower().contains(keyword.toLowerCase()))
+                .orderBy(member.id.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+
+    public void deleteMember(Member target) {
+        queryFactory
+                .delete(member)
+                .where(member.id.eq(target.getId()))
+                .execute();
+    }
 }

@@ -3,17 +3,16 @@ package com.yeoreodigm.server.repository;
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoreodigm.server.domain.Member;
-import com.yeoreodigm.server.domain.QTravelNote;
 import com.yeoreodigm.server.domain.TravelNote;
 import com.yeoreodigm.server.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-
 import java.util.List;
 
 import static com.yeoreodigm.server.domain.QTravelNote.travelNote;
+import static com.yeoreodigm.server.domain.QTravelNoteLike.travelNoteLike;
 
 @Repository
 @RequiredArgsConstructor
@@ -27,9 +26,31 @@ public class TravelNoteRepository {
         em.persist(travelNote);
     }
 
+    public void flush() {
+        em.flush();
+    }
+
+    public void merge(TravelNote travelNote) {
+        em.merge(travelNote);
+    }
+
     public void saveAndFlush(TravelNote travelNote) {
         save(travelNote);
         em.flush();
+    }
+
+    public List<TravelNote> findAll() {
+        return queryFactory
+                .selectFrom(travelNote)
+                .orderBy(travelNote.id.asc())
+                .fetch();
+    }
+
+    public Long countAll() {
+        return queryFactory
+                .select(travelNote.count())
+                .from(travelNote)
+                .fetchOne();
     }
 
     public TravelNote findById(Long id) {
@@ -54,11 +75,117 @@ public class TravelNoteRepository {
         }
     }
 
-    public List<TravelNote> findByPublicLimiting(int limit) {
+    public List<TravelNote> findPublicLimiting(int limit) {
         return queryFactory
                 .selectFrom(travelNote)
                 .where(travelNote.publicShare.eq(true))
+                .orderBy(travelNote.id.asc())
                 .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicPagingAndLimiting(int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.publicShare.eq(true))
+                .orderBy(travelNote.id.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByMember(Member member, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.member.id.eq(member.getId()), travelNote.publicShare.eq(true))
+                .orderBy(travelNote.id.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByKeywordPaging(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.publicShare.eq(true), travelNote.title.lower().contains(keyword.toLowerCase()))
+                .orderBy(travelNote.id.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByKeywordOrderByModifiedAsc(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.publicShare.eq(true), travelNote.title.lower().contains(keyword.toLowerCase()))
+                .orderBy(travelNote.modifiedTime.asc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByKeywordOrderByModifiedDesc(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.publicShare.eq(true), travelNote.title.lower().contains(keyword.toLowerCase()))
+                .orderBy(travelNote.modifiedTime.desc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByKeywordOrderByLikeAsc(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .leftJoin(travelNoteLike)
+                .on(travelNoteLike.travelNoteId.eq(travelNote.id))
+                .where(travelNote.publicShare.eq(true), travelNote.title.lower().contains(keyword.toLowerCase()))
+                .groupBy(travelNote.id, travelNoteLike.travelNoteId)
+                .orderBy(travelNote.count().asc(), travelNoteLike.travelNoteId.asc().nullsFirst())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByKeywordOrderByLikeDesc(String keyword, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .leftJoin(travelNoteLike)
+                .on(travelNoteLike.travelNoteId.eq(travelNote.id))
+                .where(travelNote.publicShare.eq(true), travelNote.title.lower().contains(keyword.toLowerCase()))
+                .groupBy(travelNote.id, travelNoteLike.travelNoteId)
+                .orderBy(travelNote.count().desc(), travelNoteLike.travelNoteId.desc().nullsLast())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public List<TravelNote> findPublicByKeywordNonLike(String keyword, int page, int limit) {
+        return null;
+    }
+
+    public List<TravelNote> findByMember(Member member, int page, int limit) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.member.id.eq(member.getId()))
+                .orderBy(travelNote.modifiedTime.desc())
+                .offset(page)
+                .limit(limit)
+                .fetch();
+    }
+
+    public Long countByMember(Member member) {
+        return queryFactory
+                .select(travelNote.count())
+                .from(travelNote)
+                .where(travelNote.member.id.eq(member.getId()))
+                .fetchOne();
+    }
+
+    public List<TravelNote> findAllByMember(Member member) {
+        return queryFactory
+                .selectFrom(travelNote)
+                .where(travelNote.member.id.eq(member.getId()))
                 .fetch();
     }
 

@@ -1,25 +1,20 @@
 package com.yeoreodigm.server.domain;
 
-import com.vladmihalcea.hibernate.type.array.ListArrayType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@TypeDef(
-        name = "list-array",
-        typeClass = ListArrayType.class
-)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TravelNote {
 
@@ -60,9 +55,6 @@ public class TravelNote {
 
     private String thumbnail;
 
-    @Type(type = "list-array")
-    private List<Long> companion = new ArrayList<>();
-
     @OneToMany(mappedBy = "travelNote", cascade = CascadeType.ALL)
     private List<Course> courses = new ArrayList<>();
 
@@ -91,7 +83,7 @@ public class TravelNote {
         this.region = region;
         this.theme = theme;
         this.placesInput = placesInput;
-        this.createdTime = LocalDateTime.now();
+        this.createdTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         this.modifiedTime = this.createdTime;
         this.publicShare = publicShare;
         this.thumbnail = thumbnail;
@@ -111,12 +103,11 @@ public class TravelNote {
         this.publicShare = publicShare;
     }
 
-    public void changeCompanion(List<Long> companion) {
-        this.companion = companion;
-    }
-
     public void changeThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
     }
 
+    public void changeModified(LocalDateTime modifiedTime) {
+        this.modifiedTime = modifiedTime;
+    }
 }

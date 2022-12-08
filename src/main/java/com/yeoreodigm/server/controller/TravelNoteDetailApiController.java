@@ -1,149 +1,154 @@
 package com.yeoreodigm.server.controller;
 
 import com.yeoreodigm.server.domain.Course;
-import com.yeoreodigm.server.domain.Member;
 import com.yeoreodigm.server.domain.TravelNote;
-import com.yeoreodigm.server.dto.PageResult;
+import com.yeoreodigm.server.dto.ContentRequestDto;
 import com.yeoreodigm.server.dto.Result;
-import com.yeoreodigm.server.dto.comment.CommentItemDto;
-import com.yeoreodigm.server.dto.constraint.DetailPageConst;
-import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.detail.travelnote.*;
+import com.yeoreodigm.server.dto.comment.CommentLikeDto;
 import com.yeoreodigm.server.dto.like.LikeItemDto;
-import com.yeoreodigm.server.dto.note.CourseCoordinateDto;
-import com.yeoreodigm.server.dto.note.RouteInfoDto;
-import com.yeoreodigm.server.dto.noteprepare.TravelNoteResponseDto;
+import com.yeoreodigm.server.dto.like.LikeRequestDto;
+import com.yeoreodigm.server.dto.travelnote.NoteDetailInfoResponseDto;
+import com.yeoreodigm.server.dto.travelnote.TravelNoteIdDto;
 import com.yeoreodigm.server.service.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/detail/travelnote")
+@RequestMapping("/api/note/detail")
+@Tag(name = "Travel Note Detail", description = "여행 노트 상세 페이지 API")
 public class TravelNoteDetailApiController {
 
     private final TravelNoteService travelNoteService;
 
-    private final TravelNoteLikeService travelNoteLikeService;
-
-    private final TravelNoteLogService travelNoteLogService;
-
-    private final NoteCommentService noteCommentService;
-
-    private final NoteCommentLikeService noteCommentLikeService;
+    private final TravelNoteCommentService travelNoteCommentService;
 
     private final CourseService courseService;
 
-    private final MapMarkerService mapMarkerService;
-
     private final PlaceService placeService;
 
-    private final RecommendService recommendService;
+    private final MemberService memberService;
 
     @GetMapping("/{travelNoteId}")
-    public NoteDetailResponseDto callTravelNoteDetail(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
-
-        TravelNoteDetailInfo travelNoteInfo = travelNoteService.getTravelNoteDetailInfo(travelNote);
-
-        List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
-        List<String> markerColorList = mapMarkerService.getMarkerColors(courseList.size());
-        List<CourseCoordinateDto> coordinateDtoList = courseList.stream().map(course -> new CourseCoordinateDto(
-                course.getDay(),
-                markerColorList.get(course.getDay() - 1),
-                placeService.getPlacesByCourse(course))).collect(Collectors.toList());
-
-        List<TravelNote> recommendedNoteList = recommendService.getSimilarTravelNotes(
-                travelNote, DetailPageConst.NUMBER_OF_SIMILAR_TRAVEL_NOTE, member);
-        if (recommendedNoteList == null) {
-            recommendedNoteList = travelNoteService.getRandomNotes(DetailPageConst.NUMBER_OF_SIMILAR_TRAVEL_NOTE);
-        }
-
-        List<CommentItemDto> commentList = noteCommentService.getNoteCommentInfo(travelNote, member);
-
-        travelNoteLogService.updateTravelNoteLog(travelNote, member);
-
-        return new NoteDetailResponseDto(
-                travelNoteInfo, coordinateDtoList, recommendedNoteList, commentList);
-    }
-
-    @GetMapping("/like/{travelNoteId}")
-    public LikeItemDto callTravelNoteLike(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return travelNoteLikeService.getLikeInfo(travelNoteService.getTravelNoteById(travelNoteId), member);
-    }
-
-    @PostMapping("/like")
-    public void changeTravelNoteLike(
-            @RequestBody @Valid LikeRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        travelNoteLikeService.changeTravelNoteLike(member, requestDto.getTravelNoteId(), requestDto.isLike());
-    }
-
-    @GetMapping("/course/{travelNoteId}/{day}")
-    public PageResult<NoteDetailCourseResponseDto> callTravelNoteDetailCourse(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @PathVariable("day") int day) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
-
-        Course course = courseService.getCourseByTravelNoteAndDay(travelNote, day);
-        RouteInfoDto routeInfo = courseService.getRouteInfoByCourse(course);
-
-        int next = courseService.checkNextCoursePage(
-                travelNote, day, 1);
-
-        return new PageResult<>(new NoteDetailCourseResponseDto(routeInfo, placeService.getPlacesByCourse(course)), next);
+    @Operation(summary = "기본 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public NoteDetailInfoResponseDto callTravelNoteDetail(
+            @PathVariable("travelNoteId") Long travelNoteId) {
+        return new NoteDetailInfoResponseDto(
+                travelNoteService.getTravelNoteDetailInfo(travelNoteService.getTravelNoteById(travelNoteId)));
     }
 
     @GetMapping("/comment/{travelNoteId}")
-    public Result<List<CommentItemDto>> callTravelNoteComment(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return new Result<>(noteCommentService.getNoteCommentInfo(
-                travelNoteService.getTravelNoteById(travelNoteId), member));
+    @Operation(summary = "댓글 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public Result<List<CommentLikeDto>> callTravelNoteComment(
+            Authentication authentication,
+            @PathVariable("travelNoteId") Long travelNoteId) {
+        return new Result<>(travelNoteCommentService.getNoteCommentInfo(
+                travelNoteService.getTravelNoteById(travelNoteId),
+                memberService.getMemberByAuth(authentication)));
     }
 
-    @PostMapping("/comment/add")
-    public CommentItemDto addTravelNoteComment(
-            @RequestBody @Valid NoteCommentRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        return noteCommentService.addNoteComment(
-                member,
-                travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()),
-                requestDto.getText());
+    @PostMapping("/comment")
+    @Operation(summary = "댓글 추가")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public void addTravelNoteComment(
+            Authentication authentication,
+            @RequestBody @Valid ContentRequestDto requestDto) {
+        travelNoteCommentService.addNoteComment(
+                memberService.getMemberByAuth(authentication),
+                travelNoteService.getTravelNoteById(requestDto.getId()),
+                requestDto.getContent());
     }
 
-    @PostMapping("/comment/delete")
+    @DeleteMapping("/comment/{commentId}")
+    @Operation(summary = "댓글 삭제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void deleteTravelNoteComment(
-            @RequestBody @Valid NoteCommentRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        noteCommentService.deleteNoteComment(member, requestDto.getCommentId());
+            Authentication authentication,
+            @PathVariable(name = "commentId") Long commentId) {
+        travelNoteCommentService.deleteNoteComment(memberService.getMemberByAuth(authentication), commentId);
     }
 
-    @PostMapping("/comment/like")
+    @GetMapping("/comment/like/{commentId}")
+    @Operation(summary = "댓글 좋아요 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public LikeItemDto callTravelNoteLike(
+            Authentication authentication,
+            @PathVariable("commentId") Long commentId) {
+        return travelNoteCommentService.getLikeInfo(
+                commentId, memberService.getMemberByAuth(authentication));
+    }
+
+    @PatchMapping("/comment/like")
+    @Operation(summary = "댓글 좋아요 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changeTravelNoteCommentLike(
-            @RequestBody @Valid LikeRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        noteCommentLikeService.changeTravelNoteLike(member, requestDto.getCommentId(), requestDto.isLike());
+            Authentication authentication,
+            @RequestBody @Valid LikeRequestDto requestDto) {
+        travelNoteCommentService.changeTravelNoteCommentLike(
+                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
     }
 
-    @PostMapping("/make")
-    public TravelNoteResponseDto makeMyTravelNote(
-            @RequestBody @Valid TravelNoteRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(requestDto.getTravelNoteId());
+    @PostMapping("/new")
+    @Operation(summary = "이 일정으로 계획 만들기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public TravelNoteIdDto makeMyTravelNote(
+            Authentication authentication,
+            @RequestBody HashMap<String, Long> request) {
+        TravelNote travelNote = travelNoteService.getTravelNoteById(request.get("travelNoteId"));
 
-        TravelNote newTravelNote = travelNoteService.createTravelNoteFromOther(travelNote, member);
-        Long newTravelNoteId = travelNoteService.submitFromOtherNote(travelNote, newTravelNote);
+        TravelNote newTravelNote = travelNoteService.createTravelNoteFromOther(
+                travelNote, memberService.getMemberByAuth(authentication), placeService.getRandomImageUrl());
 
-        return new TravelNoteResponseDto(newTravelNoteId);
+        List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
+        for (Course course : courseList)
+            courseService.saveNewCourse(newTravelNote, course.getDay(), course.getPlaces());
+
+        return new TravelNoteIdDto(newTravelNote.getId());
     }
 
 }

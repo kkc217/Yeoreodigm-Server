@@ -1,134 +1,123 @@
 package com.yeoreodigm.server.controller;
 
-import com.yeoreodigm.server.domain.*;
-import com.yeoreodigm.server.dto.MemberResponseDto;
+import com.yeoreodigm.server.domain.Member;
+import com.yeoreodigm.server.domain.NoteAuthority;
+import com.yeoreodigm.server.domain.TravelNote;
+import com.yeoreodigm.server.domain.TravelNoteLike;
+import com.yeoreodigm.server.dto.ContentRequestDto;
+import com.yeoreodigm.server.dto.CountDto;
+import com.yeoreodigm.server.dto.PageResult;
 import com.yeoreodigm.server.dto.Result;
-import com.yeoreodigm.server.dto.constraint.RecommendConst;
-import com.yeoreodigm.server.dto.constraint.SessionConst;
-import com.yeoreodigm.server.dto.note.*;
-import com.yeoreodigm.server.dto.note.comment.CommentResponseDto;
-import com.yeoreodigm.server.dto.note.comment.CommentShortResponseDto;
-import com.yeoreodigm.server.dto.note.comment.CourseCommentRequestDto;
-import com.yeoreodigm.server.dto.search.PlaceResponseDto;
+import com.yeoreodigm.server.dto.comment.CommentItemDto;
+import com.yeoreodigm.server.dto.comment.CourseCommentRequestDto;
+import com.yeoreodigm.server.dto.constraint.MainPageConst;
+import com.yeoreodigm.server.dto.like.LikeItemDto;
+import com.yeoreodigm.server.dto.like.LikeRequestDto;
+import com.yeoreodigm.server.dto.member.MemberEmailItemDto;
+import com.yeoreodigm.server.dto.travelnote.*;
 import com.yeoreodigm.server.exception.BadRequestException;
 import com.yeoreodigm.server.service.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static com.yeoreodigm.server.dto.constraint.SearchConst.SEARCH_OPTION_LIKE_DESC;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/note")
+@Tag(name = "Travel Note", description = "여행 노트 API")
 public class TravelNoteApiController {
 
     private final TravelNoteService travelNoteService;
 
-    private final PlaceService placeService;
+    private final CourseCommentService commentService;
+
+    private final MemberService memberService;
 
     private final CourseService courseService;
 
-    private final CourseCommentService commentService;
+    private final PlaceService placeService;
 
     private final RecommendService recommendService;
 
-    private final MapMarkerService mapMarkerService;
+    @PostMapping("/new")
+    @Operation(summary = "새 여행 노트 생성")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public TravelNoteIdDto createNewTravelNote(
+            Authentication authentication,
+            @RequestBody @Valid NewTravelNoteRequestDto requestDto) {
+        TravelNote travelNote = travelNoteService.createTravelNote(
+                memberService.getMemberByAuth(authentication), requestDto, placeService.getRandomImageUrl());
 
-    @GetMapping("/{travelNoteId}")
-    public TravelMakingNoteResponseDto callTravelMakingNoteInfo(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
-        
-        NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(member, travelNote);
+        List<List<Long>> recommendCourseList = recommendService.getRecommendedCourses(travelNote);
 
-        if (noteAuthority == NoteAuthority.ROLE_OWNER) {
-            List<Places> placesRecommended
-                    = recommendService.getRecommendedPlacesByTravelNote(travelNote, RecommendConst.NOTE_PLACE_RECOMMEND_NUM);
-            return new TravelMakingNoteResponseDto(noteAuthority, travelNote, placesRecommended);
-        } else if (noteAuthority == NoteAuthority.ROLE_COMPANION) {
-            return new TravelMakingNoteResponseDto(noteAuthority, travelNote);
-        } else {
-            throw new BadRequestException("여행 메이킹 노트에 접근 권한이 없습니다.");
-        }
+        if (recommendCourseList == null) throw new BadRequestException("코스 생성 중 에러가 발생하였습니다.");
+
+        courseService.saveNewCoursesByRecommend(travelNote, recommendCourseList);
+        courseService.optimizeCourse(travelNote);
+
+        return new TravelNoteIdDto(travelNote.getId());
     }
 
-    @GetMapping("/course/{travelNoteId}")
-    public Result<List<TravelMakingNoteCourseResponseDto>> callTravelMakingNoteCourse(
+    @GetMapping("/info/{travelNoteId}")
+    @Operation(summary = "기본 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public TravelNoteInfoDto callTravelMakingNoteInfo(
+            Authentication authentication,
             @PathVariable("travelNoteId") Long travelNoteId) {
         TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
-        List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
-        List<RouteInfoDto> routeInfoList = courseService.getRouteInfosByTravelNote(travelNote);
+        NoteAuthority noteAuthority = travelNoteService.checkNoteAuthority(
+                memberService.getMemberByAuth(authentication), travelNote);
 
-        List<TravelMakingNoteCourseResponseDto> response = new ArrayList<>();
-        int indexStart = 0;
-        for (int i = 0; i < courseList.size(); i++) {
-            RouteInfoDto routeInfoDto = routeInfoList.get(i);
+        travelNoteService.updateModified(travelNote);
 
-            Course course = courseList.get(i);
-            List<Places> placeList = placeService.getPlacesByCourse(course);
-
-            response.add(new TravelMakingNoteCourseResponseDto(
-                    indexStart,
-                    course.getDay(),
-                    placeList,
-                    routeInfoDto.getRouteInfos()));
-            indexStart += placeList.size();
-        }
-
-        return new Result<>(response);
+        return new TravelNoteInfoDto(noteAuthority, travelNote);
     }
 
-    @GetMapping("/course/coordinate/{travelNoteId}")
-    public Result<List<CourseCoordinateDto>> callTravelMakingNoteCourseCoordinate(
-            @PathVariable("travelNoteId") Long travelNoteId) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
-
-        List<Course> courseList = courseService.getCoursesByTravelNote(travelNote);
-        List<String> markerColorList = mapMarkerService.getMarkerColors(courseList.size());
-
-        List<CourseCoordinateDto> response = new ArrayList<>();
-        for (Course course : courseList) {
-            response.add(new CourseCoordinateDto(
-                    course.getDay(),
-                    markerColorList.get(course.getDay() - 1),
-                    placeService.getPlacesByCourse(course)));
-        }
-
-        return new Result<>(response);
-    }
-
-    @PostMapping("/course/save/{travelNoteId}")
-    public void saveTravelMakingNoteCourse(
-            @PathVariable("travelNoteId") Long travelNoteId,
-            @RequestBody @Valid List<List<Long>> request) {
-        travelNoteService.updateCourse(travelNoteService.getTravelNoteById(travelNoteId), request);
-    }
-
-    @GetMapping("/course/optimize/{travelNoteId}")
-    public void optimizeCourse(
-            @PathVariable("travelNoteId") Long travelNoteId) {
-        courseService.optimizeCourse(travelNoteService.getTravelNoteById(travelNoteId));
-    }
-
-    @GetMapping("/course/route/{travelNoteId}")
-    public Result<List<RouteInfoDto>> callRoutes(
-            @PathVariable("travelNoteId") Long travelNoteId) {
-        return new Result<>(
-                courseService.getRouteInfosByTravelNote(travelNoteService.getTravelNoteById(travelNoteId)));
-    }
-
-    @PostMapping("/title/change")
+    @PatchMapping("/title")
+    @Operation(summary = "노트 이름 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changeTravelMakingNoteTitle(
             @RequestBody @Valid NoteTitleRequestDto requestDto) {
         travelNoteService.changeTitle(
                 travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()), requestDto.getNewTitle());
     }
 
-    @PostMapping("/composition/change")
+    @PatchMapping("/composition")
+    @Operation(summary = "인원 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changeTravelMakingNoteComposition(
             @RequestBody @Valid NoteCompositionRequestDto requestDto) {
         travelNoteService.changeComposition(
@@ -138,7 +127,14 @@ public class TravelNoteApiController {
                 requestDto.getAnimal());
     }
 
-    @PostMapping("/publicshare/change")
+    @PatchMapping("/public-share")
+    @Operation(summary = "동선 공개 여부 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void changeTravelMakingNotePublicShare(
             @RequestBody @Valid PublicShareRequestDto requestDto) {
         travelNoteService.changePublicShare(
@@ -146,91 +142,345 @@ public class TravelNoteApiController {
     }
 
     @GetMapping("/companion/{travelNoteId}")
-    public Result<List<MemberResponseDto>> callTravelMakingNoteCompanion(
+    @Operation(summary = "동행자 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public Result<List<MemberEmailItemDto>> callTravelMakingNoteCompanion(
             @PathVariable("travelNoteId") Long travelNoteId) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
-        List<Member> memberList = travelNoteService.getCompanionMember(travelNote);
-        List<MemberResponseDto> response = memberList
+        return new Result<>(travelNoteService.getCompanionMember(travelNoteService.getTravelNoteById(travelNoteId))
                 .stream()
-                .map(MemberResponseDto::new)
-                .toList();
-
-        return new Result<>(response);
+                .map(MemberEmailItemDto::new)
+                .toList());
     }
 
-    @PostMapping("/companion/add")
-    public MemberResponseDto addTravelMakingNoteCompanion(
-            @RequestBody @Valid CompanionRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        Member companion = travelNoteService.addNoteCompanion(
-                travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()), member, requestDto.getContent());
-        return new MemberResponseDto(companion);
+    @PatchMapping("/companion")
+    @Operation(summary = "동행자 추가")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public void addTravelMakingNoteCompanion(
+            Authentication authentication,
+            @RequestBody @Valid ContentRequestDto requestDto) {
+        travelNoteService.addNoteCompanion(
+                travelNoteService.getTravelNoteById(requestDto.getId()),
+                memberService.getMemberByAuth(authentication),
+                memberService.searchMember(requestDto.getContent()));
     }
 
-    @PostMapping("/companion/delete")
-    public void deleteCompanion(
-            @RequestBody @Valid CompanionRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
+    @DeleteMapping("/companion/{travelNoteId}/{memberId}")
+    @Operation(summary = "동행자 삭제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public void deleteTravelMakingNoteCompanion(
+            Authentication authentication,
+            @PathVariable(name = "travelNoteId") Long travelNoteId,
+            @PathVariable(name = "memberId") Long memberId) {
         travelNoteService.deleteCompanion(
-                travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()), member, requestDto.getMemberId());
+                travelNoteService.getTravelNoteById(travelNoteId),
+                memberService.getMemberByAuth(authentication),
+                memberId);
     }
 
     @GetMapping("/comment/{travelNoteId}/{day}")
-    public Result<List<CommentResponseDto>> callCourseComment(
+    @Operation(summary = "댓글 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public Result<List<CommentItemDto>> callCourseComment(
+            Authentication authentication,
             @PathVariable(name = "travelNoteId") Long travelNoteId,
             @PathVariable(name = "day") int day) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
 
-        List<CourseComment> courseCommentList
-                = commentService.getCourseCommentsByTravelNoteAndDay(travelNote, day);
-
-        return new Result<>(
-                courseCommentList
-                        .stream()
-                        .map(CommentResponseDto::new)
-                        .toList());
+        return new Result<>(commentService.getCourseCommentsByTravelNoteAndDay(
+                travelNoteService.getTravelNoteById(travelNoteId), day)
+                .stream()
+                .map(courseComment -> new CommentItemDto(
+                        courseComment, memberService.getMemberByAuth(authentication)))
+                .toList());
     }
 
-    @PostMapping("/comment/add")
-    public CommentShortResponseDto addCourseComment(
-            @RequestBody @Valid CourseCommentRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        CourseComment courseComment = commentService.addCourseComment(
+    @PostMapping("/comment")
+    @Operation(summary = "댓글 추가")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public void addCourseComment(
+            Authentication authentication,
+            @RequestBody @Valid CourseCommentRequestDto requestDto) {
+        commentService.addCourseComment(
                 travelNoteService.getTravelNoteById(requestDto.getTravelNoteId()),
-                member,
+                memberService.getMemberByAuth(authentication),
                 requestDto.getDay(),
                 requestDto.getText());
-
-        return new CommentShortResponseDto(courseComment.getId(), courseComment.getCreated());
     }
 
-    @PostMapping("/comment/delete")
+    @DeleteMapping("/comment/{commentId}")
+    @Operation(summary = "댓글 삭제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
     public void deleteCourseComment(
-            @RequestBody @Valid CourseCommentRequestDto requestDto,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member member) {
-        commentService.deleteCourseComment(member, requestDto.getCommentId());
+            Authentication authentication,
+            @PathVariable(name = "commentId") Long commentId) {
+        commentService.deleteCourseComment(memberService.getMemberByAuth(authentication), commentId);
     }
 
-    @PostMapping("/place/add")
-    public void addRecommendedPlaceToCourse(
-            @RequestBody @Valid RecommendPlaceRequestDto requestDto) {
-        TravelNote travelNote = travelNoteService.getTravelNoteById(requestDto.getTravelNoteId());
+    @GetMapping("/week")
+    @Operation(summary = "주간 인기 여행 노트 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public Result<List<TravelNoteLikeDto>> callWeekTravelNote(Authentication authentication) {
+        return new Result<>(travelNoteService.getWeekNotes(
+                MainPageConst.NUMBER_OF_WEEK_NOTES, memberService.getMemberByAuth(authentication)));
+    }
 
-        if (requestDto.getPlaceId() != null) {
-            courseService.addPlace(travelNote, requestDto.getDay(), requestDto.getPlaceId());
-        } else {
-            courseService.addPlaces(travelNote, requestDto.getDay(), requestDto.getPlaceIdList());
+    @GetMapping("/like/{travelNoteId}")
+    @Operation(summary = "좋아요 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public LikeItemDto callTravelNoteLike(
+            Authentication authentication,
+            @PathVariable(name = "travelNoteId") Long travelNoteId) {
+        return travelNoteService.getLikeInfo(
+                travelNoteService.getTravelNoteById(travelNoteId),
+                memberService.getMemberByAuth(authentication));
+    }
+
+    @PatchMapping("/like")
+    @Operation(summary = "좋아요 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public void changeTravelNoteLike(
+            Authentication authentication,
+            @RequestBody @Valid LikeRequestDto requestDto) {
+        travelNoteService.changeTravelNoteLike(
+                memberService.getMemberByAuth(authentication), requestDto.getId(), requestDto.isLike());
+    }
+
+    @GetMapping("/like/list/{page}/{limit}")
+    @Operation(summary = "좋아요 누른 여행 노트 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public PageResult<List<PublicTravelNoteDto>> callTravelNoteLikeList(
+            Authentication authentication,
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit) {
+        Member member = memberService.getMemberByAuth(authentication);
+
+        return new PageResult<>(
+                travelNoteService.getNotesByNoteLikes(travelNoteService.getNoteLikes(member, page, limit))
+                        .stream()
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                        .toList(),
+                travelNoteService.checkNextNoteLikePage(member, page, limit));
+    }
+
+    @GetMapping("/like/list")
+    @Operation(summary = "좋아요 누른 여행 노트 조회 v2")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public PageResult<List<PublicTravelNoteDto>> callTravelNoteLikeListV2(
+            Authentication authentication,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "option", required = false, defaultValue = "0") int option) {
+        Member member = memberService.getMemberByAuth(authentication);
+
+        if (Objects.equals(SEARCH_OPTION_LIKE_DESC, option)) {
+            return new PageResult<>(
+                    travelNoteService.getTravelNotesOrderByLike(member, page, limit)
+                            .stream()
+                            .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                            .toList(),
+                    travelNoteService.checkNextNoteLikePage(member, page, limit));
         }
+
+        return new PageResult<>(
+                travelNoteService.getNotesByNoteLikes(travelNoteService.getNoteLikes(member, page, limit))
+                        .stream()
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(travelNote, member))
+                        .toList(),
+                travelNoteService.checkNextNoteLikePage(member, page, limit));
     }
 
-    @GetMapping("/place/recommend/{travelNoteId}")
-    public Result<List<PlaceResponseDto>> refreshPlaceRecommended(
-            @PathVariable("travelNoteId") Long travelNoteId) {
-        List<Places> placeList = recommendService.getRecommendedPlacesByTravelNote(
-                travelNoteService.getTravelNoteById(travelNoteId), RecommendConst.NOTE_PLACE_RECOMMEND_NUM);
+    @GetMapping("/like/list/{memberId}/{page}/{limit}")
+    @Operation(summary = "좋아요 누른 여행 노트 조회 (멤버 상세 페이지)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public PageResult<List<PublicTravelNoteDto>> callMemberTravelNoteLikeList(
+            Authentication authentication,
+            @PathVariable("memberId") Long memberId,
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit) {
+        Member targetMember = memberService.getMemberById(memberId);
 
-        return new Result<>(placeList.stream().map(PlaceResponseDto::new).toList());
+        List<TravelNoteLike> noteLikeList = travelNoteService.getNoteLikes(targetMember, page, limit);
+
+        List<TravelNote> travelNoteList = travelNoteService.getNotesByNoteLikes(noteLikeList);
+
+        int next = travelNoteService.checkNextNoteLikePage(targetMember, page, limit);
+
+        return new PageResult<>(
+                travelNoteList
+                        .stream()
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(
+                                travelNote, memberService.getMemberByAuth(authentication)))
+                        .toList(),
+                next);
+    }
+
+    @GetMapping("/my/{page}/{limit}")
+    @Operation(summary = "내 여행 노트 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public PageResult<List<MyTravelNoteDto>> callMyTravelNotes(
+            Authentication authentication,
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit) {
+        Member member = memberService.getMemberByAuth(authentication);
+
+        return new PageResult<>(
+                travelNoteService.getMyTravelNoteDtoList(travelNoteService.getMyTravelNote(member, page, limit)),
+                travelNoteService.checkNextMyTravelNote(member, page, limit));
+    }
+
+    @GetMapping("/my/count")
+    @Operation(summary = "내 여행 노트 개수 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public CountDto callMyTravelNoteCount(Authentication authentication) {
+        return new CountDto(travelNoteService.getMyTravelNoteCount(memberService.getMemberByAuth(authentication)));
+    }
+
+    @GetMapping("/my/board/{page}/{limit}")
+    @Operation(summary = "내 여행 노트 조회 (여행 피드 작성 페이지)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public PageResult<List<MyTravelNoteBoardDto>> callMyTravelNoteBoard(
+            Authentication authentication,
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit) {
+        Member member = memberService.getMemberByAuth(authentication);
+
+        return new PageResult<>(
+                travelNoteService.getMyTravelNote(member, page, limit)
+                        .stream()
+                        .map(travelNote -> new MyTravelNoteBoardDto(travelNote, courseService.countAllPlace(travelNote)))
+                        .toList(),
+                travelNoteService.checkNextMyTravelNote(member, page, limit));
+    }
+
+    @GetMapping("/board/{travelNoteId}")
+    @Operation(summary = "선택한 여행 노트 조회 (여행 피드 작성 페이지)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "FORBIDDEN", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public MyTravelNoteBoardDto callTravelNoteBoard(
+            @PathVariable("travelNoteId") Long travelNoteId) {
+        TravelNote travelNote = travelNoteService.getTravelNoteById(travelNoteId);
+        return new MyTravelNoteBoardDto(travelNote, courseService.countAllPlace(travelNote));
+    }
+
+    @GetMapping("/public/{memberId}/{page}/{limit}")
+    @Operation(summary = "사용자 여행 노트 조회 (멤버 상세 페이지)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public PageResult<List<PublicTravelNoteDto>> callMyPublicTravelNotes(
+            Authentication authentication,
+            @PathVariable("memberId") Long memberId,
+            @PathVariable("page") int page,
+            @PathVariable("limit") int limit) {
+        Member targetMember = memberService.getMemberById(memberId);
+
+        List<TravelNote> travelNoteList = travelNoteService.getPublicNotes(targetMember, page, limit);
+
+        return new PageResult<>(
+                travelNoteList
+                        .stream()
+                        .map(travelNote -> travelNoteService.getPublicTravelNoteDto(
+                                travelNote, memberService.getMemberByAuth(authentication)))
+                        .toList(),
+                travelNoteService.checkNextPublicMyNote(targetMember, page, limit));
+    }
+
+    @GetMapping("/all")
+    @Operation(summary = "모든 여행 노트 ID 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public Result<List<TravelNoteStringIdDto>> callAllTravelNoteId() {
+        return new Result<>(travelNoteService.GetAllTravelNoteStringIdDto());
+    }
+
+    @GetMapping("/all/count")
+    @Operation(summary = "모든 여행 노트 개수 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "401", description = "UNAUTHORIZED", content = @Content(schema = @Schema(hidden = true)))
+    })
+    public TravelNoteCountDto callAllTravelNoteCount() {
+        return new TravelNoteCountDto(travelNoteService.countAll());
     }
 
 }

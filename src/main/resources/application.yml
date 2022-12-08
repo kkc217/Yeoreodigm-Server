@@ -8,9 +8,9 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${postgresql.datasource.url}
+    username: ${postgresql.datasource.username}
+    password: ${postgresql.datasource.password}
 
   jpa:
     hibernate:
@@ -22,8 +22,14 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+  cache:
+    type: redis
+  redis:
+    host: ${SPRING_REDIS_HOST}
+    port: ${redis.cache.port}
+
   session:
-    store-type: jdbc
+    store-type: redis
     jdbc:
       initialize-schema: embedded
       table-name: SPRING_SESSION
@@ -31,12 +37,29 @@ spring:
   mail:
     host: smtp.naver.com
     port: 465
-    username: ${SPRING_MAIL_USERNAME}
-    password: ${SPRING_MAIL_PASSWORD}
+    username: ${naver.mail.username}
+    password: ${naver.mail.password}
     properties:
       mail.smtp.auth: true
       mail.smtp.ssl.enable: true
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+cloud:
+  aws:
+    s3:
+      bucket: ${aws.s3.bucket}
+    credentials:
+      access-key: ${aws.credentials.accesskey}
+      secret-key: ${aws.credentials.secretkey}
+    region:
+      static: ${aws.region.static}
+      auto: false
+    stack:
+      auto: false
 
 logging:
   level:
